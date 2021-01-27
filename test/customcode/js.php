@@ -1,0 +1,1 @@
+<script src="<?= '//' . (extension_loaded('intl') ? idn_to_utf8($_SERVER['HTTP_HOST']) : $_SERVER['HTTP_HOST']) . '/vendor/isengine/framework/test/customcode/code.js?' . filemtime(__DIR__ . DS . 'code.js'); ?>" type="text/javascript"></script>
