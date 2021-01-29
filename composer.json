@@ -1,8 +1,8 @@
 {
     "name": "isengine/framework",
     "type": "project",
-	"version": "0.13.0",
     "description": "isEngine framework",
+	"version": "0.13-dev",
     "keywords": [ "php", "cms", "framework", "isengine" ],
     "license": "MIT",
     "authors": [
