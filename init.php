@@ -1,13 +1,8 @@
 <?php
 
-// Инициализация ядра
-
-namespace is;
-
 // Базовые константы
 
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-defined('DP') or define('DP', '..' . DIRECTORY_SEPARATOR);
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'defines.php';
 
 // определяем функции инициализации компонентов системы
 

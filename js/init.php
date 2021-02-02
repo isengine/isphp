@@ -1,7 +1,3 @@
-<?php
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-defined('DP') or define('DP', '..' . DIRECTORY_SEPARATOR);
-?>
 <script>
 var is = {};
 is.Helpers = {};

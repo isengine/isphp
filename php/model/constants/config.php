@@ -13,7 +13,11 @@ use is\Parents;
 class Config extends Parents\Constants {
 	
 	public $data = [
-		
+		/*
+		"system" => [
+		],
+		"path" => [
+		],
 		"default" => [
 			"timezone" => "",
 			"scheme" => "",
@@ -48,7 +52,7 @@ class Config extends Parents\Constants {
 			"sort" => "name",
 			"data" => true
 		]
-		
+		*/
 	];
 	
 }

@@ -21,6 +21,7 @@ class Local {
 		*  mask - маска имени файла, при совпадении с которой, файл не будет пропущен, наличие данного правила отменяет правило skip, не работает для папок
 		*  skip - список исключений, эти названия файлов и папок будут пропущены
 		*  fullpath - переключает тип проверки маски и исключений: false, по-умолчанию - проверять только имена / true - проверять полный путь относительно заданного
+		*  savepath - сохраняет не только имя файла, а весь путь
 		*  type - только для файлов, будут выведены только файлы с этими расширениями
 		*  nosort - настройки сортировки - false или по-умолчанию, папки и подпапки вперемешку, затем файлы, затем подфайлы / true - вернуть разными массивами
 		*  
@@ -49,20 +50,21 @@ class Local {
 		
 		// настраиваем параметры
 		
-		$parameters = objectFill($parameters, ['return', 'type', 'skip', 'fullpath']);
+		//$parameters = objectFill($parameters, ['return', 'type', 'skip', 'fullpath']);
+		$parameters = Objects::merge(['return' => null, 'type' => null, 'skip' => null, 'fullpath' => null], $parameters);
 		
 		if (empty($parameters['return']) || !is_string($parameters['return'])) {
 			$parameters['return'] = 'files';
 		}
 		
 		if (!is_array($parameters['type'])) {
-			$parameters['type'] = dataParse($parameters['type']);
+			$parameters['type'] = Parser::fromString($parameters['type']);
 		}
 		if (!is_array($parameters['skip'])) {
-			$parameters['skip'] = dataParse($parameters['skip']);
+			$parameters['skip'] = Parser::fromString($parameters['skip']);
 		}
 		
-		if (objectIs($parameters['skip']) && !empty($parameters['fullpath'])) {
+		if (System::typeData($parameters['skip'], 'object') && !empty($parameters['fullpath'])) {
 			if (!$recurse) {
 				$currentpath = null;
 				$basepath = strlen($path);
@@ -95,7 +97,7 @@ class Local {
 				
 				$skip = false;
 				
-				if (objectIs($parameters['skip'])) {
+				if (System::typeData($parameters['skip'], 'object')) {
 					if (
 						empty($currentpath) && in_array($item, $parameters['skip']) ||
 						$parameters['fullpath'] && in_array($currentpath . ':' . $item, $parameters['skip'])
@@ -151,7 +153,7 @@ class Local {
 					) {
 						unset($file);
 					}
-				} elseif (objectIs($parameters['skip']) && $file) {
+				} elseif (System::typeData($parameters['skip'], 'object') && $file) {
 					$name = substr($item, 0, strrpos($item, '.'));
 					if (
 						!$parameters['fullpath'] && empty($currentpath) && in_array($name, $parameters['skip']) ||
@@ -163,7 +165,7 @@ class Local {
 					}
 				}
 				
-				if (objectIs($parameters['type']) && $file) {
+				if (System::typeData($parameters['skip'], 'object') && $file) {
 					$type = strtolower(substr($item, strrpos($item, '.') + 1));
 					if (!in_array($type, $parameters['type'])) {
 						unset($file);
@@ -172,7 +174,11 @@ class Local {
 				
 				if (!empty($file)) {
 					//echo '[' . $path . ']<br>';
-					$newlist['files'][] = $file;
+					if ($parameters['savepath']) {
+						$newlist['files'][] = $path . $file;
+					} else {
+						$newlist['files'][] = $file;
+					}
 				}
 				
 			}

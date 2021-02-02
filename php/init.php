@@ -8,9 +8,6 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-defined('DP') or define('DP', '..' . DIRECTORY_SEPARATOR);
-
 require_once __DIR__ . DS . 'helpers' . DS . 'system.php';
 
 // helpers
@@ -37,6 +34,7 @@ System::include('parents:singleton');
 System::include('parents:constants');
 System::include('parents:globals');
 System::include('parents:path');
+System::include('parents:local');
 //System::include('parents:include'); класс, реализующий подключение кода php
 
 // constants
@@ -45,5 +43,8 @@ System::include('model:constants:config');
 // globals
 System::include('model:globals:session');
 System::include('model:globals:uri');
+
+// data
+System::include('model:data:localdata');
 
 ?>
