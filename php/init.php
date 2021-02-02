@@ -1,12 +1,18 @@
 <?php
 
+// Рабочее пространство имен
+
 namespace is;
 
 use is\Helpers\System;
-use is\Helpers\Strings;
-use is\Helpers\Objects;
-use is\Helpers\Match;
-use is\Helpers\Sessions;
+
+// Базовые константы
+
+if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
+if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
+if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
+
+// Подключение классов
 
 require_once __DIR__ . DS . 'helpers' . DS . 'system.php';
 

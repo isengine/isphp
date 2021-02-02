@@ -12,6 +12,7 @@ use is\Helpers\Local as LocalFunctions;
 class Local extends Data {
 	
 	private $path;
+	public $parameters = ['return' => 'files'];
 	
 	public $data = [
 		'folder' => null,
@@ -30,7 +31,7 @@ class Local extends Data {
 	}
 	
 	public function resetPath() {
-		$this -> path -> reset();
+		$this -> resetList();
 		$this -> data['folder'] = $this -> path -> real;
 	}
 	
@@ -42,17 +43,60 @@ class Local extends Data {
 		$this -> data['file'] = $this -> data['folder'] . $this -> data['list'][$index];
 	}
 	
-	public function list($parameters = ['return' => 'files']) {
-		$this -> data['list'] = LocalFunctions::list($this -> data['folder'], $parameters);
+	public function setList($parameters = null) {
+		$this -> data['list'] = LocalFunctions::list($this -> data['folder'], $parameters ? $parameters : $this -> parameters);
 	}
 	
-	public function reset() {
+	public function resetList() {
 		$this -> data['list'] = null;
 		$this -> data['file'] = null;
 	}
 	
 	public function setContent() {
 		$this -> data['content'] = LocalFunctions::openFile($this -> data['file']);
+	}
+	
+	public function getContent() {
+		return $this -> data['content'];
+	}
+	
+	public function getFile() {
+		return $this -> data['file'];
+	}
+	
+	public function getFileFromList($index = 0) {
+		return $this -> data['folder'] . $this -> data['list'][$index];
+	}
+	
+	public function getList() {
+		return $this -> data['list'];
+	}
+	
+	public function getListReal() {
+		
+		$result = [];
+		foreach ($this -> data['list'] as $item) {
+			$result[] = $this -> data['folder'] . $item;
+		}
+		unset($item);
+		return $result;
+		
+	}
+	
+	public function getListUrl() {
+		
+		$result = [];
+		
+		$folder = new Path($this -> data['folder']);
+		
+		foreach ($this -> data['list'] as $item) {
+			$result[] = $folder -> url . str_replace(DS, '/', $item);
+		}
+		unset($item);
+		unset($folder);
+		
+		return $result;
+		
 	}
 	
 }

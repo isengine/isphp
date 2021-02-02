@@ -37,11 +37,11 @@ class Data {
 		
 	}
 	
-	public function mergeData($data) {
+	public function mergeData($data, $recursive = null) {
 		
 		// Заменяет текущие данные новыми, переданными в массиве 'merge'
 		
-		$this -> data = Objects::merge($this -> data, $data);
+		$this -> data = Objects::merge($this -> data, $data, $recursive);
 		
 	}
 	

@@ -17,28 +17,30 @@ class LocalData extends Parents\Data {
 	private $local;
 	
 	public function __construct(Parents\Local $instance) {
-		$this -> localData($instance);
+		$this -> parseData($instance);
 	}
 	
-	public function localData(Parents\Local $instance) {
-		$this -> local = $instance;
-		$this -> parse();
+	public function parseData(Parents\Local $instance) {
+		$this -> parse($instance);
 		$this -> data = $this -> local -> data['content'];
 	}
 	
 	public function joinData(Parents\Local $instance) {
-		$this -> local = $instance;
-		$this -> parse();
-		$this -> mergeData($this -> local -> data['content']);
+		$this -> parse($instance);
+		$this -> mergeData($this -> local -> data['content'], true);
 	}
 	
-	private function parse() {
+	private function parse(Parents\Local $instance) {
+		
+		$this -> local = $instance;
+		
 		if (!empty($this -> local -> data['file'])) {
 			$this -> local -> setContent();
 			$this -> local -> data['content'] = Parser::fromJson($this -> local -> data['content']);
 		} else {
 			$this -> local -> data['content'] = [];
 		}
+		
 	}
 	
 }

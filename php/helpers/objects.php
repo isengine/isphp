@@ -443,7 +443,7 @@ class Objects {
 		
 	}
 
-	static public function merge($item, $merge) {
+	static public function merge($item, $merge, $recursive = null) {
 		
 		/*
 		*  Функция объединения двух массивов в один
@@ -453,7 +453,11 @@ class Objects {
 			return $item;
 		}
 		
-		return array_replace($item, $merge);
+		if ($recursive) {
+			return array_replace_recursive($item, $merge);
+		} else {
+			return array_replace($item, $merge);
+		}
 		
 	}
 

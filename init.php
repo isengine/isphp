@@ -2,7 +2,9 @@
 
 // Базовые константы
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'defines.php';
+if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
+if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
+if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
 
 // определяем функции инициализации компонентов системы
 
