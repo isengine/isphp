@@ -10,23 +10,33 @@ class Path extends Data {
 	public $url;
 	public $real;
 	
-	public function __construct($path = null) {
+	private $root;
+	private $host;
+	
+	public function __construct($path = null, $root = null, $host = null) {
+		
+		$this -> root = $root ? $root : DR;
+		$this -> host = $host ? $host : str_replace(['/', '\\'], DS, $_SERVER['DOCUMENT_ROOT']) . DS;
+		unset($root, $host);
 		
 		if ($path) {
+			
+			$ptemp = '//' . $_SERVER['HTTP_HOST'];
+			$plen = Strings::len($ptemp);
+			$ppos = Strings::find($path, $ptemp);
+			if ($plen && $ppos !== false) {
+				$path = mb_substr($this -> host, Strings::len($this -> root), -1) . mb_substr($path, $ppos + $plen);
+			}
+			unset($ptemp, $plen, $ppos);
+			
 			$path = $this -> convertSlashes($path);
-			$root = str_replace(['/', '\\'], DS, $_SERVER['DOCUMENT_ROOT']) . DS;
-			if (Strings::find($path, $root) !== 0) {
+			if (Strings::find($path, $this -> root) !== 0) {
 				$path = $this -> convertToReal($path);
 			}
 		}
 		
 		if (!$path) {
 			$this -> reset();
-		} elseif (
-			Strings::find($path, 'http') === 0 ||
-			Strings::match($path, '//')
-		) {
-			$this -> setPathUrl($path);
 		} else {
 			$this -> setPathReal($path);
 		}
@@ -34,7 +44,11 @@ class Path extends Data {
 	}
 	
 	public function setPathReal($path) {
-		$this -> real = realpath($path) . DS;
+		if (Strings::find($path, $this -> root) === 0) {
+			$this -> real = $path . DS;
+		} else {
+			$this -> real = realpath($this -> root . $path) . DS;
+		}
 		$this -> setUrl();
 	}
 	
@@ -53,15 +67,16 @@ class Path extends Data {
 		if (!$this -> url) {
 			$this -> url = '/';
 		}
-		$root = str_replace(['/', '\\'], DS, $_SERVER['DOCUMENT_ROOT']) . DS;
-		if (Strings::find($this -> real, $root) === false) {
-			$this -> real = $root;
+		if (Strings::find($this -> real, $this -> root) === false) {
+			$this -> real = $this -> root;
 		}
 	}
 	
 	private function convertSlashes($item) {
-		$item = preg_replace('/^[\\/]/ui', '', $item);
-		$item = preg_replace('/[\\/]$/ui', '', $item);
+		//$item = preg_replace('/^[\\/]/ui', '', $item);
+		//$item = preg_replace('/[\\/]$/ui', '', $item);
+		$item = preg_replace('/^[\\\\\/]+/ui', '', $item);
+		$item = preg_replace('/[\\\\\/]+$/ui', '', $item);
 		return $item;
 	}
 	
@@ -74,7 +89,11 @@ class Path extends Data {
 	}
 	
 	public function setUrl() {
-		$this -> url = mb_substr(str_replace(DS, '/', $this -> real), mb_strlen($_SERVER['DOCUMENT_ROOT']));
+		if (Strings::find($this -> real, $this -> host) === false) {
+			$this -> url = '/';
+		} else {
+			$this -> url = mb_substr(str_replace(DS, '/', $this -> real), mb_strlen($this -> host) - 1);
+		}
 		$this -> update();
 	}
 	
@@ -85,7 +104,7 @@ class Path extends Data {
 		if ($pos === false) {
 			$pos = mb_strpos($path, '//');
 		}
-		$result = $_SERVER['DOCUMENT_ROOT'] . mb_substr($path, $pos !== false ? $pos + $len : $pos);
+		$result = mb_substr($this -> host, 0, -1) . mb_substr($path, $pos !== false ? $pos + $len : $pos);
 		$this -> real = str_replace(['/', '\\'], DS, $result);
 		$this -> update();
 	}
@@ -93,7 +112,7 @@ class Path extends Data {
 	public function getUrl($path) {
 		
 		$real = $this -> convertToReal($path);
-		$real = $this -> real . $item;
+		$real = $this -> real . $real;
 		
 		if (file_exists($real)) {
 			$item = $this -> convertToUrl($path);
@@ -114,7 +133,10 @@ class Path extends Data {
 		
 	}
 	
-	public function include($path = null) {
+	public function include($path = null, $return = null) {
+		
+		$data = null;
+		
 		if (System::set($path)) {
 			
 			$item = $this -> convertToReal($path);
@@ -136,6 +158,11 @@ class Path extends Data {
 			});
 			
 		}
+		
+		if ($return) {
+			return $$return;
+		}
+		
 	}
 	
 	public function print($path = null) {

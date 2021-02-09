@@ -322,7 +322,7 @@ class Prepare {
 		*    * а стих пушкина - в 3,5 раза
 		*/
 		
-		if (!set($str) || !is_string($str) && !is_numeric($str)) {
+		if (!System::typeOf($str, 'scalar')) {
 			return null;
 		}
 		

@@ -229,4 +229,14 @@ is.Helpers.System = class {
 		
 	}
 
+	static code(code = 200) {
+		
+		/*
+		здесь должно быть соответствие кодов, как в php
+		*/
+		
+		//Location.replace(path);
+		
+	}
+
 }

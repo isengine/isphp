@@ -31,7 +31,7 @@ class Singleton extends Data {
 }
 
 // Потребляющий код.
-//$database = DatabaseConnection::get();
+//$database = DatabaseConnection::getInstance();
 //$result   = $database->query( $query );
 
 ?>

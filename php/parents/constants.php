@@ -11,20 +11,25 @@ class Constants extends Singleton {
 	protected $constants = [];
 	
 	public function initialize() {
+		$this -> recursive($this -> data);
+		$this -> reset();
+	}
+	
+	protected function recursive($data, $name = null) {
 		
-		if (System::typeData($this -> data, 'object')) {
-			foreach ($this -> data as $key => $item) {
-				if (System::typeData($item, 'object')) {
-					foreach ($item as $k => $i) {
-						$this -> set(strtoupper($key . '_' . $k), $i);
-						//define(strtoupper($key . '_' . $k), $i);
-					}
-				}
+		if (System::typeData($data, 'object')) {
+			foreach ($data as $key => $item) {
+				$this -> recursive($item, ($name ? $name . '_' : null) . $key);
 			}
 			unset($key, $item);
+		} elseif ($name) {
+			$this -> set(strtoupper($name), $data);
 		}
-		unset($this -> data);
 		
+	}
+	
+	public function reset() {
+		$this -> data = [];
 	}
 	
 	public function set($key, $value) {

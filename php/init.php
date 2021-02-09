@@ -11,6 +11,7 @@ use is\Helpers\System;
 if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
 if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
 if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
+if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); }
 
 // Подключение классов
 
@@ -23,13 +24,11 @@ System::include('helpers:objects');
 System::include('helpers:match');
 System::include('helpers:parser');
 System::include('helpers:sessions');
+System::include('helpers:local');
 
 // interfaces
-//System::include('model:interfaces:iglobals');
-//System::include('model:interfaces:uri');
 
 // traits
-//System::include('model:traits:globals');
 
 // parents
 System::include('parents:data');
@@ -41,7 +40,6 @@ System::include('parents:constants');
 System::include('parents:globals');
 System::include('parents:path');
 System::include('parents:local');
-//System::include('parents:include'); класс, реализующий подключение кода php
 
 // constants
 System::include('model:constants:config');

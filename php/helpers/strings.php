@@ -170,9 +170,9 @@ class Strings {
 		*  Функция разворота строки задом наперед
 		*/
 		
-		$item = iconv('utf-8', 'utf-16le', $item);
+		$item = mb_convert_encoding($item, 'UTF-16LE', 'UTF-8');
 		$item = strrev($item);
-		return iconv('utf-16be', 'utf-8', $item);
+		return mb_convert_encoding($item, 'UTF-8', 'UTF-16BE');
 		
 	}
 

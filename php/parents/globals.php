@@ -9,6 +9,14 @@ abstract class Globals extends Singleton {
 	
 	abstract public function initialize();
 	
+	public function get($name) {
+		return $this -> $name;
+	}
+	
+	public function compare($name, $value) {
+		return $this -> $name === $value;
+	}
+	
 }
 
 ?>

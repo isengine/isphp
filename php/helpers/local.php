@@ -256,6 +256,96 @@ class Local {
 		fclose($handle);
 	}
 
+	static public function saveFile($target, $data = null, $mode = null) {
+		
+		/*
+		*  Функция сохраняет данные $data в файл $target
+		*  
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  второй параметр - данные для записи
+		*  последний параметр задает режим
+		*    null/false/по-умолчанию - запись в новый файл
+		*    replace - замена файла
+		*    append - дозапись в конец файла
+		*  
+		*  вывод через функцию file_put_contents по сравнению с fopen+fwrite+fclose
+		*  оказывается быстрее при том же потреблении памяти, т.к. использует memory mapping
+		*  
+		*  функция вернет true в случае успешного выполнения
+		*/
+		
+		if (is_writable($target)) {
+			if (!$mode) {
+				return false;
+			} elseif ($mode === 'replace') {
+				unlink($target);
+			}
+		}
+		
+		if ($mode === 'append') {
+			return file_put_contents($target, $data, FILE_APPEND | LOCK_EX);
+		} else {
+			return file_put_contents($target, $data, LOCK_EX);
+		}
+		
+	}
+
+	static public function writeFile($target, $data = null, $mode = null) {
+		
+		/*
+		*  Функция открывает файл $target и записывает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  
+		*  отличие от предыдущей функции в том, что эта принимает массив
+		*  и записывает его построчно
+		*/
+		
+		$handle = fopen($target, $mode === 'append' ? "c" : "w");
+		fseek($handle, 0, SEEK_END);
+		if (System::typeOf($data, 'iterable')) {
+			foreach ($data as $item) {
+				fwrite($handle, $item . "\n");
+			}
+			unset($item);
+		} else {
+			fwrite($handle, $data);
+		}
+		
+		fclose($handle);
+		
+	}
+
+	static public function deleteFile($target) {
+		
+		/*
+		*  Функция удаляет файл $target
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
+		}
+		
+		unlink($target);
+		
+	}
+
+	static public function eraseFile($target) {
+		
+		/*
+		*  Функция очищает содержимое файла $target, оставляя сам файл 
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*/
+		
+		fclose(fopen($filename, 'w'));
+		
+		//if (file_exists($target)) {
+		//	unlink($target);
+		//}
+		//file_put_contents($filename, null);
+		
+	}
+
 	static public function file($filename, $funcname = false, $values = false) {
 		
 		/*
