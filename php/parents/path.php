@@ -72,7 +72,7 @@ class Path extends Data {
 		}
 	}
 	
-	private function convertSlashes($item) {
+	public function convertSlashes($item) {
 		//$item = preg_replace('/^[\\/]/ui', '', $item);
 		//$item = preg_replace('/[\\/]$/ui', '', $item);
 		$item = preg_replace('/^[\\\\\/]+/ui', '', $item);
@@ -80,11 +80,11 @@ class Path extends Data {
 		return $item;
 	}
 	
-	private function convertToReal($item) {
+	public function convertToReal($item) {
 		return str_replace(':', DS, $item);
 	}
 	
-	private function convertToUrl($item) {
+	public function convertToUrl($item) {
 		return str_replace(':', '/', $item);
 	}
 	

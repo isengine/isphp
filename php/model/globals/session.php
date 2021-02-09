@@ -9,7 +9,10 @@ use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Prepare;
 
+use is\Model\Globals\Log;
+
 use is\Parents;
+use is\Parents\Path;
 
 class Session extends Parents\Globals {
 	
@@ -23,6 +26,9 @@ class Session extends Parents\Globals {
 	private $token;
 	private $id;
 	private $ip;
+	
+	private $log;
+	private $path;
 	
 	public $range;
 	
@@ -39,14 +45,6 @@ class Session extends Parents\Globals {
 		$this -> id = session_id();
 		$this -> ip = Sessions::ipReal();
 		
-	}
-	
-	public function get($name = null) {
-		return $name ? $this -> $name : get_object_vars($this);
-	}
-	
-	public function compare($name, $value) {
-		return $this -> $name === $value;
 	}
 	
 	public function block($type) {
@@ -67,6 +65,51 @@ class Session extends Parents\Globals {
 		}
 		
 		return null;
+		
+	}
+	
+	public function log() {
+		$this -> log = Log::getInstance();
+		$this -> log -> initialize();
+	}
+	
+	public function logName($name) {
+		$this -> log -> setName($name);
+	}
+	
+	public function logPath($path) {
+		$this -> log -> setPath($path);
+	}
+	
+	public function logAdd($data) {
+		$this -> log -> addData($data);
+	}
+	
+	public function logGet() {
+		return $this -> log -> getData();
+	}
+	
+	public function path($path) {
+		$opath = new Path();
+		$path = $opath -> convertToUrl($path);
+		$path = $opath -> convertSlashes($path);
+		unset($opath);
+		$this -> path = '/' . $path . '/';
+	}
+	
+	public function close($code = null) {
+		
+		if (!empty($this -> log)) {
+			$this -> log -> summary();
+			$this -> log -> close();
+		}
+		
+		if ($path) {
+			$this -> path = $path;
+		}
+		
+		System::refresh($this -> path, $code, ['Content-Type' => 'text/html; charset=UTF-8']);
+		exit;
 		
 	}
 	

@@ -37,6 +37,22 @@ class Data {
 		
 	}
 	
+	public function addData($data) {
+		
+		// Добавляет данные
+		
+		$this -> data[] = $data;
+		
+	}
+	
+	public function resetData() {
+		
+		// Сбрасывает все данные
+		
+		$this -> data = [];
+		
+	}
+	
 	public function mergeData($data, $recursive = null) {
 		
 		// Заменяет текущие данные новыми, переданными в массиве 'merge'
