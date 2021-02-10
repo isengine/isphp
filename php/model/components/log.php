@@ -1,16 +1,15 @@
 <?php
 
-namespace is\Model\Globals;
+namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Objects;
 use is\Helpers\Sessions;
 use is\Helpers\Local;
+use is\Model\Components\Path;
+use is\Parents\Globals;
 
-use is\Parents;
-use is\Parents\Path;
-
-class Log extends Parents\Globals {
+class Log extends Globals {
 	
 	protected $name;
 	protected $path;
@@ -47,7 +46,7 @@ class Log extends Parents\Globals {
 		$result = Local::writeFile($this -> path . $this -> name, $this -> data);
 		
 		if ($result) {
-			$this -> data = [];
+			$this -> resetData();
 		}
 		
 	}

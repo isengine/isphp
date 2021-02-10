@@ -34,12 +34,9 @@ System::include('helpers:local');
 System::include('parents:data');
 System::include('parents:entry');
 System::include('parents:collection');
-System::include('parents:catalog');
 System::include('parents:singleton');
 System::include('parents:constants');
 System::include('parents:globals');
-System::include('parents:path');
-System::include('parents:local');
 
 // constants
 System::include('model:constants:config');
@@ -50,5 +47,11 @@ System::include('model:globals:uri');
 
 // data
 System::include('model:data:localdata');
+
+// components
+System::include('model:components:catalog');
+System::include('model:components:local');
+System::include('model:components:log');
+System::include('model:components:path');
 
 ?>

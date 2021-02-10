@@ -12,7 +12,7 @@ class Constants extends Singleton {
 	
 	public function initialize() {
 		$this -> recursive($this -> data);
-		$this -> reset();
+		$this -> resetData();
 	}
 	
 	protected function recursive($data, $name = null) {
@@ -26,10 +26,6 @@ class Constants extends Singleton {
 			$this -> set(strtoupper($name), $data);
 		}
 		
-	}
-	
-	public function reset() {
-		$this -> data = [];
 	}
 	
 	public function set($key, $value) {

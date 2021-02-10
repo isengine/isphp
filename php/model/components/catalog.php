@@ -1,9 +1,10 @@
 <?php
 
-namespace is\Parents;
+namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Objects;
+use is\Parents\Collection;
 
 class Catalog extends Collection {
 	

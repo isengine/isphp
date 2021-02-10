@@ -1,9 +1,10 @@
 <?php
 
-namespace is\Parents;
+namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Strings;
+use is\Parents\Data;
 
 class Path extends Data {
 	

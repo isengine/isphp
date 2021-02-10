@@ -7,10 +7,9 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
+use is\Parents\Constants;
 
-use is\Parents;
-
-class Config extends Parents\Constants {
+class Config extends Constants {
 	
 	public $data = [];
 	
