@@ -34,9 +34,9 @@ class Uri extends Parents\Globals {
 	public $url;
 	public $previous;
 		
-	public $refresh;
+	public $reload;
 	
-	public function initialize() {
+	public function init() {
 		
 		// получение данных
 		
@@ -67,7 +67,7 @@ class Uri extends Parents\Globals {
 		$this -> url = null;
 		$this -> previous = null;
 			
-		$this -> refresh = null;
+		$this -> reload = null;
 		
 		// подготовка данных
 		

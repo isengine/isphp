@@ -53,14 +53,6 @@ class Local extends Data {
 		$this -> data['file'] = null;
 	}
 	
-	public function setContent() {
-		$this -> data['content'] = LocalFunctions::openFile($this -> data['file']);
-	}
-	
-	public function getContent() {
-		return $this -> data['content'];
-	}
-	
 	public function getFile() {
 		return $this -> data['file'];
 	}

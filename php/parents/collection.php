@@ -15,7 +15,7 @@ class Collection extends Data {
 	public function __construct($data = null) {
 		if (System::typeData($data, 'object')) {
 			$this -> data = $data;
-			$this -> initialize();
+			$this -> init();
 		}
 	}
 	
@@ -24,7 +24,7 @@ class Collection extends Data {
 		unset($this -> data);
 	}
 	
-	public function initialize() {
+	public function init() {
 		
 		// обновляем счетчик
 		

@@ -407,7 +407,7 @@ is.Helpers.Objects = class {
 		
 	}
 
-	static merge(item, merge, recursive = null) {
+	static merge(item, merge, recursion = null) {
 		
 		let system = is.Helpers.System;
 		
@@ -418,7 +418,7 @@ is.Helpers.Objects = class {
 			for (let k in keys) {
 				let i = keys[k];
 				item[i] = values[k];
-				// if recursive ...
+				// if recursion ...
 			}
 		}
 		

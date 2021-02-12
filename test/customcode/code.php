@@ -22,7 +22,7 @@ $url = null;
 $host = new Path($real);
 $host -> data = ['tratata', 'blablabla'];
 //$host -> real = realpath(__DIR__);
-//$host -> initialize();
+//$host -> init();
 
 echo '<pre>REAL: ' . print_r($url, 1) . '</pre>';
 echo '<pre>URL: ' . print_r($real, 1) . '</pre>';

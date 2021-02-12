@@ -29,7 +29,7 @@ class Process extends Parents\Globals {
 	public $close;
 	public $errors = [];
 	
-	public function initialize() {
+	public function init() {
 		
 	}
 	

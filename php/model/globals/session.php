@@ -23,12 +23,7 @@ class Session extends Parents\Globals {
 	private $id;
 	private $ip;
 	
-	private $log;
-	private $path;
-	
-	public $range;
-	
-	public function initialize() {
+	public function init() {
 		
 		$this -> init = (new \DateTime()) -> format('Y.m.d-H.i.s.u');
 		

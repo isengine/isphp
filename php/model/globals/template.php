@@ -23,7 +23,7 @@ class Template extends Parents\Globals {
 	public $script;
 	public $list;
 	
-	public function initialize() {
+	public function init() {
 		
 		$this -> name = null;
 		$this -> created = null;

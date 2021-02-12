@@ -24,16 +24,16 @@ Prepare::stripTags($str, $tags);
 
 //$url = new Uri();
 //$url -> get();
-//$url -> initialize();
+//$url -> init();
 //$url -> state();
 //$url -> set();
 
 //$urls = Uri::getInstance();
-//$urls -> initialize();
+//$urls -> init();
 //echo '<pre>' . print_r($urls, 1) . '</pre>';
 
 //$config = Config::getInstance();
-//$config -> initialize();
+//$config -> init();
 //$config -> data['core']['composer'] = 123;
 //$config -> set('DEFAULT_TIMEZONE', 123);
 //echo '<pre>' . print_r($config -> set('DEFAULT_PROCESSOR', 123), 1) . '</pre>';
@@ -80,7 +80,7 @@ $cat = new Catalog($col);
 echo '<pre>' . print_r($cat, 1) . '</pre>';
 
 //$col -> remove(1);
-//$cat -> initialize();
+//$cat -> init();
 //$cat -> sortById();
 $cat -> sortByEntry('ctime');
 $cat -> sortByData('title');

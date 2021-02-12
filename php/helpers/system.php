@@ -218,7 +218,7 @@ class System {
 		
 	}
 
-	static public function refresh($path = '/', $code = null, $data = null) {
+	static public function reload($path = '/', $code = null, $data = null) {
 		
 		/*
 		*  функция перезагружает страницу

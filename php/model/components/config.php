@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Constants;
+namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Strings;

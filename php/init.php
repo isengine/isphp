@@ -24,6 +24,7 @@ System::include('helpers:objects');
 System::include('helpers:match');
 System::include('helpers:parser');
 System::include('helpers:sessions');
+System::include('helpers:ip');
 System::include('helpers:local');
 
 // interfaces
@@ -46,12 +47,16 @@ System::include('model:globals:session');
 System::include('model:globals:uri');
 
 // data
-System::include('model:data:localdata');
+//System::include('model:data:localdata');
 
 // components
 System::include('model:components:catalog');
 System::include('model:components:local');
+System::include('model:components:content');
 System::include('model:components:log');
 System::include('model:components:path');
+System::include('model:components:error');
+System::include('model:components:router');
+System::include('model:components:display');
 
 ?>

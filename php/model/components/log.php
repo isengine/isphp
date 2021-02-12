@@ -14,12 +14,10 @@ class Log extends Globals {
 	protected $name;
 	protected $path;
 	
-	public function initialize($name = null, $path = null) {
+	public function init($name = null, $path = null) {
 		
 		if (!$name) {
-			$date = new \DateTime();
-			$name = Sessions::ipReal() . $date -> format('-Y.m.d-H.i.s.u') . '.log';
-			unset($date);
+			$name = Sessions::ipReal() . (new \DateTime()) -> format('-Y.m.d-H.i.s.u') . '.log';
 		}
 		
 		$this -> setName($name);
@@ -53,6 +51,7 @@ class Log extends Globals {
 	
 	public function summary() {
 		
+		$this -> data[] = null;
 		$this -> data[] = '# Summary';
 		$this -> data[] = 'uri : ' . $_SERVER['REQUEST_URI'];
 		$this -> data[] = 'referrer : ' . $_SERVER['HTTP_REFERER'];
@@ -61,7 +60,7 @@ class Log extends Globals {
 		$this -> data[] = 'ip : ' . $_SERVER['REMOTE_ADDR'];
 		$this -> data[] = 'agent : ' . $_SERVER['HTTP_USER_AGENT'];
 		$this -> data[] = '# Resources';
-		$this -> data[] = 'time : ' . (new \DateTime()) -> format('Y.m.d-H.i.s.u');
+		$this -> data[] = 'time : ' . (new \DateTime()) -> format('Y.m.d H:i:s.u');
 		$this -> data[] = 'speed : ' . number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3, null, null) . ' sec';
 		$this -> data[] = 'memory : ' . number_format(memory_get_usage() / 1024, 3, null, ' ') . ' Kb';
 		$this -> data[] = 'peak : ' . number_format(memory_get_peak_usage() / 1024, 3, null, ' ') . ' Kb';
@@ -79,7 +78,7 @@ class Log extends Globals {
 }
 
 //$log = Log::getInstance();
-//$log -> initialize();
+//$log -> init();
 //$log -> setPath('log');
 //$log -> summary();
 //$log -> resetData();

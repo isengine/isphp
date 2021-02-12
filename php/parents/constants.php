@@ -10,16 +10,16 @@ class Constants extends Singleton {
 	
 	protected $constants = [];
 	
-	public function initialize() {
-		$this -> recursive($this -> data);
+	public function init() {
+		$this -> recursion($this -> data);
 		$this -> resetData();
 	}
 	
-	protected function recursive($data, $name = null) {
+	protected function recursion($data, $name = null) {
 		
 		if (System::typeData($data, 'object')) {
 			foreach ($data as $key => $item) {
-				$this -> recursive($item, ($name ? $name . '_' : null) . $key);
+				$this -> recursion($item, ($name ? $name . '_' : null) . $key);
 			}
 			unset($key, $item);
 		} elseif ($name) {

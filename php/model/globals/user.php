@@ -19,7 +19,7 @@ class User extends Parents\Globals {
 	public $sid; // now in session
 	public $token; // now in session
 	
-	public function initialize() {
+	public function init() {
 		
 		$this -> ip = Sessions::ipReal();
 		$this -> sid = session_id();

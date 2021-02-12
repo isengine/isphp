@@ -17,7 +17,7 @@ class Language extends Parents\Globals {
 	public $lang;
 	public $data = [];
 	
-	public function initialize() {
+	public function init() {
 		
 	}
 	

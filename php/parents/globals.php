@@ -7,7 +7,7 @@ use is\Helpers\Objects;
 
 abstract class Globals extends Singleton {
 	
-	abstract public function initialize();
+	abstract public function init();
 	
 	public function get($name = null) {
 		return $name ? $this -> $name : get_object_vars($this);

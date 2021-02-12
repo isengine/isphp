@@ -142,6 +142,7 @@ class Path extends Data {
 			
 			$item = $this -> convertToReal($path);
 			$item = $this -> real . $item . '.php';
+			unset($path);
 			
 			if (file_exists($item)) {
 				require_once $item;
@@ -154,6 +155,7 @@ class Path extends Data {
 				$item = $this -> real . $item . '.php';
 				
 				if (file_exists($item)) {
+					unset($path);
 					require_once $item;
 				}
 			});
@@ -171,6 +173,7 @@ class Path extends Data {
 			
 			$real = $this -> convertToReal($path);
 			$real = $this -> real . $item;
+			unset($path);
 			
 			if (file_exists($real)) {
 				$item = $this -> convertToUrl($path);
@@ -188,6 +191,7 @@ class Path extends Data {
 				if (file_exists($real)) {
 					$item = $this -> convertToUrl($path);
 					$item = $this -> url . $item;
+					unset($path, $real);
 					echo $item;
 				}
 				
