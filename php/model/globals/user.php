@@ -7,6 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
+use is\Helpers\Ip;
 use is\Parents;
 
 class User extends Parents\Globals {
@@ -21,7 +22,7 @@ class User extends Parents\Globals {
 	
 	public function init() {
 		
-		$this -> ip = Sessions::ipReal();
+		$this -> ip = Ip::real();
 		$this -> sid = session_id();
 		$this -> token = Prepare::crypt( time() );
 		

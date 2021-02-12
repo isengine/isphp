@@ -26,6 +26,7 @@ System::include('helpers:parser');
 System::include('helpers:sessions');
 System::include('helpers:ip');
 System::include('helpers:local');
+System::include('helpers:url');
 
 // interfaces
 

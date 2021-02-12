@@ -23,11 +23,20 @@ class Data {
 		
 	}
 	
-	public function setData($data, $key = null) {
+	public function setData($first, $second = null) {
+	//public function setData($data, $key = null) {
 		
 		// Сохраняет данные
 		// если указан ключ, то сохраняет значение этого ключа
 		// или целиком перезаписывает массив данных
+		
+		if ($second) {
+			$key = $first;
+			$data = $second;
+		} else {
+			$key = null;
+			$data = $first;
+		}
 		
 		if (System::set($key)) {
 			$this -> data[$key] = $data;

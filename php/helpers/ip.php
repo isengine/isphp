@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class Ip {
 
-	static public function ipReal() {
+	static public function real() {
 		
 		// функция получения реального ip-адреса посетителя
 		
@@ -26,11 +26,11 @@ class Ip {
 		
 	}
 
-	static public function ipRange($ip, $ip_base) {
+	static public function range($ip, $ip_base) {
 		
 		// функция проверки ip на присутствие в заданном диапазоне
 		
-		$ip = self::ipConvert($ip);
+		$ip = self::convert($ip);
 		if (empty($ip) || empty($ip_base) || !is_array($ip_base)) { return false; }
 		
 		foreach ($ip_base as $item) {
@@ -43,24 +43,24 @@ class Ip {
 			
 			if (strpos($item, '-') !== false) {
 				$item = explode('-', $item);
-				$ip_min = self::ipConvert($item[0], $ip_type);
-				$ip_max = self::ipConvert($item[1], $ip_type);
+				$ip_min = self::convert($item[0], $ip_type);
+				$ip_max = self::convert($item[1], $ip_type);
 			} elseif (strpos($item, '*') !== false) {
-				$ip_min = self::ipConvert(str_replace('*', '0', $item), $ip_type);
-				$ip_max = self::ipConvert(str_replace('*', '255', $item), $ip_type);
+				$ip_min = self::convert(str_replace('*', '0', $item), $ip_type);
+				$ip_max = self::convert(str_replace('*', '255', $item), $ip_type);
 			} elseif (strpos($item, '/') !== false) {
 				if ($ip_type == '4') {
-					$item = self::ipConvertCIDR4($item);
+					$item = self::convertCIDR4($item);
 					$ip_min = $item[0];
 					$ip_max = $item[1];
 				} elseif ($ip_type == '6') {
-					$item = self::ipConvertCIDR6($item);
+					$item = self::convertCIDR6($item);
 					$ip_min = $item[0];
 					$ip_max = $item[1];				
 				}
 			} else {
-				$ip_min = self::ipConvert($item, $ip_type);
-				$ip_max = self::ipConvert($item, $ip_type);
+				$ip_min = self::convert($item, $ip_type);
+				$ip_max = self::convert($item, $ip_type);
 			}
 			
 			if (
@@ -77,7 +77,7 @@ class Ip {
 		
 	}
 
-	static public function ipConvert($ip, $ip_type = null) {
+	static public function convert($ip, $ip_type = null) {
 		
 		// служебная функция преобразования ip адреса
 		
@@ -108,7 +108,7 @@ class Ip {
 		
 	}
 
-	static public function ipConvertCIDR4($ipv4) {
+	static public function convertCIDR4($ipv4) {
 		
 		// служебная функция преобразования ip адреса из формата cidr для ipv4
 		
@@ -127,7 +127,7 @@ class Ip {
 		
 	}
 
-	static public function ipConvertCIDR6($ip) {
+	static public function convertCIDR6($ip) {
 		
 		// служебная функция преобразования ip адреса из формата cidr для ipv6
 		

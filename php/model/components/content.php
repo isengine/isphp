@@ -29,7 +29,8 @@ class Content extends LocalComponent {
 	}
 	
 	public function addContent($content = null) {
-		$this -> setData($content ? $content : $this -> content, 'content');
+		//$this -> setData($content ? $content : $this -> content, 'content');
+		$this -> setData('content', $content ? $content : $this -> content);
 	}
 	
 	public function joinContent() {

@@ -5,6 +5,7 @@ namespace is\Model\Components;
 use is\Helpers\System;
 use is\Helpers\Objects;
 use is\Helpers\Sessions;
+use is\Helpers\Ip;
 use is\Helpers\Local;
 use is\Model\Components\Path;
 use is\Parents\Globals;
@@ -17,7 +18,7 @@ class Log extends Globals {
 	public function init($name = null, $path = null) {
 		
 		if (!$name) {
-			$name = Sessions::ipReal() . (new \DateTime()) -> format('-Y.m.d-H.i.s.u') . '.log';
+			$name = Ip::real() . (new \DateTime()) -> format('-Y.m.d-H.i.s.u') . '.log';
 		}
 		
 		$this -> setName($name);

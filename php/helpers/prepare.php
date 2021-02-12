@@ -303,8 +303,40 @@ class Prepare {
 		
 	}
 	
+	static public function upper($data) {
+		
+		// правило, переводящую строку в верхний регистр
+		
+		return mb_convert_case($data, MB_CASE_UPPER);
+		
+	}
+	
+	static public function lower($data) {
+		
+		// правило, переводящую строку в верхний регистр
+		
+		return mb_convert_case($data, MB_CASE_LOWER);
+		
+	}
+	
+	static public function upperFirst($data) {
+		
+		// правило, переводящую строку в верхний регистр
+		
+		return mb_convert_case($data, MB_CASE_TITLE);
+		
+	}
+	
+	static public function upperEach($data) {
+		
+		// правило, переводящую строку в верхний регистр
+		
+		return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
+		
+	}
+	
 	static public function crypt($str) {
-
+		
 		/*
 		*  Функция которая шифрует данные
 		*  на входе нужно указать исходную строку

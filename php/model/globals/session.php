@@ -7,34 +7,39 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
+use is\Helpers\Ip;
 use is\Helpers\Prepare;
 use is\Parents;
 
 class Session extends Parents\Globals {
 	
-	private $init;
+	protected $init;
 	
-	private $agent;
-	private $referrer;
-	private $origin;
-	private $request;
+	protected $agent;
+	protected $referrer;
+	protected $origin;
+	protected $request;
 	
-	private $token;
-	private $id;
-	private $ip;
+	protected $token;
+	protected $id;
+	protected $ip;
+	
+	protected $cookie;
 	
 	public function init() {
 		
-		$this -> init = (new \DateTime()) -> format('Y.m.d-H.i.s.u');
+		$time = new \DateTime();
+		
+		$this -> init = $time -> format('Y.m.d-H.i.s.u');
 		
 		$this -> agent = $_SERVER['HTTP_USER_AGENT'];
 		$this -> referrer = $_SERVER['HTTP_REFERER'];
 		$this -> origin = !empty($_SERVER['ORIGIN']) ? $_SERVER['ORIGIN'] : $_SERVER['HTTP_ORIGIN'];
-		$this -> request = $_SERVER['REQUEST_METHOD'];
+		$this -> request = Prepare::lower($_SERVER['REQUEST_METHOD']);
 		
 		$this -> token = Prepare::crypt(time());
 		$this -> id = session_id();
-		$this -> ip = Sessions::ipReal();
+		$this -> ip = Ip::real();
 		
 	}
 	

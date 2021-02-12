@@ -4,12 +4,15 @@ namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Strings;
+use is\Helpers\Url;
 use is\Parents\Data;
 
 class Path extends Data {
 	
 	public $url;
 	public $real;
+	
+	public $parse;
 	
 	private $root;
 	private $host;
@@ -131,6 +134,16 @@ class Path extends Data {
 		if (file_exists($item)) {
 			return $item;
 		}
+		
+	}
+	
+	 public function parseUrl(){
+		
+		// Функция парсинга url-адреса
+		
+		$this -> parse = Url::parse($this -> url);
+		
+		echo print_r($this -> parse, 1);
 		
 	}
 	
