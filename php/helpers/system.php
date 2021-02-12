@@ -233,6 +233,26 @@ class System {
 			return;
 		}
 		
+		self::setHeader($data);
+		self::setHeaderCode($code);
+		
+		header('Location: ' . $path);
+		
+		exit;
+		
+	}
+
+	static public function setHeader($data = null) {
+		
+		/*
+		*  функция задает заголовки на странице
+		*  на входе можно указать массив заголовков
+		*/
+		
+		if (headers_sent()) {
+			return;
+		}
+		
 		if (!empty($data) && is_array($data)) {
 			foreach ($data as $key => $item) {
 				header($key . ': ' . $item);
@@ -240,14 +260,23 @@ class System {
 			unset($key, $item);
 		}
 		
+	}
+
+	static public function setHeaderCode($code) {
+		
+		/*
+		*  функция задает код состояния
+		*  на входе можно указать код состояния
+		*/
+		
+		if (headers_sent()) {
+			return;
+		}
+		
 		if (!empty($code)) {
 			$status = self::code($code);
 			header($_SERVER['SERVER_PROTOCOL'] . ' ' . $code . ' ' . $status, true, (int) $code);
 		}
-		
-		header('Location: ' . $path);
-		
-		exit;
 		
 	}
 

@@ -41,7 +41,6 @@ System::include('parents:constants');
 System::include('parents:globals');
 
 // constants
-System::include('model:constants:config');
 
 // globals
 System::include('model:globals:session');
@@ -51,6 +50,8 @@ System::include('model:globals:uri');
 //System::include('model:data:localdata');
 
 // components
+System::include('model:components:config');
+System::include('model:components:state');
 System::include('model:components:catalog');
 System::include('model:components:local');
 System::include('model:components:content');
@@ -59,5 +60,6 @@ System::include('model:components:path');
 System::include('model:components:error');
 System::include('model:components:router');
 System::include('model:components:display');
+System::include('model:components:uri');
 
 ?>

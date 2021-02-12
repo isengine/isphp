@@ -7,6 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
+use is\Helpers\Url;
 use is\Parents;
 
 class Uri extends Parents\Globals {
@@ -23,6 +24,8 @@ class Uri extends Parents\Globals {
 		'base' => null,
 		'string' => null,
 		'array' => []
+	];
+	public $file = [
 	];
 	public $query = [
 		'string' => null,
@@ -42,14 +45,14 @@ class Uri extends Parents\Globals {
 		
 		$url = $_SERVER['REQUEST_SCHEME'] . '://' . (extension_loaded('intl') ? idn_to_utf8($_SERVER['HTTP_HOST']) : $_SERVER['HTTP_HOST']) . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
 		
-		$urlparse = parse_url($url);
+		$urlparse = Url::parseUrl($url);
 		
 		$this -> scheme = $urlparse['scheme'];
 		$this -> host = $urlparse['host'];
 		$this -> www = Strings::find($urlparse['host'], 'www.', 0);
 			
 		$this -> user = $urlparse['user'];
-		$this -> password = $urlparse['pass'];
+		$this -> password = $urlparse['password'];
 		$this -> port = $urlparse['port'];
 			
 		$this -> path = [
@@ -57,6 +60,7 @@ class Uri extends Parents\Globals {
 			'string' => '',
 			'array' => []
 		];
+		
 		$this -> query = [
 			'string' => !empty($urlparse['query']) ? '?' . $urlparse['query'] : null,
 			'array' => $_GET
@@ -73,7 +77,14 @@ class Uri extends Parents\Globals {
 		
 		$this -> path['array'] = Strings::split($urlparse['path'], '\/', true);
 		
-		$this -> path['string'] = !empty($this -> path['array']) ? Strings::join($this -> path['array'], '/') . '/' : null;
+		$this -> path['string'] = !empty($this -> path['array']) ? Strings::join($this -> path['array'], '/') : null;
+		
+		$this -> file = Url::parseFile( Objects::last($this -> path['array'], 'value') );
+		
+		if (!$this -> file['extension']) {
+			 $this -> path['string'] .= '/';
+			 $this -> file = [];
+		}
 		
 		$this -> url = $this -> domain . $this -> path['string'] . $this -> query['string'];
 		

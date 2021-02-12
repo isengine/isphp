@@ -196,6 +196,26 @@ class Strings {
 		
 	}
 
+	static public function unfirst($item) {
+		
+		/*
+		*  Функция возврата первого символа строки
+		*/
+		
+		return mb_substr($item, 1);
+		
+	}
+
+	static public function unlast($item) {
+		
+		/*
+		*  Функция возврата последнего символа строки
+		*/
+		
+		return mb_substr($item, 0, -1);
+		
+	}
+
 	static public function len($item) {
 		
 		/*

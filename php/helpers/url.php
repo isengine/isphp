@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class Url {
 
-	static public function parse($url, $get = null){
+	static public function parseUrl($url, $get = null){
 		
 		/*
 		*  Функция парсинга url-адреса
@@ -17,6 +17,27 @@ class Url {
 		
 		$parse['password'] = $parse['pass'];
 		unset($parse['pass']);
+		
+		return $get ? $parse[$get] : $parse;
+		
+	}
+	
+	static public function parseFile($url, $get = null){
+		
+		/*
+		*  Функция парсинга имени и адреса файла
+		*  первый аргумент - адрес для парсинга,
+		*  второй - если нужно вернуть только одну часть
+		*  
+		*  path, file, name, extension
+		*/
+		
+		$parse = pathinfo($url);
+		
+		$parse['path'] = $parse['dirname'];
+		$parse['file'] = $parse['basename'];
+		$parse['name'] = $parse['filename'];
+		unset($parse['dirname'], $parse['basename'], $parse['filename']);
 		
 		return $get ? $parse[$get] : $parse;
 		
