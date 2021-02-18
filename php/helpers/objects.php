@@ -322,7 +322,46 @@ class Objects {
 		
 	}
 
-	static public function unfirst($item) {
+	static public function refirst(&$item, $data) {
+		
+		/*
+		*  Функция замены первого значения массива
+		*/
+		
+		if (!$item) { return; }
+		
+		$key = self::first($item, 'key');
+		$item[$key] = $data;
+		
+	}
+
+	static public function relast(&$item, $data) {
+		
+		/*
+		*  Функция замены последнего значения массива
+		*/
+		
+		if (!$item) { return; }
+		
+		$key = self::last($item, 'key');
+		$item[$key] = $data;
+		
+	}
+
+	static public function ren(&$item, $n, $data) {
+		
+		/*
+		*  Функция замены n-ного значения массива
+		*/
+		
+		if (!$item) { return; }
+		
+		$key = self::n($item, $n, 'key');
+		$item[$key] = $data;
+		
+	}
+
+	static public function unfirst(&$item) {
 		
 		/*
 		*  Функция удаления первого значения массива
@@ -332,7 +371,7 @@ class Objects {
 		
 	}
 
-	static public function unlast($item) {
+	static public function unlast(&$item) {
 		
 		/*
 		*  Функция удаления последнего значения массива
@@ -342,20 +381,20 @@ class Objects {
 		
 	}
 
-	static public function unn($item, $n, $result = null) {
+	static public function unn(&$item, $n, $result = null) {
 		
 		/*
 		*  Функция удаления n-ного значения массива
 		*/
 		
-		$r = self::cut($item, $n, 1);
+		$item = self::cut($item, $n, 1);
 		
 		if ($result === 'key') {
-			return self::keys($r);
+			return self::keys($item);
 		} elseif ($result === 'value') {
-			return self::values($r);
+			return self::values($item);
 		} else {
-			return $r;
+			return $item;
 		}
 		
 	}

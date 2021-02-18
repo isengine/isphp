@@ -20,25 +20,12 @@ class Uri extends Parents\Globals {
 	public $password;
 	public $port;
 		
-	public $path = [
-		'base' => null,
-		'string' => null,
-		'array' => []
-	];
-	public $file = [
-	];
-	public $query = [
-		'string' => null,
-		'array' => []
-	];
+	public $path;
+	public $query;
 	public $fragment;
-		
-	public $domain;
-	public $url;
-	public $previous;
-		
-	public $reload;
 	
+	public $domain;
+
 	public function init() {
 		
 		// получение данных
@@ -56,37 +43,21 @@ class Uri extends Parents\Globals {
 		$this -> port = $urlparse['port'];
 			
 		$this -> path = [
-			'base' => '/',
-			'string' => '',
+			'base' => null,
+			'string' => Strings::unfirst($urlparse['path']),
 			'array' => []
 		];
+		
+		$this -> path['array'] = $this -> path['string'] ? Strings::split($this -> path['string'], '\/', true) : [];
 		
 		$this -> query = [
 			'string' => !empty($urlparse['query']) ? '?' . $urlparse['query'] : null,
 			'array' => $_GET
 		];
+		
 		$this -> fragment = $urlparse['fragment'];
 			
 		$this -> domain = $urlparse['scheme'] . '://' . $urlparse['host'] . '/';
-		$this -> url = null;
-		$this -> previous = null;
-			
-		$this -> reload = null;
-		
-		// подготовка данных
-		
-		$this -> path['array'] = Strings::split($urlparse['path'], '\/', true);
-		
-		$this -> path['string'] = !empty($this -> path['array']) ? Strings::join($this -> path['array'], '/') : null;
-		
-		$this -> file = Url::parseFile( Objects::last($this -> path['array'], 'value') );
-		
-		if (!$this -> file['extension']) {
-			 $this -> path['string'] .= '/';
-			 $this -> file = [];
-		}
-		
-		$this -> url = $this -> domain . $this -> path['string'] . $this -> query['string'];
 		
 		unset($url, $urlparse);
 		

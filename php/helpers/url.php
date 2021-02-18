@@ -34,10 +34,13 @@ class Url {
 		
 		$parse = pathinfo($url);
 		
-		$parse['path'] = $parse['dirname'];
-		$parse['file'] = $parse['basename'];
 		$parse['name'] = $parse['filename'];
-		unset($parse['dirname'], $parse['basename'], $parse['filename']);
+		
+		unset(
+			$parse['dirname'],
+			$parse['basename'],
+			$parse['filename']
+		);
 		
 		return $get ? $parse[$get] : $parse;
 		

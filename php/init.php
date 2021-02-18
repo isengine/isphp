@@ -58,8 +58,8 @@ System::include('model:components:content');
 System::include('model:components:log');
 System::include('model:components:path');
 System::include('model:components:error');
-System::include('model:components:router');
 System::include('model:components:display');
+System::include('model:components:session');
 System::include('model:components:uri');
 
 ?>

@@ -284,6 +284,33 @@ is.Helpers.Objects = class {
 		
 	}
 
+	static refirst(item, data) {
+		
+		let self = is.Helpers.Objects;
+		let key = self.first(item, 'key');
+		
+		item[key] = data;
+		
+	}
+
+	static relast(item, data) {
+		
+		let self = is.Helpers.Objects;
+		let key = self.last(item, 'key');
+		
+		item[key] = data;
+		
+	}
+
+	static ren(item, i, data) {
+		
+		let self = is.Helpers.Objects;
+		let key = self.n(item, i, 'key');
+		
+		item[key] = data;
+		
+	}
+
 	static unfirst(item) {
 		
 		let keys = Object.keys(item);

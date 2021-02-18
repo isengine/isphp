@@ -2,7 +2,7 @@
 
 namespace is\Model\Components;
 
-use is\Helpers\System;
+use is\Helpers\Sessions;
 use is\Parents\Globals;
 use is\Model\Components\Path;
 
@@ -39,9 +39,9 @@ class Error extends Globals {
 		$this -> data['Error-Сode'] = $this -> code;
 		$this -> data['Error-Reason'] = $this -> reason;
 		
-		$path = $this -> path . $this -> prefix . $this -> code . $this -> postfix;
+		$path = $this -> path . $this -> prefix . $this -> code . $this -> postfix . ($this -> reason ? $this -> reason : null);
 		
-		System::reload($path, $this -> code, $this -> data);
+		Sessions::reload($path, $this -> code, $this -> data);
 		exit;
 		
 	}
