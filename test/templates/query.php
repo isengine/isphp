@@ -48,6 +48,7 @@ function is_curl_test($url, $agent) {
 echo '<style>
 .inside {
 	display: inline-block;
+	vertical-align: top;
 	/* float: left; */
 	width: calc(' . floor(100 / $count) . '% - 20px);
 	padding: 0 10px;
