@@ -6,19 +6,17 @@ use is\Helpers\Sessions;
 use is\Parents\Globals;
 use is\Model\Components\Path;
 
-class Error extends Globals {
+class Api extends Globals {
 	
 	public $path;
 	
-	public $code;
-	public $reason;
+	public $name;
 	
 	public $prefix;
 	public $postfix;
 	
 	public function init($path = null) {
 		$this -> setPath($path);
-		$this -> data['Content-Type'] = 'text/html; charset=UTF-8';
 	}
 	
 	public function setPath($path = null) {
@@ -34,28 +32,10 @@ class Error extends Globals {
 		
 	}
 	
-	public function setError($code = null) {
-		
-		//$this -> data['Error-Сode'] = $this -> code;
-		//$this -> data['Error-Reason'] = $this -> reason;
-		
-		if (!$code) {
-			$this -> code = $code;
-		}
-		
-		if (headers_sent()) {
-			return;
-		}
-		
-		Sessions::setHeader($this -> data);
-		Sessions::setHeaderCode($this -> code);
-		
-	}
-	
 	public function reload() {
 		
-		//$this -> data['Error-Сode'] = $this -> code;
-		//$this -> data['Error-Reason'] = $this -> reason;
+		$this -> data['Error-Сode'] = $this -> code;
+		$this -> data['Error-Reason'] = $this -> reason;
 		
 		$path = $this -> path . $this -> prefix . $this -> code . $this -> postfix . ($this -> reason ? $this -> reason : null);
 		

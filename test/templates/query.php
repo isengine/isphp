@@ -74,7 +74,11 @@ foreach ($item['query'] as $i) {
 	echo '<div class="inside">';
 	foreach ($item['url'] as $part) {
 		echo '<hr>TEST URL: [' . htmlentities($part) . ']';
-		$url = $host . $part . (mb_strpos($part, '?') !== false ? '&' : '?') . implode('&', $i['data']);
+		$url = $host . $part . (mb_strpos($part, '?') !== false ? '&' : '?');
+		foreach ($i['data'] as $dk => $di) {
+			$url .= $dk . '=' . $di . '&';
+		}
+		unset($dk, $di);
 		is_curl_test($url, $agent);
 	}
 	echo '</div>';

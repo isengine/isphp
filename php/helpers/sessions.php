@@ -121,8 +121,11 @@ class Sessions {
 			return;
 		}
 		
+		//echo print_r($data, 1);
+		
 		if (!empty($data) && is_array($data)) {
 			foreach ($data as $key => $item) {
+				//echo $key . ': ' . $item . '<br>';
 				header($key . ': ' . $item);
 			}
 			unset($key, $item);
