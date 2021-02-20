@@ -41,6 +41,18 @@ class Session extends Parents\Globals {
 		$this -> id = session_id();
 		$this -> ip = Ip::real();
 		
+		if ($this -> id) {
+			
+			$this -> uid = md5($this -> id . $this -> ip . $this -> agent);
+			
+			if ($_SESSION['token']) {
+				$this -> token = $_SESSION['token'];
+			} else {
+				$_SESSION['token'] = $this -> token;
+			}
+			
+		}
+		
 	}
 	
 }

@@ -11,7 +11,7 @@ class Entry extends Data {
 	public $ctime;
 	public $mtime;
 	public $dtime;
-	public $self;
+	public $owner;
 	
 }
 

@@ -13,7 +13,20 @@ use is\Model\Globals;
 class Session extends Globals\Session {
 	
 	
+	public function reset() {
+		
+		$state = State::getInstance();
+		
+		if ($state -> get('allow')) {
+			session_destroy();
+		}
+		unset($_SESSION);
+		Sessions::unCookie(['SID', 'UID', 'rights', 'allow']);
+		
+	}
+	
 	
 }
+
 
 ?>

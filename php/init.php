@@ -63,4 +63,11 @@ System::include('model:components:display');
 System::include('model:components:session');
 System::include('model:components:uri');
 
+// controller
+System::include('model:controller:database');
+System::include('model:controller:driver');
+
+// drivers
+System::include('model:controller:drivers:local');
+
 ?>
