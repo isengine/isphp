@@ -42,70 +42,161 @@ class Local {
 		$path = str_replace(['/', '\\'], DS, $path);
 		if (substr($path, -1) !== DS) { $path .= DS; }
 		
-		$scan = scandir($path);
+		$list = scandir($path);
 		
-		if (empty($scan)) {
+		if (empty($list)) {
 			return false;
 		}
 		
 		// настраиваем параметры
 		
+		//$parameters = objectFill($parameters, ['return', 'type', 'skip', 'fullpath']);
+		$parameters = Objects::merge(['return' => null, 'type' => null, 'skip' => null, 'fullpath' => null], $parameters);
+		
 		if (empty($parameters['return']) || !is_string($parameters['return'])) {
 			$parameters['return'] = 'files';
 		}
 		
-		$parameters['type'] = Parser::fromString($parameters['type']);
-		$parameters['skip'] = Parser::fromString($parameters['skip']);
+		if (!is_array($parameters['type'])) {
+			$parameters['type'] = Parser::fromString($parameters['type']);
+		}
+		if (!is_array($parameters['skip'])) {
+			$parameters['skip'] = Parser::fromString($parameters['skip']);
+		}
+		
+		if (System::typeData($parameters['skip'], 'object') && !empty($parameters['fullpath'])) {
+			if (!$recurse) {
+				$currentpath = null;
+				$basepath = strlen($path);
+			}
+			$currentpath = str_replace(DS, ':', substr($path, $basepath, -1));
+			//echo '[' . $currentpath . ']<br>';
+		}
+		
+		//print_r($parameters);
 		
 		// разбираем список
 		
-		$list = [
+		$newlist = [
 			'folders' => [],
 			'files' => [],
 			'subfolders' => [],
 			'subfiles' => []
 		];
 		
-		foreach ($scan as $key => $item) {
+		foreach ($list as $key => $item) {
 			
-			if ($item !== '.' && $item !== '..') {
+			if ($item === '.' || $item === '..') {
 				
-				$pathto = $path . $item;
-				$isdir = is_dir($pathto);
+				// удаляем корневые элементы
+				unset($list[$key]);
 				
-				$i = [
-					'fullpath' => $pathto . ($isdir ? DS : null),
-					'name' => $item,
-					'type' => $is_dir ? 'folder' : 'file',
-					'path' => $basepath,
-					'file' => null,
-					'extension' => null
-				];
+			} elseif (is_dir($path . $item)) {
 				
-				if (!$isdir) {
-					$info = pathinfo($pathto);
-					$i['file'] = $info['filename'];
-					$i['extension'] = $info['extension'];
+				// если элемент - папка
+				
+				$skip = false;
+				
+				if (System::typeData($parameters['skip'], 'object')) {
+					if (
+						empty($currentpath) && in_array($item, $parameters['skip']) ||
+						$parameters['fullpath'] && in_array($currentpath . ':' . $item, $parameters['skip'])
+					) {
+						//echo '[SKIP -- ' . $currentpath . ' -- ' . $item . ']<br>';
+						$skip = true;
+					}
 				}
 				
-				$skip = $i['extension'];
+				$item .= DS;
 				
-				if (
-					!$parameters['type'] ||
-					$parameters['type'] && $i['extension'] && Match::equalIn($parameters['type'], $i['extension'])
-				) {
-					$list['files'][] = $i;
+				if (!$skip && $parameters['return'] !== 'files') {
+					$newlist['folders'][] = $item;
 				}
 				
-				//echo '<pre>'.print_r($i, 1).'</pre><br>';
+				if (!$skip && !empty($parameters['subfolders'])) {
+					
+					$newdir = self::list($path . $item, $parameters, true, $basepath);
+					foreach ($newdir['files'] as &$i) {
+						$i = $item . $i;
+					}
+					foreach ($newdir['folders'] as &$i) {
+						$i = $item . $i;
+					}
+					foreach ($newdir['subfiles'] as &$i) {
+						$i = $item . $i;
+					}
+					foreach ($newdir['subfolders'] as &$i) {
+						$i = $item . $i;
+					}
+					
+					$newlist['subfiles'] = array_merge($newlist['subfiles'], $newdir['files'], $newdir['subfiles']);
+					$newlist['subfolders'] = array_merge($newlist['subfolders'], $newdir['folders'], $newdir['subfolders']);
+					
+					unset($i, $newdir);
+					
+				}
+				
+			} elseif (is_file($path . $item)) {
+				
+				// если элемент - файл
+				
+				$file = $item;
+				
+				if ($parameters['return'] === 'folders') {
+					unset($file);
+				}
+				
+				if (!empty($parameters['mask']) && $file) {
+					if (
+						empty($parameters['fullpath']) && strpos($item, $parameters['mask']) === false ||
+						!empty($parameters['fullpath']) && strpos($path . $item, $parameters['mask']) === false
+					) {
+						unset($file);
+					}
+				} elseif (System::typeData($parameters['skip'], 'object') && $file) {
+					echo '++++++++++++';
+					$name = substr($item, 0, strrpos($item, '.'));
+					if (
+						!$parameters['fullpath'] && empty($currentpath) && in_array($name, $parameters['skip']) ||
+						$parameters['fullpath'] && empty($currentpath) && in_array($item, $parameters['skip']) ||
+						$parameters['fullpath'] && in_array($currentpath . ':' . $item, $parameters['skip'])
+					) {
+						//echo '[SKIP -- ' . $currentpath . ' -- ' . $item . ']<br>';
+						unset($file);
+					}
+				}
+				
+				if (System::typeData($parameters['skip'], 'object') && $file) {
+					$type = strtolower(substr($item, strrpos($item, '.') + 1));
+					if (!in_array($type, $parameters['type'])) {
+						unset($file);
+					}
+				}
+				
+				if (!empty($file)) {
+					//echo '[' . $path . ']<br>';
+					if ($parameters['savepath']) {
+						$newlist['files'][] = $path . $file;
+					} else {
+						$newlist['files'][] = $file;
+					}
+				}
 				
 			}
 			
 		}
 		
-		echo '<pre>'.print_r($parameters, 1).'</pre><br>';
-		//echo '<pre>'.print_r($list, 1).'</pre><br>';
-		return $list;
+		if (!$recurse) {
+			
+			if (empty($parameters['nosort'])) {
+				$newlist['folders'] = array_merge($newlist['folders'], $newlist['subfolders']);
+				sort($newlist['folders']);
+				$newlist = array_merge($newlist['folders'], $newlist['files'], $newlist['subfiles']);
+			}
+
+		}
+		
+		return $newlist;
 		
 	}
 

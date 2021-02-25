@@ -455,14 +455,17 @@ class Objects {
 		
 	}
 
-	static public function combine($values, $keys = null) {
+	static public function combine($values, $keys = null, $default = null) {
 		
 		/*
 		*  Функция создания массива из двух массивов
 		*  первый используется в качестве значений
 		*  второй - в качестве ключей
 		*  если длина массивов разная, то
-		*  итоговый массив создается по самому короткому массиву
+		*  //итоговый массив создается по самому короткому массиву
+		*  НОВОЕ ПОВЕДЕНИЕ!!!
+		*  итоговый массив создается по длине массива ключей
+		*  дополняясь элементами default
 		*/
 		
 		if (System::type($keys) !== 'array' || !count($keys)) {
@@ -473,7 +476,10 @@ class Objects {
 		$lvalues = self::len($values);
 		
 		if ($lkeys > $lvalues) {
-			$keys = array_slice($keys, 0, $lvalues);
+			// СТАРОЕ ПОВЕДЕНИЕ
+			//$keys = array_slice($keys, 0, $lvalues);
+			// НОВОЕ ПОВЕДЕНИЕ
+			$values = array_pad($values, $lkeys, $default);
 		} elseif ($lvalues > $lkeys) {
 			$values = array_slice($values, 0, $lkeys);
 		}

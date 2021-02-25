@@ -12,6 +12,8 @@ is.Helpers.Match = class {
 	static numeric(haystack, min = null, max = null) {
 		
 		haystack = Number(haystack);
+		// ЗАМЕНИТЬ НА МЕТОД ПРЕОБРАЗОВАНИЯ ЛЮБОЙ СТРОКИ В ЧИСЛО
+		
 		min = is.Helpers.System.set(min) ? Number(min) : false;
 		max = is.Helpers.System.set(max) ? Number(max) : false;
 		

@@ -24,7 +24,7 @@ class Match {
 		// функция сравнивает число в диапазоне от мин до макс включительно
 		// если мин/макс не заданы, то считаются минус/плюс бесконечностью
 		
-		$haystack = (float) $haystack;
+		$haystack = Prepare::numeric($haystack);
 		$min = System::set($min) ? (float) $min : false;
 		$max = System::set($max) ? (float) $max : false;
 		

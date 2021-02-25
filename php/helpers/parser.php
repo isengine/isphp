@@ -3,11 +3,13 @@ namespace is\Helpers;
 
 class Parser {
 
-	static public function fromString($item = null, $parameters = ['key' => null, 'clear' => null, 'simple' => null]) {
+	static public function fromString($item = null, $parameters = []) {
 		
 		/*
 		*  Функция парсинга системных данных в системный объект
 		*/
+		
+		$parameters = array_merge(['key' => null, 'clear' => null, 'simple' => true], is_array($parameters) ? $parameters : [$parameters]);
 		
 		$key = System::set($parameters['key']);
 		

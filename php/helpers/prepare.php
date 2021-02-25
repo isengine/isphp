@@ -183,7 +183,9 @@ class Prepare {
 		return $data;
 	}
 	static public function numeric($data) {
-		$data = preg_replace('/[^0-9]/u', '', $data);
+		$data = preg_replace('/^[^\d]+?(\d)/', '$1', $data);
+		$data = str_replace(',', '.', $data);
+		$data = (float) $data;
 		return $data;
 	}
 	static public function datetime($data) {

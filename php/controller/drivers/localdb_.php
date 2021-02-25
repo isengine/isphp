@@ -49,20 +49,37 @@ class LocalDB extends Driver {
 			return;
 		}
 		
-		$json = json_encode($query);
-		$hash = md5($json) . '.' . Strings::len($json);
-		unset($json);
+		$query = [
+			'id'      => null,
+			'name'    => null,
+			'type'    => null,
+			'parents' => null,
+			'owner'   => null,
+			'ctime'   => null,
+			'mtime'   => null,
+			'dtime'   => null
+		];
+		
+		foreach ($query as $key => &$item) {
+			$item = Objects::convert($this -> $key);
+		}
+		unset($key, $item);
+		
+		$cache = null;
 		
 		$prepared = null;
 		
 		if ($this -> cache && $this -> cachestorage) {
-			$prepared = $this -> readListFromCache($hash);
+			$prepared = $this -> readListFromCache($query);
 		}
 		
 		if (!$prepared && !is_array($prepared)) {
-			$prepared = $this -> createList();
+			$prepared = $this -> createList($query);
 			if ($this -> cache && $this -> cachestorage) {
-				$this -> writeListToCache($hash, $prepared);
+				// ЭТО УСЛОВИЯ, ВОЗМОЖНО, НУЖНО ПЕРЕДЕЛАТЬ ПОД ПРОВЕРКУ СУЩЕСТВОВАНИЯ ФАЙЛА
+				// Т.К. БУДЕТ ЕЩЕ ДОБАВЛЯТЬСЯ ОБРАБОТКА С ФИЛЬТРАЦИЕЙ МАССИВА ПО УКАЗАННЫМ ДАННЫМ
+				// ЛИБО ЭТУ ФИЛЬТРАЦИЮ ПЕРЕНЕСТИ В createList
+				$this -> writeListToCache($query, $prepared);
 			}
 		}
 		
@@ -84,34 +101,63 @@ class LocalDB extends Driver {
 		
 	}
 
-	private function readListFromCache($hash) {
-		$file = $this -> cachestorage . $this -> collection . DS . $hash . '.ini';
+	private function readListFromCache($query) {
+		
+		$json = json_encode($query);
+		$cache = md5($json) . '.' . Strings::len($json);
+		unset($json);
+		
+		$file = $this -> cachestorage . $this -> collection . DS . $cache . '.ini';
+		
 		if (file_exists($file)) {
 			$data = Local::openFile($file);
 			return Parser::fromJson($data);
 		}
+		
 	}
 	
-	private function writeListToCache($hash, $data) {
-		$file = $this -> cachestorage . $this -> collection . DS . $hash . '.ini';
+	private function writeListToCache($query, $data) {
+		
+		$json = json_encode($query);
+		$cache = md5($json) . '.' . Strings::len($json);
+		unset($json);
+		
+		$file = $this -> cachestorage . $this -> collection . DS . $cache . '.ini';
+		
 		$data = Parser::toJson($data, true);
+		
 		Local::createFile($file, $data);
 		Local::saveFile($file, $data, 'replace');
+		
 	}
 	
-	private function createList() {
+	private function createList($query) {
+		
+		//echo print_r($query, 1);
 		
 		$path = $this -> path . $this -> collection . DS;
 		
 		$list = [];
+		$folders = [];
 		$files = [];
 		
-		$files = Local::list($path, ['return' => 'files', 'type' => 'ini', 'subfolders' => true]);
+		if ($query['parents']) {
+			foreach ($query['parents'] as $item) {
+				$folders[] = $path . $item . DS;
+			}
+			unset($item);
+		} else {
+			$folders[] = $path;
+		}
 		
-		echo '<pre>' . print_r($files, 1) . '</pre>';
+		foreach ($folders as $item) {
+			$n = Local::list($item, ['return' => 'files', 'savepath' => true]);
+			$files = array_merge($files, $n);
+		}
+		unset($item);
 		
 		foreach ($files as $key => $item) {
-			$entry = $this -> createInfoFromFile($item, $key, $path);
+			$entry = $this -> createInfoFromFile($item, $key, $query['parents']);
 			// ВОТ ЭТУ ПРОЦЕДУРУ ПЕРЕРАБОТАТЬ
 			// СЮДА ДОБАВИТЬ УСЛОВИЕ ПРОВЕРКИ НА ФИЛЬТРЫ query И ДОБАВЛЕНИЯ В СПИСОК
 			
@@ -119,26 +165,22 @@ class LocalDB extends Driver {
 			echo '<pre>' . print_r($entry, 1) . '</pre>';
 			echo '<hr>';
 			
-			if ($entry) {
-				$list[] = $entry;
-			}
+			$list[] = $entry;
 		}
 		unset($key, $item);
 		
-		unset($files);
+		unset($folders, $files);
 		
 		return $list;
 		
 	}
 
-	private function createInfoFromFile($item, $key, $path) {
+	private function createInfoFromFile($item, $key, $parents) {
 		
-		$stat = stat($path . $item);
-		$info = pathinfo($path . $item);
-		$name = $info['filename'];
+		$stat = stat($item);
+		$info = pathinfo($item)['filename'];
 		
-		$parse = Strings::split($name, '\.');
-		
+		$parse = Strings::split($info, '\.');
 		$first = Objects::first($parse, 'value');
 		$second = Objects::n($parse, 1, 'value');
 		
@@ -161,8 +203,6 @@ class LocalDB extends Driver {
 			'owner',
 			'dtime',
 		]);
-		
-		$parents = Strings::find($item, DS, 'r');
 		
 		return [
 			'path' => $item,

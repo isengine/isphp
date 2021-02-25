@@ -36,18 +36,33 @@ abstract class Driver extends Data {
 	
 	protected $prepare;
 	protected $settings;
+	private $cachestorage;
 	
 	public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
 	public $collection; // раздел базы данных
+	
+	/*
+	public $id; // имя или имена записей в базе данных
 	public $name; // имя или имена записей в базе данных
 	public $type; // тип или типы записей в базе данных
 	public $parents; // родитель или родители записей в базе данных
 	public $owner; // владелец или владельцы записей в базе данных
 	
+	public $ctime; // дата и время (в формате unix) создания записи в базе данных
+	public $mtime; // дата и время (в формате unix) последнего изменения записи в базе данных
+	public $dtime; // дата и время (в формате unix) удаления записи в базе данных
+	*/
+	
 	public $limit; // установить возвращаемое количество записей в базе данных
+	public $filter; // параметры фильтрации результата из базы данных
+	public $sort; // параметры сортировки резульатата из базы данных
 	
 	public function __construct($settings) {
 		$this -> settings = $settings;
+		$this -> filter = [
+			'method' => 'and',
+			'filters' => []
+		];
 	}
 	
 	abstract public function connect();

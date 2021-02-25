@@ -421,7 +421,12 @@ is.Helpers.Objects = class {
 		let lvalues = values.length;
 		
 		if (lkeys > lvalues) {
+			// СТАРОЕ ПОВЕДЕНИЕ
 			keys = keys.slice(0, lkeys - 1);
+			// НУЖНО НОВОЕ ПОВЕДЕНИЕ
+			// итоговый массив создается по длине массива ключей
+			// дополняясь элементами default
+			//keys = keys.slice(0, lkeys - 1);
 		} else if (lvalues > lkeys) {
 			values = values.slice(0, lvalues - 1);
 		}

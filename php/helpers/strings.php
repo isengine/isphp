@@ -232,7 +232,7 @@ class Strings {
 		*  Функция разбивает строку на массив данных по указанным символам
 		*/
 		
-		if (System::type($item) !== 'string') {
+		if (System::typeOf($item) !== 'scalar') {
 			return null;
 		} elseif (System::type($splitter) !== 'string') {
 			return [$item];
