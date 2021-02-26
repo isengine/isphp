@@ -36,7 +36,7 @@ abstract class Driver extends Data {
 	
 	protected $prepare;
 	protected $settings;
-	private $cachestorage;
+	private $cache;
 	
 	public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
 	public $collection; // раздел базы данных

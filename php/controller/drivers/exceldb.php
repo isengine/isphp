@@ -10,8 +10,9 @@ use is\Helpers\Strings;
 use is\Helpers\Local;
 use is\Helpers\System;
 use is\Helpers\Match;
+use \SimpleXLSX;
 
-class LocalDB extends Driver {
+class ExcelDB extends Driver {
 	
 	protected $path;
 	
@@ -105,30 +106,117 @@ class LocalDB extends Driver {
 	
 	private function createList() {
 		
-		$path = $this -> path . $this -> collection . DS;
+		$path = $this -> path . $this -> collection . '.xlsx';
+		$stat = stat($path);
+		$excel = SimpleXLSX::parse($path);
 		
-		$list = [];
-		$files = [];
+		//return [
+		//	'parents' => Objects::convert(str_replace(DS, ':', Strings::unlast($item['path']))),
+		//	'id' => $parse['id'],
+		//	'name' => str_replace('--', '.', $parse['name']),
+		//	'type' => Objects::convert(str_replace(['--', ' '], ['.', ':'], $parse['type'])),
+		//	'owner' => Objects::convert(str_replace(['--', ' '], ['.', ':'], $parse['owner'])),
+		//	'ctime' => $stat['ctime'],
+		//	'mtime' => $stat['mtime'],
+		//	'dtime' => $parse['dtime'],
+		//];
 		
-		$files = Local::list($path, ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]);
+		// Общие настройки
 		
-		//echo '<pre>' . print_r($files, 1) . '</pre>';
+		$rowkeys = $this -> settings['rowkeys'] ? $this -> settings['rowkeys'] : 0;
 		
-		foreach ($files as $key => $item) {
-			$entry = $this -> createInfoFromFile($item, $key);
+		$rowskip = $this -> settings['rowskip'] ? (is_array($this -> settings['rowskip']) ? $this -> settings['rowskip'] : Objects::convert($this -> settings['rowskip'])) : [];
+		
+		$sheets = $this -> settings['sheets'] ? (is_array($this -> settings['sheets']) ? $this -> settings['sheets'] : Objects::convert($this -> settings['sheets'])) : Objects::keys($excel -> sheetNames());
+		
+		$keys = $excel -> rows()[$rowkeys];
+		
+		// Построчная обработка
+		foreach ($sheets as $sheet) {
+		foreach ($excel -> rows($sheet) as $index => $row) {
+			
+			if (
+				$index === $rowkeys ||
+				Match::equalIn($rowskip, $index)
+			) {
+				continue;
+			}
+			
+			$entry = Objects::combine($row, $keys);
+			
+			if (
+				!$entry['name'] ||
+				Strings::first($entry['name']) === '!'
+			) {
+				$entry = null;
+			}
+			
+			if ($entry) {
+				foreach ($entry as $k => $i) {
+					/*
+					// Это условие надо убрать, иначе будут биться любые строки
+					// Нужно оставить разбор, как он был задан - через настройки контента
+					// КСТАТИ, ЭТИ НАСТРОЙКИ ТАКЖЕ МОЖНО ВНЕСТИ В НАСТРОЙКИ ДРАЙВЕРА
+					// И ТОГДА БУДЕТ ОЧЕНЬ КРУТО !!!
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					if (
+						Strings::match($i, ':') ||
+						Strings::match($i, '|')
+					) {
+						$i = Parser::fromString($i);
+					}
+					*/
+					if ($this -> settings['encoding']) {
+						$i = mb_convert_encoding($i, 'UTF-8', $this -> settings['encoding']);
+					}
+					if (Strings::match($k, ':')) {
+						// А вот это условие оставить - т.к. бьются только ключи и это правильно
+						$levels = Parser::fromString($k);
+						$entry = Objects::add($entry, Objects::level([], $levels, $i), true);
+						unset($entry[$k], $levels);
+					} elseif (Objects::match(['type', 'parents', 'owner'], $k)) {
+						// Это условие тоже нужно оставить для базовых полей
+						if (
+							Strings::match($i, ':') ||
+							Strings::match($i, '|')
+						) {
+							$entry[$k] = Parser::fromString($i);
+						}
+					}
+				}
+				unset($k, $i);
+				
+				// несколько обязательных полей
+				if (!$entry['ctime']) {
+					$entry['ctime'] = $stat['ctime'];
+				}
+				if (!$entry['mtime']) {
+					$entry['mtime'] = $stat['mtime'];
+				}
+				
+			}
+			
+			//echo '[' . print_r($entry, 1) . ']<br><br>';
+			
 			if ($entry && $this -> filter) {
 				$entry = $this -> filtration($entry);
 			}
 			if ($entry) {
-				if (!$entry['data'] && $entry['path']) {
-					$entry['data'] = $this -> readDataFromFile($entry['path']);
-				}
+				//здесь мы не читаем данные - они и так подгружены
+				//if (!$entry['data'] && $entry['path']) {
+				//	$entry['data'] = $this -> readDataFromFile($entry['path']);
+				//}
 				$list[] = $entry;
 			}
 		}
 		unset($key, $item);
-		
-		unset($files);
+		}
+		unset($sheet);
 		
 		return $list;
 		
@@ -140,34 +228,8 @@ class LocalDB extends Driver {
 	}
 	
 	private function createInfoFromFile($item, $key) {
-		
+		/*
 		$stat = stat($item['fullpath']);
-		
-		// здесь мы распарсиваем имя на составляющие по точкам,
-		// затем выясняем, есть ли здесь идентификатор
-		// и сводим все в массив стандартной записи в базе данных
-		
-		//echo print_r($item, 1) . '<br>';
-		
-		$parse = Strings::split($item['file'], '\.');
-		
-		$first = Objects::first($parse, 'value');
-		$second = Objects::n($parse, 1, 'value');
-		
-		if (
-			!is_numeric($first) ||
-			is_numeric($first) && !$second
-		) {
-			$parse = Objects::add([$key], $parse);
-		}
-		
-		$parse = Objects::combine($parse, [
-			'id',
-			'name',
-			'type',
-			'owner',
-			'dtime',
-		]);
 		
 		return [
 			'path' => $item['fullpath'],
@@ -180,7 +242,7 @@ class LocalDB extends Driver {
 			'mtime' => $stat['mtime'],
 			'dtime' => $parse['dtime'],
 		];
-		
+		*/
 	}
 
 	private function filtration($entry) {
@@ -192,8 +254,8 @@ class LocalDB extends Driver {
 		foreach ($this -> filter['filters'] as $key => $item) {
 			
 			if ($item['data']) {
-				// нужно читать содержимое файла и выводить
-				$entry['data'] = $this -> readDataFromFile($entry['path']);
+				// здесь не нужно читать содержимое файла - данные и так подгружены
+				//$entry['data'] = $this -> readDataFromFile($entry['path']);
 				$data = $entry['data'][$item['name']];
 			} else {
 				$data = $entry[$item['name']];

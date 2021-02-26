@@ -9,9 +9,10 @@ use is\Helpers\Parser;
 use is\Helpers\Prepare;
 use is\Parents\Singleton;
 use is\Parents\Collection;
+use is\Parents\Data;
 use is\Controller\Driver;
 
-class Database extends Singleton {
+class Datasheet extends Data {
 	
 	/*
 	этот класс отвечает за обмен системы с базой данных

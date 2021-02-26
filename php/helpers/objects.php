@@ -198,7 +198,7 @@ class Objects {
 		
 	}
 
-	static public function add($haystack, $needle, $reverse = null) {
+	static public function add($haystack, $needle, $recursive = null) {
 		
 		/*
 		*  Функция добавления значений в начало или в конец массива
@@ -207,7 +207,7 @@ class Objects {
 		$haystack = self::convert($haystack);
 		$needle = self::convert($needle);
 		
-		return $reverse ? array_merge($needle, $haystack) : array_merge($haystack, $needle);
+		return $recursive ? array_merge_recursive($haystack, $needle) : array_merge($haystack, $needle);
 		
 	}
 
@@ -710,6 +710,47 @@ class Objects {
 		*/
 		
 		return array_diff($haystack, $needle);
+		
+	}
+
+	static public function level($haystack, $needle, $value = null) {
+
+		/*
+		*  Функция которая производит объединение данных в многомерных массивах или объектах
+		*  на входе нужно указать:
+		*    целевой массив или объект, которЫЙ будем заполнять - $haystack
+		*    и массив или объект, который содержит ключи, которЫМИ будем заполнять haystack - $needle
+		*    третий, необязательный, аргумент - это значение
+		*  ТЕПЕРЬ ПОВЕДЕНИЕ ТАКОВО, ЧТО ПО-УМОЛЧАНИЮ ПУСТЫЕ ЗНАЧЕНИЯ НЕ ЗАПОЛНЯЮТСЯ!
+		*  
+		*  Например, если указать:
+		*  level(['data' => null], ['a', 'b', 'c'], 'value')
+		*  то на выходе получим такой массив:
+		*  [ 'data' => ['a' => ['b' => ['c' => 'value']]] ];
+		*  
+		*  при этом, особенность данной функции в том, что она дополняет массив и не стирает другие имеющиеся в нем поля
+		*/
+		
+		if (!is_array($haystack) || !is_array($needle)) {
+			return null;
+		}
+		
+		$needle = array_reverse($needle);
+		$c = count($needle);
+		$item = $value;
+		
+		if (!empty($c) && is_int($c)) {
+			for ($i = 0; $i < $c; $i++) {
+				$k = array_shift($needle);
+				$item = [$k => $item];
+			}
+		}
+		
+		unset($needle, $c, $i, $value);
+		
+		if (!$item) { $item = []; }
+		
+		return array_merge_recursive($haystack, $item);
 		
 	}
 

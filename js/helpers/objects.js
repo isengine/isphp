@@ -186,7 +186,7 @@ is.Helpers.Objects = class {
 		
 	}
 
-	static add(haystack, needle, reverse = null) {
+	static add(haystack, needle, recursive = null) {
 		
 		haystack = this.convert(haystack);
 		needle = this.convert(needle);
@@ -201,7 +201,9 @@ is.Helpers.Objects = class {
 			return this.convert(result);
 		}
 		
-		return reverse ? Object.assign({}, needle, haystack) : Object.assign({}, haystack, needle);
+		// ПОМЕНЯЛОСЬ ПОВЕДЕНИЕ С РЕВЕРСА (КОТОРЫЙ НЕ НУЖЕН, т.к. можно просто поменять аргументы местами)
+		// НА РЕКУРСИЮ, НО ЗДЕСЬ ОНА НЕ РЕАЛИЗОВАНА!!!
+		return recursive ? Object.assign({}, needle, haystack) : Object.assign({}, haystack, needle);
 		
 	}
 
@@ -682,6 +684,10 @@ is.Helpers.Objects = class {
 		
 	}
 
+	static level(haystack, needle, value = null) {
+		// НОВАЯ ФУНКЦИЯ !!!!
+	}
+	
 	static array_simple(item) {
 		
 		let system = is.Helpers.System;

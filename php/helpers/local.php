@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class Local {
 
-	static public function list($path, $parameters = [], $recurse = false, $basepath = false) {
+	static public function list($path, $parameters = [], $basepath = null) {
 		
 		// now dirconnect and fileconnect is localList
 		
@@ -16,21 +16,32 @@ class Local {
 		*  Функция получения списка файлов или папок с определенным расширением
 		*  на входе нужно указать путь к папке $name и массив параметров
 		*  
-		*  return - files, true, false, по-умолчанию, вернуть только файлы / folders - вернуть только папки / all - вернуть все
-		*  subfolders - true/false включать в список подпапки
-		*  mask - маска имени файла, при совпадении с которой, файл не будет пропущен, наличие данного правила отменяет правило skip, не работает для папок
-		*  skip - список исключений, эти названия файлов и папок будут пропущены
-		*  fullpath - переключает тип проверки маски и исключений: false, по-умолчанию - проверять только имена / true - проверять полный путь относительно заданного
-		*  savepath - сохраняет не только имя файла, а весь путь
-		*  type - только для файлов, будут выведены только файлы с этими расширениями
-		*  nosort - настройки сортировки - false или по-умолчанию, папки и подпапки вперемешку, затем файлы, затем подфайлы / true - вернуть разными массивами
+		*  return
+		*    files - только файлы
+		*    folders - только папки
+		*    пропуск - и то и другое
+		*  type/extension
+		*    для файлов, вернуть только файлы указанного типа
+		*  info
+		*    любой ключ - часть по указанному ключу
+		*    пропуск - полную инфу
+		*  subfolders
+		*    true/false включать в список подпапки
+		*  nodisable
+		*    true/false включать в список заблокированные элементы - файлы и папки
+		*  merge
+		*    true/false смешать список - папки, затем подпапки, затем файлы, затем подфайлы
+		*  skip * пока не реализован
+		*    set - строка исключения
+		*    folders
+		*      true/false разрешить исключать папки
+		*    files
+		*      true/false разрешить исключать файлы
+		*  mask * пока не реализован
+		*    set - строка совпадения
+		*    in - ключ info, где будет использована
 		*  
 		*  третий параметр используется только для служебных целей, т.к. функция рекурсивная при вызове параметра 'subfolders'
-		*  
-		*  готовый массив сортируется таким образом:
-		*  сначала - папки в алфавитном порядке, включая все подпапки
-		*  затем - файлы из корневой папки в алфавитном порядке
-		*  затем - файлы из всех подпапок, также в алфавитном порядке
 		*  
 		*  функция возвращает готовый массив
 		*/
@@ -50,20 +61,14 @@ class Local {
 		
 		// настраиваем параметры
 		
-		if (empty($parameters['return']) || !is_string($parameters['return'])) {
-			$parameters['return'] = 'files';
-		}
-		
-		$parameters['type'] = Parser::fromString($parameters['type']);
+		$parameters['extension'] = Parser::fromString($parameters['extension']);
 		$parameters['skip'] = Parser::fromString($parameters['skip']);
 		
 		// разбираем список
 		
 		$list = [
 			'folders' => [],
-			'files' => [],
-			'subfolders' => [],
-			'subfiles' => []
+			'files' => []
 		];
 		
 		foreach ($scan as $key => $item) {
@@ -76,35 +81,78 @@ class Local {
 				$i = [
 					'fullpath' => $pathto . ($isdir ? DS : null),
 					'name' => $item,
-					'type' => $is_dir ? 'folder' : 'file',
-					'path' => $basepath,
+					'type' => ($isdir ? 'folder' : 'file'),
+					'path' => $basepath ? Strings::get($pathto, Strings::len($basepath), Strings::len($item), true) : null,
 					'file' => null,
 					'extension' => null
 				];
 				
-				if (!$isdir) {
+				$disable = $parameters['nodisable'] ? null : Strings::first($item) === '!';
+				//echo $disable . '<br>';
+				
+				if (
+					!$disable && !$isdir &&
+					$parameters['return'] !== 'folders'
+				) {
 					$info = pathinfo($pathto);
 					$i['file'] = $info['filename'];
 					$i['extension'] = $info['extension'];
+					
+					if (
+						!$parameters['extension'] ||
+						$parameters['extension'] && $i['extension'] && Match::equalIn($parameters['extension'], $i['extension'])
+					) {
+						$list['files'][] = $parameters['info'] ? $i[$parameters['info']] : $i;
+					}
 				}
 				
-				$skip = $i['extension'];
-				
-				if (
-					!$parameters['type'] ||
-					$parameters['type'] && $i['extension'] && Match::equalIn($parameters['type'], $i['extension'])
-				) {
-					$list['files'][] = $i;
+				if (!$disable && $isdir) {
+					
+					if ($parameters['return'] !== 'files') {
+						$list['folders'][] = $parameters['info'] ? $i[$parameters['info']] : $i;
+					}
+					
+					if ($parameters['subfolders']) {
+						$sub = self::list($pathto, $parameters, $basepath ? $basepath : $path);
+						
+						$list['sub'] = array_merge_recursive(
+							$list['sub'] ? $list['sub'] : [],
+							$sub ? $sub : []
+						);
+						
+						if ($basepath) {
+							$list['folders'] = array_merge_recursive(
+								$list['folders'] ? $list['folders'] : [],
+								$list['sub']['folders'] ? $list['sub']['folders'] : []
+							);
+							$list['files'] = array_merge_recursive(
+								$list['files'] ? $list['files'] : [],
+								$list['sub']['files'] ? $list['sub']['files'] : []
+							);
+							unset($list['sub']);
+						}
+						
+						//echo '<pre>+'.print_r($sub, 1).'</pre><br>';
+						//echo '<hr>';
+					}
+					
 				}
 				
+				unset($i);
 				//echo '<pre>'.print_r($i, 1).'</pre><br>';
 				
 			}
 			
 		}
 		
-		echo '<pre>'.print_r($parameters, 1).'</pre><br>';
-		//echo '<pre>'.print_r($list, 1).'</pre><br>';
+		//$list['folders'] = array_merge_recursive($list['folders'], $list['sub']['folders'], $list['files'], $list['sub']['files']);
+		
+		if (!$basepath && $parameters['merge']) {
+			$list = array_merge($list['folders'], $list['sub']['folders'], $list['files'], $list['sub']['files']);
+		}
+		//$list = array_merge($list['folders'], $list['files']);
+		//if (!$basepath) { echo '<pre>'.print_r($list, 1).'</pre><br>'; }
+		
 		return $list;
 		
 	}
@@ -726,383 +774,6 @@ class Local {
 		} else {
 			return false;
 		}
-		
-	}
-
-	static public function openTable($datafile, $dataformat, $settings = null){
-		
-		/*
-		*  Функция обработки файла в формате csv
-		*  на входе нужно указать путь к файлу $datafile (с названием самого файла, но без расширения!)
-		*  Внимание! Файл csv должен быть в кодировке unicode / utf-8
-		*  
-		*  второе необязательное значение - массив настроек в формате json
-		*  
-		*  функция примет файл и переведет его в массив $data - массив, где хранятся данные
-		*  
-		*  настройки:
-		*    return - если задан, то по значению этой колонки будет назван ключ массива
-		*    names - если задан, то по будут загружены строки только с этими именами,
-		*    * работает если задан return или по номеру строки, учитывая что счет начинается с нуля, и еще первая строка может быть пропущена, если не заданы ключи
-		*    limit - если задан, то выводится только указанное число строк
-		*    * удобно использовать в связке с names, чтобы не нагружать систему
-		*    skip - номера пропускаемых строк
-		*    * могут быть заданы в виде массива или в виде данных через двоеточие
-		*    fields - если задан, то по значениям этого массива будут заполняться главные колонки (не data)
-		*    * например, если вам нужно пропустить 'ctime' и 'mtime', просто укажите массив без них
-		*    //rowskip - строки, которые нужно пропустить
-		*    //colskip - колонки, которые нужно пропустить
-		*    keys - массив ключей, которые выступят ключами в массиве данных
-		*    * если вам нужно сделать вложенные данные, используйте двоеточие или точку:
-		*    * keys = ["parent:one", "parent:two"]
-		*    * keys = "parent.one:parent.two"
-		*    merge (true/false) - если задан, то не пустые значения массива объединяются, а пустые пропускаются
-		*/
-		
-		/*
-		echo "<table>";
-		// Получили строки и обойдем их в цикле
-		$rowIterator = $sheet->getRowIterator();
-		foreach ($rowIterator as $row) {
-			// Получили ячейки текущей строки и обойдем их в цикле
-			$cellIterator = $row->getCellIterator();
-			
-			echo "<tr>";
-			
-			foreach ($cellIterator as $cell) {
-				echo "<td>" . $cell->getCalculatedValue() . "</td>";
-			}
-			
-			echo "</tr>";
-		}
-		echo "</table>";
-		*/
-		
-		if (!file_exists($datafile) || filesize($datafile) === 0) {
-			return null;
-		}
-		
-		$data = [];
-		
-		if (!empty($settings) && is_string($settings)) {
-			$settings = json_decode($settings, true);
-		}
-		
-		$stat = stat($datafile);
-		
-		// Общие настройки
-		
-		$keys = !empty($settings['keys']) ? (is_array($settings['keys']) ? $settings['keys'] : dataParse($settings['keys'])) : null;
-		$skip = !empty($settings['skip']) ? (is_array($settings['skip']) ? array_fill_keys($settings['skip'], null) : array_fill_keys(dataParse($settings['skip']), null)) : null;
-		$fields = !empty($settings['fields']) ? $settings['fields'] : ['id', 'name', 'type', 'parent', 'ctime', 'mtime', 'self'];
-		if (objectIs($settings['names'])) {
-			$settings['limit'] = count($settings['names']);
-		}
-		
-		// Если формат excel
-		
-		if ($dataformat === 'xls' || $dataformat === 'xlsx') {
-			
-			// Проверяем существование необходимых расширений php и загруженной библиотеки
-			
-			//if (!in('libraries', 'excel:system')) {
-			if (!class_exists('Simple' . mb_strtoupper($dataformat))) {
-				logging('local table open false - not \'excel\' library');
-				return null;
-			}
-			
-			if ($dataformat === 'xls') {
-				$excel = SimpleXLS::parse($datafile);
-			} elseif ($dataformat === 'xlsx') {
-				$excel = SimpleXLSX::parse($datafile);
-			}
-			
-			if (empty($excel)) {
-				logging('local table open false - this excel format is wrong or not supported');
-				return null;
-			} else {
-				
-				if (!empty($settings['update']) && is_string($settings['update']) && $dataformat === 'xlsx') {
-					$up = null;
-					$update = [];
-					foreach ($excel->rows() as $row => $file) {
-						// ПОСТРОЧНАЯ ОБРАБОТКА
-						
-						if ($row === 0 && empty($keys)) {
-							$keys = $file;
-							$dat = [];
-							if (objectIs($keys)) {
-								foreach ($keys as $i) {
-									if (strpos($i, 'data') !== false) {
-										$dat[] = $i;
-									}
-								}
-								unset($i);
-							}
-							$datc = count($dat);
-						}
-						
-						$num = (!empty($file)) ? count($file) : 0;
-						
-						for ($c = 0; $c < $num; $c++) {
-							
-							if (!empty($settings['encoding'])) {
-								$file[$c] = mb_convert_encoding($file[$c], 'UTF-8', $settings['encoding']);
-							}
-							
-							if (!empty($keys[$c])) {
-								//echo $file[$c] . ']<br>';
-								$update[$row][$keys[$c]] = $file[$c];
-							}
-							
-						}
-						
-						unset($c, $num);
-						
-						$free = objectIs($dat) && !empty($update[$row]) ? array_diff($dat, array_keys(array_diff($update[$row], array(null)))) : null;
-						$free = objectIs($free) ? $datc - count($free) : null;
-						
-						$name = $update[$row]['data:' . $settings['update']];
-						$name = datatranslate($name);
-						$name = Prepare::clear($name);
-						$name = Prepare::alphanumeric($name);
-						$name = str_replace(' ', '_', $name);
-						
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// ЭТО УСЛОВИЕ НУЖНО БУДЕТ ИЗМЕНИТЬ !!!
-						// v v v v v v v v v v v v v v v v v v
-						
-						if (!empty($free) && !empty($name)) {
-							
-							// здесь мы меняем имя, если оно пустое, на транслит
-							if (empty($update[$row]['name'])) {
-								$update[$row]['name'] = $name;
-								$up = true;
-							}
-							
-							// здесь мы меняем артикул, если он пустой, на транслит
-							// однако артикул не является обязательной частью таблицы
-							// и поэтому он должен вообще-то задаваться в update
-							// но эта функция не реализована
-							if (isset($update[$row]['data:articul']) && empty($update[$row]['data:articul'])) {
-								$update[$row]['data:articul'] = $name;
-								$up = true;
-							}
-							
-							// здесь мы создаем каталог с тем же именем, что и транслит
-							if (!file_exists(PATH_LOCAL . 'catalog' . DS . $name) || !is_dir(PATH_LOCAL . 'catalog' . DS . $name)) {
-								mkdir(PATH_LOCAL . 'catalog' . DS . $name);
-							}
-							
-						}
-						
-						//echo '<br>[' . print_r($free, 1) . ']<br>';
-						//echo '<br>[' . print_r($update[$row], 1) . ']<br>';
-						//echo '<br>[' . print_r($dat, 1) . ']<br>';
-						
-						unset($free, $name);
-						
-					}
-					// КОНЕЦ ПОСТРОЧНОЙ ОБРАБОТКИ
-					unset($row, $file, $dat, $datc, $keys);
-					//echo '<br><pre>[' . print_r($update, 1) . ']</pre><br>';
-					
-					if (!empty($up)) {
-						
-						if (file_exists($datafile)) {
-							unlink($datafile);
-						}
-						
-						if (file_exists($datafile)) {
-							$dot = strrpos($datafile, '.');
-							$datafile = substr($datafile, 0, $dot) . '_new' . substr($datafile, $dot);
-							unset($dot);
-							
-							if (file_exists($datafile)) {
-								unlink($datafile);
-							}
-						}
-						
-						$xlsx = SimpleXLSXGen::fromArray($update);
-						$xlsx->saveAs($datafile);
-						
-						unset($xlsx);
-						
-						$excel = SimpleXLSX::parse($datafile);
-						
-					}
-					
-					unset($update, $up);
-					
-				}
-				
-				foreach ($excel->rows() as $row => $file) {
-					
-					// ПОСТРОЧНАЯ ОБРАБОТКА
-					
-					if ($row === 0 && empty($keys)) {
-						$keys = $file;
-						continue;
-					} elseif (!empty($skip) && array_key_exists($row, $skip)) {
-						unset($skip[$row]);
-						continue;
-					}
-					
-					$num = (!empty($file)) ? count($file) : 0;
-					$name = $row;
-					
-					if (!empty($settings['return']) && !empty($keys) && in_array($settings['return'], $keys)) {
-						$name = $file[array_search($settings['return'], $keys)];
-					}
-					
-					if (objectIs($settings['names']) && !in_array($name, $settings['names'])) {
-						continue;
-					}
-					
-					if (mb_strpos($name, '!') === 0) {
-						continue;
-					}
-					
-					for ($c = 0; $c < $num; $c++) {
-						
-						if (!empty($settings['encoding'])) {
-							$file[$c] = mb_convert_encoding($file[$c], 'UTF-8', $settings['encoding']);
-						}
-						
-						$k = objectIs($keys) && isset($keys[$c]) ? str_replace('.', ':', $keys[$c]) : $c;
-						$k = mb_strtolower($k);
-						
-						if (strpos($k, ':')) {
-							
-							$k = dataParse($k);
-							$data[$name] = objectMergeLevel($data[$name], $k, $file[$c]);
-							
-						} elseif (in_array($k, $fields)) {
-							$data[$name][$k] = $file[$c];
-						} else {
-							$data[$name]['data'][$k] = $file[$c];
-						}
-						
-					}
-					
-					if (empty($data[$name]['ctime']) && in_array('ctime', $fields)) {
-						$data[$name]['ctime'] = $stat['ctime'];
-					}
-					if (empty($data[$name]['mtime']) && in_array('mtime', $fields)) {
-						$data[$name]['mtime'] = $stat['mtime'];
-					}
-					
-					if (!empty($settings['limit']) && $settings['limit'] <= $row) {
-						break;
-					}
-					
-					// КОНЕЦ ПОСТРОЧНОЙ ОБРАБОТКИ
-					
-				}
-				
-				//echo '<pre>' . print_r($data, 1) . '</pre>';
-				//echo '<pre>' . print_r($settings, 1) . '</pre>';
-				
-			}
-			
-			unset($excel);
-			
-		}
-
-		// Если формат csv
-		
-		if ($dataformat === 'csv' && $handle = fopen($datafile, "r")) {
-			
-			$row = 0;
-			$delimiter = !empty($settings['special']) && !empty($settings['special'][0]) ? $settings['special'][0] : ',';
-			$enclosure = !empty($settings['special']) && !empty($settings['special'][1]) ? $settings['special'][1] : '"';
-			
-			while ($file = fgetcsv($handle, null, $delimiter, $enclosure)) {
-				
-				// ПОСТРОЧНАЯ ОБРАБОТКА
-				
-				if ($row === 0 && empty($keys)) {
-					$keys = $file;
-					unset($file);
-					continue;
-				} elseif (!empty($skip) && array_key_exists($row, $skip)) {
-					unset($skip[$row]);
-					$row++;
-					continue;
-				}
-				
-				$num = (!empty($file)) ? count($file) : 0;
-				$name = $row;
-				
-				if (!empty($settings['return']) && !empty($keys) && in_array($settings['return'], $keys)) {
-					$name = $file[array_search($settings['return'], $keys)];
-				}
-				
-				if (objectIs($settings['names']) && !in_array($name, $settings['names'])) {
-					unset($file);
-					continue;
-				}
-				
-				if (mb_strpos($name, '!') === 0) {
-					unset($file);
-					continue;
-				}
-				
-				for ($c = 0; $c < $num; $c++) {
-					
-					if (!empty($settings['encoding'])) {
-						$file[$c] = mb_convert_encoding($file[$c], 'UTF-8', $settings['encoding']);
-					}
-					
-					$k = objectIs($keys) && isset($keys[$c]) ? str_replace('.', ':', $keys[$c]) : $c;
-					
-					if (strpos($k, ':')) {
-						
-						$k = dataParse($k);
-						$data[$name] = objectMergeLevel($data[$name], $k, $file[$c]);
-						
-					} elseif (in_array($k, $fields)) {
-						$data[$name][$k] = $file[$c];
-					} else {
-						$data[$name]['data'][$k] = $file[$c];
-					}
-					
-				}
-				
-				if (empty($data[$name]['ctime']) && in_array('ctime', $fields)) {
-					$data[$name]['ctime'] = $stat['ctime'];
-				}
-				if (empty($data[$name]['mtime']) && in_array('mtime', $fields)) {
-					$data[$name]['mtime'] = $stat['mtime'];
-				}
-				
-				$row++;
-				
-				if (!empty($settings['limit']) && $settings['limit'] <= $row) {
-					break;
-				}
-				
-				// КОНЕЦ ПОСТРОЧНОЙ ОБРАБОТКИ
-				
-			}
-			
-			fclose($handle);
-			
-		}
-		
-		unset($row, $name, $handle, $delimiter, $enclosure, $fields, $file, $num, $c, $k, $keys, $stat, $settings, $dataformat, $datafile);
-		
-		//echo '<br><br>[' . print_r($data, 1) . ']<br>';
-		
-		return $data;
 		
 	}
 
