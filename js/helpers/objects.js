@@ -688,6 +688,10 @@ is.Helpers.Objects = class {
 		// НОВАЯ ФУНКЦИЯ !!!!
 	}
 	
+	static extract(haystack, needle) {
+		// НОВАЯ ФУНКЦИЯ !!!!
+	}
+	
 	static array_simple(item) {
 		
 		let system = is.Helpers.System;

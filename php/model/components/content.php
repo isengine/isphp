@@ -21,7 +21,7 @@ class Content extends LocalComponent {
 	}
 	
 	public function setContent() {
-		$this -> content = LocalFunctions::openFile($this -> data['file']);
+		$this -> content = LocalFunctions::readFile($this -> data['file']);
 	}
 	
 	public function parseContent() {

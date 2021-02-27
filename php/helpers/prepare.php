@@ -197,7 +197,7 @@ class Prepare {
 		$data = preg_replace('/[^0-9]/u', '', $data);
 		//$original = !empty($special) ? $data : null;
 		
-		if ($local === 'ru') {
+		if ($locale === 'ru') {
 			$first = mb_substr($data, 0, 1);
 			if (strlen($data) == 10) {
 				$data = substr_replace($data, '7', 0, 0);

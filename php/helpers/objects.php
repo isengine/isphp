@@ -750,7 +750,45 @@ class Objects {
 		
 		if (!$item) { $item = []; }
 		
-		return array_merge_recursive($haystack, $item);
+		//return array_merge_recursive($haystack, $item);
+		return array_replace_recursive($haystack, $item);
+		
+	}
+
+	static public function extract($haystack, $needle) {
+		
+		/*
+		*  Функция которая производит извлечение данных в многомерных массивах или объектах
+		*  на входе нужно указать:
+		*    целевой массив или объект, ИЗ котороГО будем извлекать данные - $haystack
+		*    и массив или объект, согласно котороМУ будем извлекать эти данные - $needle
+		*  
+		*  Третий аргумент может принимать значение true
+		*  и тогда результирующий массив будет преобразован в объект и наоборот
+		*  
+		*  Если вы хотите извлечь значение из многомерного массива, использовать так:
+		*  $arr = objectExtract($arr, ['field', 'field', 'field']);
+		*  Например, если $haystack = ['a' => ['b' => ['c' => 1, 'd' => 2]]]
+		*  и вам надо извлечь d, то используйте такой вызов:
+		*  $arr = objectExtract($haystack, ['a', 'b', 'd']);
+		*  
+		*  на выходе отдает готовый массив $haystack
+		*/
+		
+		foreach($needle as $i) {
+			if (array_key_exists($i, $haystack)) {
+				if (is_array($haystack)) {
+					$haystack = $haystack[$i];
+				} elseif (is_object($haystack)) {
+					$haystack = $haystack -> $i;
+				} 
+			} else {
+				$haystack = null;
+				break;
+			}
+		}
+		
+		return $haystack;
 		
 	}
 

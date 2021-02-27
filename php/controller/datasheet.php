@@ -21,7 +21,7 @@ class Datasheet extends Data {
 	
 	public $name;
 	
-	protected $driver;
+	public $driver;
 	
 	public function init($settings) {
 		
@@ -42,112 +42,25 @@ class Datasheet extends Data {
 	
 	public function launch() {
 		$this -> driver -> launch();
-		$this -> data -> data = $this -> driver -> data;
-		unset($this -> driver -> data);
-		$this -> data -> init();
+		$this -> data -> addByList($this -> driver -> data); // new
+		$this -> driver -> resetData();
+		$this -> driver -> cached = null;
 	}
 	
-	public function cache($path = null) {
-		if ($path && file_exists($path)) {
-			$this -> driver -> cache = $path;
-		}
+	public function cache($path) {
+		$this -> driver -> cache($path);
 	}
 	
 	public function collection($name) {
-		$this -> driver -> collection = $name;
+		$this -> driver -> collection($name);
 	}
 	
 	public function query($name) {
-		$this -> driver -> query = $name;
+		$this -> driver -> query($name);
 	}
 	
-	public function set($name, $data) {
-		$this -> driver -> $name = $data;
-	}
-	
-	public function methodFilter($name) {
-		$this -> driver -> filter['method'] = $name;
-	}
-	
-	public function resetFilter($name) {
-		$this -> driver -> filter['filters'] = [];
-	}
-	
-	public function filter($name = null, $data = null) {
-		
-		if (is_array($name)) {
-			$this -> driver -> filter['filters'][] = $name;
-		} else {
-			
-			$item = [
-				'name' => null,
-				'data' => null,
-				'values' => []
-			];
-			
-			$array = Parser::fromString($name);
-			$item['name'] = Objects::first($array, 'value');
-			if ($item['name'] === 'data') {
-				$item['name'] = Objects::n($array, 1, 'value');
-				$item['data'] = true;
-			}
-			unset($array);
-			
-			if ($data) {
-				$array = Parser::fromString($data);
-				foreach ($array as $i) {
-					
-					$value = [
-						'name' => null,
-						'type' => 'equal',
-						'require' => null,
-						'except' => null
-					];
-					
-					$first = Strings::first($i);
-					$num = Strings::match($i, '_');
-					
-					if ($first === '+') {
-						$value['require'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '-') {
-						$value['except'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '*') {
-						$value['type'] = 'string';
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($num) {
-						$value['type'] = 'numeric';
-						$value['name'] = Strings::split($i, '_');
-						foreach ($value['name'] as &$ii) {
-							if ($ii) {
-								$ii = Prepare::numeric($ii);
-							}
-						}
-						unset($ii);
-					} else {
-						$value['name'] = $i;
-					}
-					
-					$item['values'][] = $value;
-					
-					unset($value);
-					
-				}
-				unset($i, $array);
-			} else {
-				$item['values'][] = ['type' => 'noempty'];
-			}
-			
-			$this -> driver -> filter['filters'][] = $item;
-			
-			unset($item);
-			
-			//echo '<pre>' . print_r($item, 1) . '</pre><br>';
-			//$this -> driver -> $name = $data;
-			
-		}
-		
+	public function rights($rights, $owner = null) {
+		$this -> driver -> rights($rights, $owner);
 	}
 	
 }

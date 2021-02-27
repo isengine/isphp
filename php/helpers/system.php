@@ -25,6 +25,10 @@ class System {
 		
 	}
 
+	static public function isset($item = null) {
+		return isset($item);
+	}
+
 	static public function set($item = null, $yes = null, $no = null) {
 		
 		if ($yes) {

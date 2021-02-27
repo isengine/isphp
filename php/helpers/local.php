@@ -197,27 +197,65 @@ class Local {
 		
 	}
 
-	static public function openFile($target, $array = false) {
+	static public function readFile($target) {
 		
 		/*
-		*  Функция открывает файл $target и читает его построчно
-		*  
+		*  Функция открывает файл $target
 		*  на входе нужно указать полный путь к файлу с названием и расширением
-		*  второй параметр - разрешен ли вывод в массив
-		*  по-умолчанию запрещен, т.е. вывод идет в строку
 		*  
 		*  вывод через функцию file_get_contents по сравнению с fopen+fgets+fclose
 		*  оказывается быстрее при том же потреблении памяти, т.к. использует memory mapping
 		*  
-		*  функция вернет массив или строку
+		*  функция вернет строку
 		*/
 		
 		if (!file_exists($target)) {
-			return false;
+			return null;
 		}
 		
-		if (!$array) {
-			return file_get_contents($target);
+		return file_get_contents($target);
+		
+	}
+
+	static public function readFileLine($target, $separator = null) {
+		
+		/*
+		*  Функция открывает файл $target и читает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
+		*  
+		*  отличие от предыдущей функции в том, что эта работает построчно
+		*  
+		*  функция возвращает строку
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
+		}
+		
+		$result = null;
+		
+		$handle = fopen($target, "r");
+		while(!feof($handle)) {
+			$result .= fgets($handle) . $separator;
+		}
+		fclose($handle);
+		
+		return $result;
+		
+	}
+
+	static public function readFileArray($target) {
+		
+		/*
+		*  Функция открывает файл $target и читает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  
+		*  отличие от предыдущей функции в том, что эта возвращает массив строк
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
 		}
 		
 		$lines = [];
@@ -229,32 +267,37 @@ class Local {
 		fclose($handle);
 		
 		return $lines;
+		
 	}
 
-	static public function readFile($target) {
+	static public function readFileGenerator($target) {
 		
 		/*
 		*  Функция открывает файл $target и читает его построчно
 		*  на входе нужно указать полный путь к файлу с названием и расширением
 		*  
-		*  отличие от предыдущей функции в том, что эта действует через генератор
+		*  отличие от предыдущих функций в том, что эта действует через генератор
+		*  это значит, что она позволяет распределять ресурсы при большой нагрузке
 		*  и потребляет меньше оперативной памяти - размером ровно на одну строку
+		*  
+		*  результат этой функции нужно оборачивать в итератор, например:
+		*  
+		*  foreach (Local::readFileGenerator($path) as $index => $line) {
+		*    ...
+		*  }
 		*  
 		*  функция возвращает текущую строку итерации
 		*/
-		
-		if (!file_exists($target)) {
-			return null;
-		}
 		
 		$handle = fopen($target, "r");
 		while(!feof($handle)) {
 			yield fgets($handle);
 		}
 		fclose($handle);
+		
 	}
 
-	static public function saveFile($target, $data = null, $mode = null) {
+	static public function writeFile($target, $data = null, $mode = null) {
 		
 		/*
 		*  Функция сохраняет данные $data в файл $target
@@ -266,8 +309,7 @@ class Local {
 		*    replace - замена файла
 		*    append - дозапись в конец файла
 		*  
-		*  вывод через функцию file_put_contents по сравнению с fopen+fwrite+fclose
-		*  оказывается быстрее при том же потреблении памяти, т.к. использует memory mapping
+		*  здесь вывод через функцию file_put_contents по сравнению с fopen+fwrite+fclose
 		*  
 		*  функция вернет true в случае успешного выполнения
 		*/
@@ -288,21 +330,22 @@ class Local {
 		
 	}
 
-	static public function writeFile($target, $data = null, $mode = null) {
+	static public function writeFileLine($target, $data = null, $mode = null, $separator = PHP_EOL) {
 		
 		/*
 		*  Функция открывает файл $target и записывает его построчно
 		*  на входе нужно указать полный путь к файлу с названием и расширением
 		*  
-		*  отличие от предыдущей функции в том, что эта принимает массив
-		*  и записывает его построчно
+		*  отличие от предыдущей функции в том, что эта
+		*  может принимать на вход как массив, так и обычные данные
+		*  и записывает их построчно
 		*/
 		
 		$handle = fopen($target, $mode === 'append' ? "c" : "w");
 		fseek($handle, 0, SEEK_END);
 		if (System::typeOf($data, 'iterable')) {
 			foreach ($data as $item) {
-				fwrite($handle, $item . "\n");
+				fwrite($handle, $item . $separator);
 			}
 			unset($item);
 		} else {
@@ -310,6 +353,47 @@ class Local {
 		}
 		
 		fclose($handle);
+		
+	}
+
+	static public function writeFileGenerator($target, $mode = null, $separator = PHP_EOL) {
+		
+		/*
+		*  Функция открывает файл $target и записывает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  
+		*  отличие от предыдущих функций в том, что эта действует через генератор
+		*  это значит, что она позволяет распределять ресурсы при большой нагрузке
+		*  и потребляет меньше оперативной памяти - размером ровно на одну строку
+		*  
+		*  передавать данные нужно через втроенный системный метод send(), например:
+		*  $file = Local::writeFileGenerator($path);
+		*  foreach ($data as $index => $line) {
+		*    ...
+		*    $file -> send($line);
+		*  }
+		*  
+		*  Функция прекращает работу после передачи пустого значения
+		*/
+		
+		$handle = fopen($target, $mode === 'append' ? "c" : "w");
+		fseek($handle, 0, SEEK_END);
+		
+		$c = true;
+		
+		while ($c) {
+			$data = yield;
+			if (
+				!System::set($data)
+			) {
+				$c = null;
+			} else {
+				fwrite($handle, $data . $separator);
+			}
+		}
+		
+		fclose($handle);
+		yield false;
 		
 	}
 
@@ -335,111 +419,12 @@ class Local {
 		*  на входе нужно указать полный путь к файлу с названием и расширением
 		*/
 		
-		fclose(fopen($filename, 'w'));
+		fclose(fopen($target, 'w'));
 		
 		//if (file_exists($target)) {
 		//	unlink($target);
 		//}
 		//file_put_contents($filename, null);
-		
-	}
-
-	static public function file($filename, $funcname = false, $values = false) {
-		
-		/*
-		*  Универсальная функция, объединяющая две предыдущие
-		*  Базовая для работы с локальными данными
-		*  
-		*  на входе нужно указать полный путь к файлу с названием и расширением
-		*  вторым параметром - название функции-обработчика
-		*  третьим параметром - дополнительные значения
-		*  
-		*  функция предназначена для построчной обработки больших файлов
-		*  
-		*  если файл не существует, функция вернет 'false',
-		*  так что перед ее вызовом не нужно проводить предварительную проверку
-		*  
-		*  если указан второй параметр, то функция работает через генератор
-		*  если второй параметр не указан, то функция работает через поток
-		*  
-		*  функция-обработчик должна включать одну переменную - передаваемую в функцию строку генератора
-		*  если вы хотите использовать другие значения, используйте второй параметр в качестве массива
-		*  
-		*  пример функции-обработчика без доп.параметров и ее вызов:
-		*  
-		*  function test($str) {
-		*    echo '<p>' . $str . </p>;
-		*  }
-		*  localFile($filename, 'test');
-		*  
-		*  пример функции-обработчика c одним доп.параметром и ее вызов:
-		*  
-		*  function test($str, $trim) {
-		*    if ($trim) {
-		*      $srt = trim($srt);
-		*    }
-		*    echo '<p>' . $str . </p>;
-		*  }
-		*  localFile($filename, 'test', 1);
-		*  
-		*  пример функции-обработчика c доп.параметрами в виде массива и ее вызов:
-		*  
-		*  function test($str, $params) {
-		*    if ($params['trim']) {
-		*      $srt = trim($srt);
-		*    }
-		*    if ($params['tags']) {
-		*      $srt = '<p>' . $str . </p>;
-		*    }
-		*    if ($params['end']) {
-		*      $srt = $srt . PHP_EOL;
-		*    }
-		*    echo $str;
-		*  }
-		*  localFile($filename, 'test', ['trim', 'tags']);
-		*  
-		*  примеры использования с файлом объемом 2.36 mb
-		*  в скобках указана память после выполнения операции и потребляемая на операцию память
-		*  
-		*  $str = localFile($filename);
-		*    echo '<pre>' . $str . '</pre>'; // [2.37 mb - 6.88 mb]
-		*    echo '<pre>', $str, '</pre>'; //  [2.37 mb - 2.38 mb]
-		*  $str = '';
-		*  localFile($filename, 'ad');
-		*    echo '<pre>' . $str . '</pre>'; // [2.37 mb - 6.88 mb]
-		*    echo '<pre>', $str, '</pre>'; // [2.37 mb - 2.38 mb]
-		*  echo '<pre>', localFile($filename, 'ec'), '</pre>'; // [120.95 kb - 133.39 kb]
-		*  unset($str); // [121.17 kb]
-		*  
-		*  функции, использованные в примере:
-		*  function ec($a) { echo $a; }
-		*  function ad($a) { global $str; $str .= $a; }
-		*  
-		*  Обратите внимание, что использование генератора для построчной обработки
-		*  существенно экономит оперативную память системы!
-		*/
-		
-		if (!file_exists($filename)) {
-			return false;
-		}
-		
-		if (!$funcname) {
-			return localOpenFile($filename, $values);
-		}
-		
-		$iterator = localReadFile($filename);
-		
-		if (objectIs($iterator)) {
-			foreach ($iterator as $iteration) {
-				if ($values) {
-					$funcname($iteration, $values);
-				} else {
-					$funcname($iteration);
-				}
-			}
-		} else {
-			return false;
-		}
 		
 	}
 

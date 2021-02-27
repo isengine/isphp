@@ -33,6 +33,10 @@ is.Helpers.System = class {
 		
 	}
 
+	static isset(item = null) {
+		return typeof(item) != "undefined" && item !== null;
+	}
+
 	static set(item = null, yes = null, no = '') {
 		
 		// здесь, как и в php, не проходят проверку строки с пробелами и переносами

@@ -68,13 +68,21 @@ class Collection extends Data {
 		return Objects::find($this -> indexes, $id);
 	}
 	
-	public function add($data) {
+	public function add($data, $replace = true) {
 		
 		$id = $this -> getLast();
 		
 		$new = new Entry;
 		$new = Objects::merge( (array) $new, $data);
 		$new['id'] = $id['value'] + 1;
+		
+		if (Objects::match($this -> names, $new['name'])) {
+			if ($replace) {
+				$new['id'] = $this -> getId($new['name']);
+				$this -> data[$new['id']] = $new;
+			}
+			return;
+		}
 		
 		$this -> data[] = $new;
 		$this -> names[] = $new['name'];
@@ -83,10 +91,10 @@ class Collection extends Data {
 		
 	}
 	
-	public function addByList($data) {
+	public function addByList($data, $replace = true) {
 		
 		foreach ($data as $item) {
-			$this -> add($item);
+			$this -> add($item, $replace);
 		}
 		unset($item);
 		
@@ -97,7 +105,7 @@ class Collection extends Data {
 		$setId = System::set($id);
 		$setName = System::set($name);
 		
-		if (!$setId && !$setId) {
+		if (!$setId && !$setName) {
 			return;
 		} elseif (!$setId) {
 			$id = $this -> getId($name);

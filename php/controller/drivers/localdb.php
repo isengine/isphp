@@ -52,31 +52,7 @@ class LocalDB extends Driver {
 		}
 		
 		if ($this -> query === 'read') {
-			
-			$json = json_encode($this -> filter);
-			$hash = md5($json) . '.' . Strings::len($json);
-			unset($json);
-			
-			$prepared = null;
-			
-			if ($this -> cache) {
-				$prepared = $this -> readListFromCache($hash);
-			}
-			
-			if (!$prepared && !is_array($prepared)) {
-				$prepared = $this -> createList();
-				if ($this -> cache) {
-					$this -> writeListToCache($hash, $prepared);
-				}
-			}
-			
-			if (!is_array($prepared)) {
-				$prepared = [];
-			}
-			
-			$this -> data = $prepared;
-			unset($prepared);
-			
+			$this -> read();
 		}
 		
 		// ЕЩЕ НУЖНО СДЕЛАТЬ ФИЛЬТРАЦИЮ И ОТБОР ПО УКАЗАННЫМ QUERY ДАННЫМ
@@ -90,52 +66,50 @@ class LocalDB extends Driver {
 		//echo '</pre>';
 		
 	}
-
-	private function readListFromCache($hash) {
-		$file = $this -> cache . $this -> collection . DS . $hash . '.ini';
-		return $this -> readDataFromFile($file);
-	}
 	
-	private function writeListToCache($hash, $data) {
-		$file = $this -> cache . $this -> collection . DS . $hash . '.ini';
-		$data = Parser::toJson($data, true);
-		Local::createFile($file, $data);
-		Local::saveFile($file, $data, 'replace');
-	}
-	
-	private function createList() {
+	public function prepare() {
 		
 		$path = $this -> path . $this -> collection . DS;
 		
-		$list = [];
 		$files = [];
 		
 		$files = Local::list($path, ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]);
-		
 		//echo '<pre>' . print_r($files, 1) . '</pre>';
+		
+		$count = 0;
 		
 		foreach ($files as $key => $item) {
 			$entry = $this -> createInfoFromFile($item, $key);
-			if ($entry && $this -> filter) {
-				$entry = $this -> filtration($entry);
+			
+			// проверка по имени
+			if (!$this -> verifyName($entry['name'])) {
+				$entry = null;
 			}
+			
+			// проверка по датам
+			if (!$this -> verifyTime($entry)) {
+				$entry = null;
+			}
+			
 			if ($entry) {
-				if (!$entry['data'] && $entry['path']) {
-					$entry['data'] = $this -> readDataFromFile($entry['path']);
-				}
-				$list[] = $entry;
+				$entry['data'] = $this -> readDataFromFile($entry['path']);
 			}
+			
+			// контрольная проверка
+			$count = $this -> verifyFinal($entry, $count);
+			if (!$count) {
+				break;
+			}
+			
 		}
 		unset($key, $item);
 		
 		unset($files);
 		
-		return $list;
-		
 	}
-
+	
 	private function readDataFromFile($path) {
-		$file = Local::openFile($path);
+		$file = Local::readFile($path);
 		return Parser::fromJson($file);
 	}
 	
@@ -182,94 +156,7 @@ class LocalDB extends Driver {
 		];
 		
 	}
-
-	private function filtration($entry) {
-		
-		$method = $this -> filter['method'];
-		
-		$tpass = $method === 'and';
-		
-		foreach ($this -> filter['filters'] as $key => $item) {
-			
-			if ($item['data']) {
-				// нужно читать содержимое файла и выводить
-				$entry['data'] = $this -> readDataFromFile($entry['path']);
-				$data = $entry['data'][$item['name']];
-			} else {
-				$data = $entry[$item['name']];
-			}
-			
-			$gpass = null;
-			
-			foreach ($item['values'] as $i) {
-				
-				//if ($i['type'] === 'noempty') {
-				//	$pass = System::set($data);
-				//} elseif ($i['type'] === 'equal') {
-				//	$pass = is_array($data) ? Match::equalIn($data, $i['name'], null) : Match::equal($data, $i['name']);
-				//} elseif ($i['type'] === 'string') {
-				//	$pass = is_array($data) ? Match::stringIn($data, $i['name'], null) : Match::string($data, $i['name']);
-				//} elseif ($i['type'] === 'numeric') {
-				//	$pass = is_array($data) ? Match::numericIn($data, $i['name'][0], $i['name'][1], null) : Match::numeric($data, $i['name']);
-				//}
-				
-				if ($i['type'] === 'noempty') {
-					$pass = System::set($data);
-				} else {
-					$func = $i['type'] . (is_array($data) ? 'In' : null);
-					if ($i['type'] === 'numeric') {
-						$pass = Match::$func($data, $i['name'][0], $i['name'][1], null);
-					} else {
-						$pass = Match::$func($data, $i['name'], null);
-					}
-					unset($func);
-				}
-				
-				if ($item['except']) {
-					$pass = !$pass;
-				}
-				
-				if ($item['require'] && !$pass) {
-					$gpass = null;
-					break;
-				}
-				
-				if ($pass || $gpass) {
-					$gpass = true;
-				}
-				
-				unset($pass);
-				//echo '<pre>I:' . print_r($i, 1) . '</pre>';
-				
-			}
-			unset($i);
-			
-			if ($method === 'and' && $gpass && $tpass) {
-				$tpass = true;
-			} elseif ($method === 'or' && ($gpass || $tpass)) {
-				$tpass = true;
-			} else {
-				$tpass = null;
-			}
-			
-			unset($gpass);
-			
-			//echo '<pre>' . print_r($entry, 1) . '</pre>';
-			//echo '<pre>' . print_r($item, 1) . '</pre>';
-			//echo '<pre>DATA:' . print_r($data, 1) . '</pre>';
-			//echo '<pre>RESULT:' . print_r($tpass, 1) . '</pre>';
-			//echo '<hr>';
-			
-		}
-		unset($key, $item);
-		
-		//echo '<pre>RESULT:' . print_r($tpass, 1) . '</pre>';
-		// если вернуть пустое значение, то текущая запись не внесется в общий лист
-		
-		return $tpass ? $entry : null;
-		
-	}
-
+	
 }
 
 ?>
