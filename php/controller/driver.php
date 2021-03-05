@@ -7,6 +7,8 @@ use is\Helpers\Local;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Parser;
+use is\Helpers\System;
+use is\Helpers\Prepare;
 
 abstract class Driver extends Data {
 	
@@ -38,11 +40,11 @@ abstract class Driver extends Data {
 	в дальнейшем мы добавим классы по работе через PDO и, возможно, подключим сторонние библиотеки в проект
 	*/
 	
-	public $prepare;
-	public $settings;
-	public $cache;
+	public $prepare; // здесь должен будет храниться подготовленный запрос
+	public $settings; // настройки подключения
+	public $cache; // кэшированные данных
 	public $cached; // триггер, что запрос прокеширован
-	public $hash;
+	public $hash; // хэш, контрольная сумма запроса, по которой запрос будет искаться в кэше
 	
 	public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
 	public $collection; // раздел базы данных
@@ -421,6 +423,107 @@ abstract class Driver extends Data {
 		
 	}
 	
+	public function verifyFields(&$entry) {
+		
+		if (!$entry || !$this -> fields) {
+			return null;
+		}
+		
+		$keys_needed = Objects::keys($this -> fields);
+		$keys_data = Objects::keys($entry['data']);
+		
+		//echo print_r($keys_needed, 1) . '<br>';
+		//echo print_r($keys_data, 1) . '<br>';
+		
+		$keys = array_diff($keys_needed, $keys_data);
+		//echo print_r($keys, 1) . '<br>';
+		
+		if ($keys) {
+			$entry['data'] = Objects::add(
+				$entry['data'],
+				Objects::combine([], $keys, null)
+			);
+		}
+		
+		if ($entry['data']) {
+			foreach ($entry['data'] as $key => &$item) {
+				
+				$field = $this -> fields[$key];
+				
+				if (!$field) {
+					continue;
+				}
+				
+				if ($field['default'] && !System::set($item)) {
+					$item = $field['default'];
+				}
+				
+				if ($field['exclude']) {
+					$item = null;
+					unset($entry['data'][$key]);
+				}
+				
+				if ($item) {
+					
+					if ($field['convert'] === 'array') {
+						$item = Objects::convert($item);
+					} elseif ($field['convert'] === 'json') {
+						$item = Parser::toJson($item);
+					} elseif ($field['convert'] === 'string') {
+						$item = Strings::join($item);
+					} elseif ($field['convert'] === 'first') {
+						$item = Objects::first($item);
+					} elseif ($field['convert'] === 'last') {
+						$item = Objects::last($item);
+					}
+					
+					if ($field['prepare']) {
+						foreach ($field['prepare'] as $i) {
+							$item = Prepare::$i($item);
+						}
+						unset($i);
+					}
+					
+					if ($field['match'] && $field['match']['type']) {
+						
+						if ($field['match']['type'] === 'string') {
+							if (!Match::string($item, $field['match']['data'])) {
+								$item = null;
+							}
+						} elseif ($field['match']['type'] === 'numeric') {
+							$field['match']['data'] = Objects::convert($field['match']['data']);
+							if (!Match::numeric($item, $field['match']['data'][0], $field['match']['data'][1])) {
+								if ($field['match']['data'][2]) {
+									// т.к. совпадения нет, значит item уже или меньше или больше допустимых пределов
+									$item = $item > $field['match']['data'][1] ? $item = $field['match']['data'][1] : $field['match']['data'][0];
+								} else {
+									$item = null;
+								}
+							}
+						} elseif ($field['match']['type'] === 'len') {
+							$field['match']['data'] = Objects::convert($field['match']['data']);
+							$n = Prepare::len($item, $field['match']['data'][0], $field['match']['data'][1]);
+							if ($item !== $n) {
+								if ($field['match']['data'][2]) {
+									$item = $n;
+								} else {
+									$item = null;
+								}
+							}
+						}
+						
+					}
+					
+				}
+					
+					
+				//echo '[' . $field . ']<br>';
+			}
+			unset($key, $item);
+		}
+		
+	}
+
 	public function verifyName($name) {
 		
 		return !$name || !$this -> settings['all'] && Strings::first($name) === '!' ? null : true;
@@ -443,9 +546,9 @@ abstract class Driver extends Data {
 		
 	}
 
-	public function verifyFinal($entry, $count) {
+	public function verify($entry, $count) {
 		
-		// контрольная проверка
+		// общая итоговая проверка
 		
 		// проверка по правам
 		$entry = $this -> rightsEntry($entry);
@@ -454,6 +557,9 @@ abstract class Driver extends Data {
 		if (!$this -> filter($entry)) {
 			$entry = null;
 		}
+		
+		// проверка и подготовка полей
+		$this -> verifyFields($entry);
 		
 		// еще раз проверка по имени - контрольная
 		if (!$this -> verifyName($entry['name'])) {

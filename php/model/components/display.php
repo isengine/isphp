@@ -59,7 +59,8 @@ class Display extends Globals {
 	}
 	
 	public function dump($data, $before = '<pre>', $after = '</pre>') {
-		echo $before, var_export($data, 1), $after;
+		//echo $before, var_export($data, 1), $after;
+		echo $before, print_r($data, 1), $after;
 	}
 	
 }

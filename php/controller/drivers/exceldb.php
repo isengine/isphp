@@ -68,6 +68,11 @@ class ExcelDB extends Driver {
 		
 	}
 	
+	public function hash() {
+		$json = json_encode($this -> filter) . json_encode($this -> fields) . json_encode($this -> rights);
+		$this -> hash = md5_file($this -> path . $this -> collection . '.xlsx') . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
+	}
+	
 	public function prepare() {
 		
 		$path = $this -> path . $this -> collection . '.xlsx';
@@ -171,8 +176,8 @@ class ExcelDB extends Driver {
 			}
 			
 			// контрольная проверка
-			$count = $this -> verifyFinal($entry, $count);
-			if (!$count) {
+			$count = $this -> verify($entry, $count);
+			if (!System::set($count)) {
 				break;
 			}
 			
