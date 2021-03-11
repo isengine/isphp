@@ -62,6 +62,22 @@ class Data {
 		
 	}
 	
+	public function addDataKey($key, $data) {
+		
+		// Добавляет данные по ключу
+		
+		$this -> data[$key][] = $data;
+		
+	}
+	
+	public function resetDataKey($key) {
+		
+		// Сбрасывает все данные по ключу
+		
+		$this -> data[$key] = null;
+		
+	}
+	
 	public function mergeData($data, $recursion = null) {
 		
 		// Заменяет текущие данные новыми, переданными в массиве 'merge'

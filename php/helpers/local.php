@@ -68,7 +68,11 @@ class Local {
 		
 		$list = [
 			'folders' => [],
-			'files' => []
+			'files' => [],
+			'sub' => [
+				'folders' => [],
+				'files' => []
+			]
 		];
 		
 		foreach ($scan as $key => $item) {

@@ -240,6 +240,35 @@ class Sessions {
 		
 	}
 
+	static public function setHash($name, $data) {
+		
+		/*
+		*  функция записывает данные в куки
+		*  и задает хэш данных в сессию
+		*/
+		
+		$data = json_encode($data);
+		
+		$_SESSION[$name] = md5($data);
+		self::setCookie($name, $data);
+		
+	}
+
+	static public function getHash($name) {
+		
+		/*
+		*  функция читает хэш данных из кук
+		*  сверяет его с хэшем данных в сессии
+		*  и если все в порядке, возвращает данные
+		*  в противном случае возвращает null
+		*/
+		
+		$data = getCookie($name);
+		
+		return !$data && $_SESSION[$name] === md5($data) ? json_decode($data, true) : null;
+		
+	}
+
 }
 
 ?>

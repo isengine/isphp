@@ -47,17 +47,39 @@ class Collection extends Data {
 	}
 	
 	public function get() {
-		return $this -> names;
+		return $this -> data;
 	}
 	
 	public function getFirst() {
+		return Objects::first($this -> data, 'value');
+	}
+	
+	public function getLast() {
+		return Objects::last($this -> data, 'value');
+	}
+	
+	public function getFirstData() {
+		$result = $this -> getFirst();
+		return $result['data'];
+	}
+	
+	public function getLastData() {
+		$result = $this -> getLast();
+		return $result['data'];
+	}
+	
+	public function getNames() {
+		return $this -> names;
+	}
+	
+	public function getFirstId() {
 		$sorted = Objects::sort($this -> indexes);
 		return Objects::first($sorted);
 	}
 	
-	public function getLast() {
+	public function getLastId() {
 		$sorted = Objects::sort($this -> indexes);
-		return Objects::last($sorted);
+		return Objects::last($sorted, 'value');
 	}
 	
 	public function getId($name) {
@@ -68,13 +90,32 @@ class Collection extends Data {
 		return Objects::find($this -> indexes, $id);
 	}
 	
+	public function getById($id) {
+		return $this -> getData($id);
+	}
+	
+	public function getByName($name) {
+		$id = $this -> getId($name);
+		return $this -> getById($id);
+	}
+	
+	public function getDataById($id) {
+		$result = $this -> getById($id);
+		return $result['data'];
+	}
+	
+	public function getDataByName($name) {
+		$result = $this -> getByName($name);
+		return $result['data'];
+	}
+	
 	public function add($data, $replace = true) {
 		
-		$id = $this -> getLast();
+		$id = $this -> getLastId();
 		
 		$new = new Entry;
 		$new = Objects::merge( (array) $new, $data);
-		$new['id'] = $id['value'] + 1;
+		$new['id'] = System::type($id, 'numeric') ? $id + 1 : 0;
 		
 		if (Objects::match($this -> names, $new['name'])) {
 			if ($replace) {
@@ -148,13 +189,13 @@ class Collection extends Data {
 	}
 	
 	public function removeFirst() {
-		$id = $this -> getFirst();
+		$id = $this -> getFirstId();
 		$this -> remove($id['value'], null);
 	}
 	
 	public function removeLast() {
-		$id = $this -> getLast();
-		$this -> remove($id['value'], null);
+		$id = $this -> getLastId();
+		$this -> remove($id, null);
 	}
 	
 	public function sortById() {
@@ -197,48 +238,11 @@ class Collection extends Data {
 		$this -> names = Objects::randomize($this -> names);
 	}
 	
-	public function filter($parameters = null) {
-		
-		/*
-		*  ФУНКЦИЮ НАДО ПЕРЕПИЛИТЬ ИЛИ УДАЛИТЬ ВООБЩЕ
-		*  перепил заключается в том, чтобы сделать ее возвратом массива ключей и значений уже отфильтрованных
-		*  0 - type: by entry / by data
-		*  1 - value: name entry/data filed
-		*  2 - match name
-		*  ./0 - haystack (add)
-		*  3/1 - needle / minmax / min
-		*  4/2 - and / max
-		*  5/3 - ... / and
-		*  6 - sort
-		*/
-		
-		$type = array_shift($parameters);
-		$value = array_shift($parameters);
-		$name = array_shift($parameters);
-		$sort = $parameters[6];
-		
+	public function reset() {
+		$this -> data = [];
 		$this -> names = [];
-		foreach ($this -> data as $item) {
-			
-			$setType = $type === 'entry' ? $item : $item['data'];
-			$setValue = $type === 'entry' ? $item[$value] : $item['data'][$value];
-			
-			if (
-				System::typeData($setType, 'object') &&
-				System::typeOf($setValue, 'scalar') &&
-				Match::common($name, array_merge($setValue, $parameters))
-			) {
-				$this -> names[ $item['name'] ] = System::typeOf($setValue, 'scalar') ? $setValue : '';
-			}
-			
-		}
-		unset($item);
-		
-		if ($sort) {
-			$this -> names = Objects::sort($this -> names);
-		}
-		
-		$this -> names = Objects::keys($this -> names);
+		$this -> indexes = [];
+		$this -> count = 0;
 	}
 	
 }

@@ -12,19 +12,31 @@ use is\Model\Globals;
 
 class Session extends Globals\Session {
 	
-	
 	public function reset() {
 		
-		$state = State::getInstance();
-		
-		if ($state -> get('allow')) {
+		if (session_id()) {
+			session_unset();
 			session_destroy();
+		} else {
+			$_SESSION = [];
 		}
-		unset($_SESSION);
-		Sessions::unCookie(['SID', 'UID', 'rights', 'allow']);
+		
+		$cookies = Objects::keys(Sessions::getCookie());
+		Sessions::unCookie($cookies);
 		
 	}
 	
+	public function getSession($name) {
+		return $this -> $name;
+	}
+	
+	public function getValue($name) {
+		return $_SESSION[$name];
+	}
+	
+	public function setValue($name, $data) {
+		$_SESSION[$name] = $data;
+	}
 	
 }
 

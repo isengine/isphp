@@ -9,6 +9,7 @@ use is\Helpers\Objects;
 use is\Helpers\Parser;
 use is\Helpers\System;
 use is\Helpers\Prepare;
+use is\Helpers\Match;
 
 abstract class Driver extends Data {
 	
@@ -63,7 +64,7 @@ abstract class Driver extends Data {
 	
 	public $owner; // имя текущего владельца
 	
-	public $right; // права доступа к базе данных
+	public $rights; // права доступа к базе данных
 	public $filter; // параметры фильтрации результата из базы данных
 	public $fields; // параметры правил обработки полей
 	
@@ -188,6 +189,11 @@ abstract class Driver extends Data {
 			$this -> rights['default'] === false
 		) {
 			$rights = $this -> rights['default'];
+		} elseif (
+			$this -> rights[$this -> query] ||
+			$this -> rights[$this -> query] === false
+		) {
+			$rights = $this -> rights[$this -> query];
 		} else {
 			$rights = $this -> rights;
 		}
@@ -291,13 +297,18 @@ abstract class Driver extends Data {
 					$first = Strings::first($i);
 					$num = Strings::match($i, '_');
 					
-					if ($first === '+') {
+					if (
+						$first === '+' ||
+						$first === '-'
+					) {
+						$value['except'] = $first === '-' ? true : null;
 						$value['require'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '-') {
-						$value['except'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '*') {
+						$i = Strings::unfirst($i);
+						$value['name'] = $i;
+						$first = Strings::first($i);
+					}
+					
+					if ($first === '*') {
 						$value['type'] = 'string';
 						$value['name'] = Strings::unfirst($i);
 					} elseif ($num) {
@@ -378,11 +389,11 @@ abstract class Driver extends Data {
 					unset($func);
 				}
 				
-				if ($item['except']) {
+				if ($i['except']) {
 					$pass = !$pass;
 				}
 				
-				if ($item['require'] && !$pass) {
+				if ($i['require'] && !$pass) {
 					$gpass = null;
 					break;
 				}

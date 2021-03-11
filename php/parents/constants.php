@@ -42,6 +42,21 @@ class Constants extends Singleton {
 		return System::set($key) ? $this -> constants[ $this -> convert($key) ] : $this -> constants;
 	}
 	
+	public function getArray($prefix, $convert = null) {
+		$result = [];
+		$prefix = mb_strtoupper($prefix);
+		foreach ($this -> constants as $key => $item) {
+			if (Strings::find($key, $prefix, 0)) {
+				if ($convert) {
+					$key = mb_strtolower(Strings::get($key, 3));
+				}
+				$result[$key] = $item;
+			}
+		}
+		unset($key, $item);
+		return $result;
+	}
+	
 	public function is($key) {
 		return isset( $this -> constants[ $this -> convert($key) ] ) ? true : null;
 	}

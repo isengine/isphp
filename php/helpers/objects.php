@@ -792,6 +792,16 @@ class Objects {
 		
 	}
 
+	static public function reset(&$item) {
+		
+		/*
+		*  НОВАЯ Функция которая сбрасывает ключи массива
+		*/
+		
+		return self::values($item);
+		
+	}
+
 	static public function array_simple($item) {
 		
 		/*

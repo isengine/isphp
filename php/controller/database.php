@@ -39,6 +39,11 @@ class Database extends Singleton {
 		);
 	}
 	
+	public function clear() {
+		$this -> driver -> resetFilter();
+		$this -> data -> reset();
+	}
+	
 	public function launch() {
 		$this -> driver -> launch();
 		$this -> data -> addByList($this -> driver -> data); // new

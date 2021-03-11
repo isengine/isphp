@@ -12,20 +12,13 @@ use is\Parents;
 
 class User extends Parents\Globals {
 	
-	public $id; // late as uid
-	public $allow; // as []
-	public $rights; // as []
-	
-	public $ip; // now in session
-	public $sid; // now in session
-	public $token; // now in session
+	public $settings;
+	public $special;
+	public $rights;
 	
 	public function init() {
-		
-		$this -> ip = Ip::real();
-		$this -> sid = session_id();
-		$this -> token = Prepare::crypt( time() );
-		
+		unset($this -> data);
+		$this -> data = new Parents\Entry;
 	}
 	
 }
