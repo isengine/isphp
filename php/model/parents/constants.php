@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Parents;
+namespace is\Model\Parents;
 
 use is\Helpers\System;
 use is\Helpers\Strings;

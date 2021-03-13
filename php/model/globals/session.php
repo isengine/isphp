@@ -9,7 +9,7 @@ use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Ip;
 use is\Helpers\Prepare;
-use is\Parents;
+use is\Model\Parents;
 
 class Session extends Parents\Globals {
 	

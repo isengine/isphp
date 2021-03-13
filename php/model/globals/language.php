@@ -8,7 +8,7 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Prepare;
-use is\Parents;
+use is\Model\Parents;
 
 class Language extends Parents\Globals {
 	

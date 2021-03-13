@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Parents;
+namespace is\Model\Parents;
 
 use is\Helpers\System;
 
@@ -9,7 +9,7 @@ class Entry extends Data {
 	public $id;
 	public $name;
 	public $type;
-	public $parent;
+	public $parents;
 	public $ctime;
 	public $mtime;
 	public $dtime;
@@ -20,7 +20,7 @@ class Entry extends Data {
 		$result = [];
 		
 		$array = [
-			'id', 'name', 'type', 'parent', 'ctime', 'mtime', 'dtime', 'owner'
+			'id', 'name', 'type', 'parents', 'ctime', 'mtime', 'dtime', 'owner'
 		];
 		
 		foreach ($array as $item) {
@@ -43,7 +43,7 @@ class Entry extends Data {
 	public function setEntry($data) {
 		
 		$array = [
-			'id', 'name', 'type', 'parent', 'ctime', 'mtime', 'dtime', 'owner'
+			'id', 'name', 'type', 'parents', 'ctime', 'mtime', 'dtime', 'owner'
 		];
 		
 		foreach ($array as $item) {

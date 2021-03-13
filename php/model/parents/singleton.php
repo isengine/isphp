@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Parents;
+namespace is\Model\Parents;
 
 class Singleton extends Data {
 	

@@ -8,7 +8,7 @@ use is\Helpers\Sessions;
 use is\Helpers\Ip;
 use is\Helpers\Local;
 use is\Model\Components\Path;
-use is\Parents\Globals;
+use is\Model\Parents\Globals;
 
 class Log extends Globals {
 	

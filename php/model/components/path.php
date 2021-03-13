@@ -5,7 +5,7 @@ namespace is\Model\Components;
 use is\Helpers\System;
 use is\Helpers\Strings;
 use is\Helpers\Url;
-use is\Parents\Data;
+use is\Model\Parents\Data;
 
 class Path extends Data {
 	

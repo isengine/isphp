@@ -8,7 +8,7 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Url;
-use is\Parents;
+use is\Model\Parents;
 
 class Uri extends Parents\Globals {
 	

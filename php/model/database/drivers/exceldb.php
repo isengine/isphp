@@ -1,8 +1,8 @@
 <?php
 
-namespace is\Controller\Drivers;
+namespace is\Model\Database\Drivers;
 
-use is\Controller\Driver;
+use is\Model\Database\Driver;
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
 use is\Helpers\Objects;

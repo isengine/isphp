@@ -3,7 +3,7 @@
 namespace is\Model\Components;
 
 use is\Helpers\Sessions;
-use is\Parents\Globals;
+use is\Model\Parents\Globals;
 use is\Model\Components\Path;
 
 class Api extends Globals {

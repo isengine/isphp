@@ -1,15 +1,15 @@
 <?php
 
-namespace is\Controller;
+namespace is\Model\Database;
 
 use is\Helpers\Sessions;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Parser;
 use is\Helpers\Prepare;
-use is\Parents\Singleton;
-use is\Parents\Collection;
-use is\Controller\Driver;
+use is\Model\Parents\Singleton;
+use is\Model\Parents\Collection;
+use is\Model\Database\Driver;
 
 class Database extends Singleton {
 	
@@ -24,7 +24,7 @@ class Database extends Singleton {
 	
 	public function init($settings) {
 		
-		$settings['driver'] = '\\is\\Controller\\Drivers\\' . $settings['driver'];
+		$settings['driver'] = '\\is\\Model\\Database\\Drivers\\' . $settings['driver'];
 		$this -> driver = new $settings['driver'] ($settings);
 		
 		$this -> data = new Collection;

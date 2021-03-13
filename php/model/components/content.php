@@ -10,7 +10,7 @@ use is\Helpers\Sessions;
 use is\Helpers\Parser;
 use is\Helpers\Local as LocalFunctions;
 use is\Model\Components\Local as LocalComponent;
-use is\Parents\Data;
+use is\Model\Parents\Data;
 
 class Content extends LocalComponent {
 	

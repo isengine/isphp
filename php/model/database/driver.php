@@ -1,12 +1,15 @@
 <?php
 
-namespace is\Controller;
+namespace is\Model\Database;
 
-use is\Parents\Data;
+use is\Model\Parents\Data;
 use is\Helpers\Local;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Parser;
+use is\Helpers\System;
+use is\Helpers\Prepare;
+use is\Helpers\Match;
 
 abstract class Driver extends Data {
 	
@@ -31,17 +34,18 @@ abstract class Driver extends Data {
 	удаление - здесь тоже все понятно
 	
 	чтобы создать и подключить свой собственный драйвер, нужно создать класс, наследующий данный класс
-	и поместить его в пространство имен is\Controller\Drivers
+	и поместить его в пространство имен is\Model\Database\Drivers
 	подключить данный файл (или поместить его в папку фреймворка, что не рекомендуется)
 	а затем, если вы работаете с ядром, проинициализировать его в настройках ядра
 	
 	в дальнейшем мы добавим классы по работе через PDO и, возможно, подключим сторонние библиотеки в проект
 	*/
 	
-	public $prepare;
-	public $settings;
-	public $cache;
-	public $hash;
+	public $prepare; // здесь должен будет храниться подготовленный запрос
+	public $settings; // настройки подключения
+	public $cache; // кэшированные данных
+	public $cached; // триггер, что запрос прокеширован
+	public $hash; // хэш, контрольная сумма запроса, по которой запрос будет искаться в кэше
 	
 	public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
 	public $collection; // раздел базы данных
@@ -58,6 +62,9 @@ abstract class Driver extends Data {
 	public $dtime; // дата и время (в формате unix) удаления записи в базе данных
 	*/
 	
+	public $owner; // имя текущего владельца
+	
+	public $rights; // права доступа к базе данных
 	public $filter; // параметры фильтрации результата из базы данных
 	public $fields; // параметры правил обработки полей
 	
@@ -85,26 +92,34 @@ abstract class Driver extends Data {
 	public function readCache() {
 		$path = $this -> cache . $this -> collection . DS . $this -> hash . '.ini';
 		if (file_exists($path)) {
-			
-			foreach (Local::readFile($path) as $line) {
-				echo $line;
-			}
-			
-			//$file = Local::openFile($path);
+			$this -> cached = true;
+			//$file = Local::readFile($path);
 			//return Parser::fromJson($file);
-			
+			foreach (Local::readFileGenerator($path) as $line) {
+				$parse = Parser::fromJson($line);
+				if ($parse) {
+					$this -> addData($parse);
+				}
+			}
 		}
 	}
 	
 	public function writeCache() {
 		$file = $this -> cache . $this -> collection . DS . $this -> hash . '.ini';
-		$data = Parser::toJson($this -> data, true);
 		Local::createFile($file);
-		Local::saveFile($file, $data, 'replace');
+		//$data = Local::writeFileGenerator($file);
+		foreach ($this -> data as $item) {
+			$parse = Parser::toJson($item);
+			Local::writeFile($file, $parse . "\n", 'append'); //
+			//$data -> send($parse);
+		}
+		unset($item, $parse);
+		//$data -> send(null);
+		//unset($data);
 	}
 	
 	public function hash() {
-		$json = json_encode($this -> filter) . json_encode($this -> fields);
+		$json = json_encode($this -> filter) . json_encode($this -> fields) . json_encode($this -> rights);
 		$this -> hash = md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
 	}
 	
@@ -114,10 +129,11 @@ abstract class Driver extends Data {
 		$this -> resetData();
 		
 		if ($this -> cache) {
-			$this -> data = $this -> readCache();
+			//$this -> data = $this -> readCache();
+			$this -> readCache();
 		}
 		
-		if (!$this -> data && !is_array($this -> data)) {
+		if (!$this -> cached) {
 			$this -> prepare();
 			if ($this -> cache) {
 				$this -> writeCache();
@@ -144,6 +160,99 @@ abstract class Driver extends Data {
 	
 	public function fields($key, $item) {
 		$this -> fields[$key] = $item;
+	}
+	
+	public function rights($rights, $owner = null) {
+		$this -> rights = $rights;
+		$this -> owner = $owner;
+	}
+	
+	public function setRights() {
+		$rights = null;
+		if (
+			$this -> rights[$this -> collection][$this -> query] ||
+			$this -> rights[$this -> collection][$this -> query] === false
+		) {
+			$rights = $this -> rights[$this -> collection][$this -> query];
+		} elseif (
+			$this -> rights[$this -> collection] ||
+			$this -> rights[$this -> collection] === false
+		) {
+			$rights = $this -> rights[$this -> collection];
+		} elseif (
+			$this -> rights['default'][$this -> query] ||
+			$this -> rights['default'][$this -> query] === false
+		) {
+			$rights = $this -> rights['default'][$this -> query];
+		} elseif (
+			$this -> rights['default'] ||
+			$this -> rights['default'] === false
+		) {
+			$rights = $this -> rights['default'];
+		} elseif (
+			$this -> rights[$this -> query] ||
+			$this -> rights[$this -> query] === false
+		) {
+			$rights = $this -> rights[$this -> query];
+		} else {
+			$rights = $this -> rights;
+		}
+		return $rights;
+	}
+	
+	public function rightsEntry($entry) {
+		
+		if (!$entry || !$this -> rights) {
+			return null;
+		}
+		
+		$rights = $this -> setRights();
+		
+		$allow = $rights['allow'];
+		$deny = $rights['deny'];
+		
+		$owner = $entry['owner'] && System::typeOf($entry['owner'], 'iterable') ? Objects::match($entry['owner'], $this -> owner) : $entry['owner'] === $this -> owner;
+		
+		// возможные значения, в порядке приоритета обработки:
+		// 1. owner - разрешен доступ к записям, если совпадает владелец (имя)
+		// 2. allow = [...] | deny = true - запрещено все, кроме ...
+		// 3. allow = true | deny = [...] - разрешено все, кроме ...
+		// 4. allow = true | deny = false - разрешено все
+		// 5. allow = false | deny = true - запрещено все
+		
+		if ($rights['owner'] && $this -> owner && $owner) {
+			// если это условие убрать, то приоритеты проверки сломаются
+		} elseif (is_array($allow)) {
+			$new = [];
+			foreach ($allow as $item) {
+				if (Strings::match($item, ':')) {
+					$levels = Parser::fromString($item);
+					$new = Objects::level($new, $levels, Objects::extract($entry, $levels));
+				} else {
+					$new[$item] = $entry[$item];
+				}
+			}
+			$entry = $new;
+			unset($item, $new);
+		} elseif (is_array($deny)) {
+			foreach ($deny as $item) {
+				if (Strings::match($item, ':')) {
+					$levels = Parser::fromString($item);
+					$entry = Objects::level($entry, $levels, null);
+				} else {
+					$entry[$item] = null;
+				}
+			}
+			unset($item);
+		} elseif ($allow || !$deny) {
+			// если это условие убрать, то разрешение станет в приоритете к запрещению
+			// а сейчас запрещение назначается последним, если не прошли все проверки
+		} else {
+			$entry = null;
+		}
+		
+		return $entry;
+		
 	}
 	
 	public function methodFilter($name) {
@@ -188,13 +297,18 @@ abstract class Driver extends Data {
 					$first = Strings::first($i);
 					$num = Strings::match($i, '_');
 					
-					if ($first === '+') {
+					if (
+						$first === '+' ||
+						$first === '-'
+					) {
+						$value['except'] = $first === '-' ? true : null;
 						$value['require'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '-') {
-						$value['except'] = true;
-						$value['name'] = Strings::unfirst($i);
-					} elseif ($first === '*') {
+						$i = Strings::unfirst($i);
+						$value['name'] = $i;
+						$first = Strings::first($i);
+					}
+					
+					if ($first === '*') {
 						$value['type'] = 'string';
 						$value['name'] = Strings::unfirst($i);
 					} elseif ($num) {
@@ -275,11 +389,11 @@ abstract class Driver extends Data {
 					unset($func);
 				}
 				
-				if ($item['except']) {
+				if ($i['except']) {
 					$pass = !$pass;
 				}
 				
-				if ($item['require'] && !$pass) {
+				if ($i['require'] && !$pass) {
 					$gpass = null;
 					break;
 				}
@@ -320,6 +434,107 @@ abstract class Driver extends Data {
 		
 	}
 	
+	public function verifyFields(&$entry) {
+		
+		if (!$entry || !$this -> fields) {
+			return null;
+		}
+		
+		$keys_needed = Objects::keys($this -> fields);
+		$keys_data = Objects::keys($entry['data']);
+		
+		//echo print_r($keys_needed, 1) . '<br>';
+		//echo print_r($keys_data, 1) . '<br>';
+		
+		$keys = array_diff($keys_needed, $keys_data);
+		//echo print_r($keys, 1) . '<br>';
+		
+		if ($keys) {
+			$entry['data'] = Objects::add(
+				$entry['data'],
+				Objects::combine([], $keys, null)
+			);
+		}
+		
+		if ($entry['data']) {
+			foreach ($entry['data'] as $key => &$item) {
+				
+				$field = $this -> fields[$key];
+				
+				if (!$field) {
+					continue;
+				}
+				
+				if ($field['default'] && !System::set($item)) {
+					$item = $field['default'];
+				}
+				
+				if ($field['exclude']) {
+					$item = null;
+					unset($entry['data'][$key]);
+				}
+				
+				if ($item) {
+					
+					if ($field['convert'] === 'array') {
+						$item = Objects::convert($item);
+					} elseif ($field['convert'] === 'json') {
+						$item = Parser::toJson($item);
+					} elseif ($field['convert'] === 'string') {
+						$item = Strings::join($item);
+					} elseif ($field['convert'] === 'first') {
+						$item = Objects::first($item);
+					} elseif ($field['convert'] === 'last') {
+						$item = Objects::last($item);
+					}
+					
+					if ($field['prepare']) {
+						foreach ($field['prepare'] as $i) {
+							$item = Prepare::$i($item);
+						}
+						unset($i);
+					}
+					
+					if ($field['match'] && $field['match']['type']) {
+						
+						if ($field['match']['type'] === 'string') {
+							if (!Match::string($item, $field['match']['data'])) {
+								$item = null;
+							}
+						} elseif ($field['match']['type'] === 'numeric') {
+							$field['match']['data'] = Objects::convert($field['match']['data']);
+							if (!Match::numeric($item, $field['match']['data'][0], $field['match']['data'][1])) {
+								if ($field['match']['data'][2]) {
+									// т.к. совпадения нет, значит item уже или меньше или больше допустимых пределов
+									$item = $item > $field['match']['data'][1] ? $item = $field['match']['data'][1] : $field['match']['data'][0];
+								} else {
+									$item = null;
+								}
+							}
+						} elseif ($field['match']['type'] === 'len') {
+							$field['match']['data'] = Objects::convert($field['match']['data']);
+							$n = Prepare::len($item, $field['match']['data'][0], $field['match']['data'][1]);
+							if ($item !== $n) {
+								if ($field['match']['data'][2]) {
+									$item = $n;
+								} else {
+									$item = null;
+								}
+							}
+						}
+						
+					}
+					
+				}
+					
+					
+				//echo '[' . $field . ']<br>';
+			}
+			unset($key, $item);
+		}
+		
+	}
+
 	public function verifyName($name) {
 		
 		return !$name || !$this -> settings['all'] && Strings::first($name) === '!' ? null : true;
@@ -339,6 +554,38 @@ abstract class Driver extends Data {
 			}
 		}
 		return $result;
+		
+	}
+
+	public function verify($entry, $count) {
+		
+		// общая итоговая проверка
+		
+		// проверка по правам
+		$entry = $this -> rightsEntry($entry);
+		
+		// проверка по фильтру
+		if (!$this -> filter($entry)) {
+			$entry = null;
+		}
+		
+		// проверка и подготовка полей
+		$this -> verifyFields($entry);
+		
+		// еще раз проверка по имени - контрольная
+		if (!$this -> verifyName($entry['name'])) {
+			$entry = null;
+		}
+		
+		if ($entry) {
+			$this -> addData($entry);
+			$count++;
+			if ($this -> settings['limit'] && $this -> settings['limit'] <= $count) {
+				$count = null;
+			}
+		}
+		
+		return $count;
 		
 	}
 

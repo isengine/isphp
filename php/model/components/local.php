@@ -8,7 +8,7 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Local as LocalFunctions;
-use is\Parents\Data;
+use is\Model\Parents\Data;
 
 class Local extends Data {
 	

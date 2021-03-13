@@ -7,7 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
-use is\Parents;
+use is\Model\Parents;
 
 class Process extends Parents\Globals {
 	
