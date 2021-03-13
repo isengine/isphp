@@ -3,6 +3,7 @@
 namespace is\Model\Components;
 
 use is\Helpers\Sessions;
+use is\Helpers\Paths;
 use is\Model\Parents\Globals;
 use is\Model\Components\Path;
 
@@ -22,10 +23,8 @@ class Api extends Globals {
 	public function setPath($path = null) {
 		
 		if ($path) {
-			$opath = new Path();
-			$path = $opath -> convertToUrl($path);
-			$path = $opath -> convertSlashes($path);
-			unset($opath);
+			$path = Paths::convertToUrl($path);
+			$path = Paths::clearSlashes($path);
 		}
 		
 		$this -> path = !$path || $path === '/' ? '/' : '/' . $path . '/';

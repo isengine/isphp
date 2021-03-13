@@ -4,7 +4,7 @@ namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Strings;
-use is\Helpers\Url;
+use is\Helpers\Paths;
 use is\Model\Parents\Data;
 
 class Path extends Data {
@@ -33,9 +33,9 @@ class Path extends Data {
 			}
 			unset($ptemp, $plen, $ppos);
 			
-			$path = $this -> convertSlashes($path);
+			$path = Paths::clearSlashes($path);
 			if (Strings::find($path, $this -> root) !== 0) {
-				$path = $this -> convertToReal($path);
+				$path = Paths::convertToReal($path);
 			}
 		}
 		
@@ -76,22 +76,6 @@ class Path extends Data {
 		}
 	}
 	
-	public function convertSlashes($item) {
-		//$item = preg_replace('/^[\\/]/ui', '', $item);
-		//$item = preg_replace('/[\\/]$/ui', '', $item);
-		$item = preg_replace('/^[\\\\\/]+/ui', '', $item);
-		$item = preg_replace('/[\\\\\/]+$/ui', '', $item);
-		return $item;
-	}
-	
-	public function convertToReal($item) {
-		return str_replace(':', DS, $item);
-	}
-	
-	public function convertToUrl($item) {
-		return str_replace(':', '/', $item);
-	}
-	
 	public function setUrl() {
 		if (Strings::find($this -> real, $this -> host) === false) {
 			$this -> url = '/';
@@ -115,11 +99,11 @@ class Path extends Data {
 	
 	public function getUrl($path) {
 		
-		$real = $this -> convertToReal($path);
+		$real = Paths::convertToReal($path);
 		$real = $this -> real . $real;
 		
 		if (file_exists($real)) {
-			$item = $this -> convertToUrl($path);
+			$item = Paths::convertToUrl($path);
 			$item = $this -> url . $item;
 			return $item;
 		}
@@ -128,7 +112,7 @@ class Path extends Data {
 	
 	public function getReal($path) {
 		
-		$item = $this -> convertToReal($path);
+		$item = Paths::convertToReal($path);
 		$item = $this -> real . $item;
 		
 		if (file_exists($item)) {
@@ -141,7 +125,7 @@ class Path extends Data {
 		
 		// Функция парсинга url-адреса
 		
-		$this -> parse = Url::parse($this -> url);
+		$this -> parse = Paths::parseUrl($this -> url);
 		
 		echo print_r($this -> parse, 1);
 		
@@ -153,7 +137,7 @@ class Path extends Data {
 		
 		if (System::set($path)) {
 			
-			$item = $this -> convertToReal($path);
+			$item = Paths::convertToReal($path);
 			$item = $this -> real . $item . '.php';
 			unset($path);
 			
@@ -163,12 +147,13 @@ class Path extends Data {
 			
 		} elseif (System::typeData($this -> data)) {
 			
+			unset($path);
+			
 			$this -> eachData($a, function($item){
-				$item = $this -> convertToReal($item);
+				$item = Paths::convertToReal($item);
 				$item = $this -> real . $item . '.php';
 				
 				if (file_exists($item)) {
-					unset($path);
 					require_once $item;
 				}
 			});
@@ -184,12 +169,12 @@ class Path extends Data {
 	public function print($path = null) {
 		if (System::set($path)) {
 			
-			$real = $this -> convertToReal($path);
+			$real = Paths::convertToReal($path);
 			$real = $this -> real . $item;
 			unset($path);
 			
 			if (file_exists($real)) {
-				$item = $this -> convertToUrl($path);
+				$item = Paths::convertToUrl($path);
 				$item = $this -> url . $item;
 				echo $item;
 			}
@@ -198,11 +183,11 @@ class Path extends Data {
 			
 			$this -> eachData($a, function($path){
 				
-				$real = $this -> convertToReal($path);
+				$real = Paths::convertToReal($path);
 				$real = $this -> real . $item;
 				
 				if (file_exists($real)) {
-					$item = $this -> convertToUrl($path);
+					$item = Paths::convertToUrl($path);
 					$item = $this -> url . $item;
 					unset($path, $real);
 					echo $item;

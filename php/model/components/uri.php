@@ -7,7 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
-use is\Helpers\Url;
+use is\Helpers\Paths;
 use is\Model\Globals;
 
 class Uri extends Globals\Uri {
@@ -56,7 +56,7 @@ class Uri extends Globals\Uri {
 	}
 	
 	public function setFile() {
-		$this -> file = Url::parseFile( Objects::last($this -> path['array'], 'value') );
+		$this -> file = Paths::parseFile( Objects::last($this -> path['array'], 'value') );
 		if (!$this -> file['extension']) {
 			$this -> file = [];
 		}

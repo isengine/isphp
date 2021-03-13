@@ -7,7 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
-use is\Helpers\Url;
+use is\Helpers\Paths;
 use is\Model\Parents;
 
 class Uri extends Parents\Globals {
@@ -30,9 +30,9 @@ class Uri extends Parents\Globals {
 		
 		// получение данных
 		
-		$url = $_SERVER['REQUEST_SCHEME'] . '://' . (extension_loaded('intl') ? idn_to_utf8($_SERVER['HTTP_HOST']) : $_SERVER['HTTP_HOST']) . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
+		$url = Paths::host() . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
 		
-		$urlparse = Url::parseUrl($url);
+		$urlparse = Paths::parseUrl($url);
 		
 		$this -> scheme = $urlparse['scheme'];
 		$this -> host = $urlparse['host'];
@@ -45,10 +45,8 @@ class Uri extends Parents\Globals {
 		$this -> path = [
 			'base' => null,
 			'string' => Strings::unfirst($urlparse['path']),
-			'array' => []
+			'array' => Objects::reset(Strings::split($urlparse['path'], '\/', true))
 		];
-		
-		$this -> path['array'] = $this -> path['string'] ? Strings::split($this -> path['string'], '\/', true) : [];
 		
 		$this -> query = [
 			'string' => !empty($urlparse['query']) ? '?' . $urlparse['query'] : null,
