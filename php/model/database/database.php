@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Database;
+namespace is\Model\Databases;
 
 use is\Helpers\Sessions;
 use is\Helpers\Strings;
@@ -9,7 +9,7 @@ use is\Helpers\Parser;
 use is\Helpers\Prepare;
 use is\Model\Parents\Singleton;
 use is\Model\Parents\Collection;
-use is\Model\Database\Driver;
+use is\Model\Databases\Driver;
 
 class Database extends Singleton {
 	
@@ -24,7 +24,8 @@ class Database extends Singleton {
 	
 	public function init($settings) {
 		
-		$settings['driver'] = '\\is\\Model\\Database\\Drivers\\' . $settings['driver'];
+		$settings['driver'] = __NAMESPACE__ . '\\Drivers\\' . $settings['driver'];
+		
 		$this -> driver = new $settings['driver'] ($settings);
 		
 		$this -> data = new Collection;

@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Database;
+namespace is\Model\Databases;
 
 use is\Model\Parents\Data;
 use is\Helpers\Local;
@@ -34,7 +34,7 @@ abstract class Driver extends Data {
 	удаление - здесь тоже все понятно
 	
 	чтобы создать и подключить свой собственный драйвер, нужно создать класс, наследующий данный класс
-	и поместить его в пространство имен is\Model\Database\Drivers
+	и поместить его в пространство имен is\Model\Databases\Drivers
 	подключить данный файл (или поместить его в папку фреймворка, что не рекомендуется)
 	а затем, если вы работаете с ядром, проинициализировать его в настройках ядра
 	
