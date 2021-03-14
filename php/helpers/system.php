@@ -221,6 +221,27 @@ class System {
 		return $result;
 		
 	}
+	
+	static public function server($name) {
+		
+		// НОВАЯ ФУНКЦИЯ - ВОЗРАЩАЕТ РАЗНЫЕ ДАННЫЕ СЕРВЕРА
+		
+		if ($name === 'root') {
+			$name = realpath($_SERVER['DOCUMENT_ROOT']) . DS;
+		} elseif ($name === 'host') {
+			$name = $_SERVER['HTTP_HOST'];
+			//$name = $_SERVER['SERVER_NAME'];
+		} elseif ($name === 'request') {
+			$name = urldecode($_SERVER['REQUEST_URI']);
+		} elseif ($name === 'ip') {
+			$name = $_SERVER['REMOTE_ADDR'];
+		} else {
+			$name = null;
+		}
+		
+	return $name;
+		
+	}
 
 }
 
