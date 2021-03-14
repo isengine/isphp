@@ -35,20 +35,21 @@ class Paths {
 		$parse = pathinfo($url);
 		
 		$isfile = $parse['extension'] ? true : null;
+		$dirname = $parse['dirname'] && $parse['dirname'] !== '.' && $parse['dirname'] !== '..' ? $parse['dirname'] . DS : null;
 		
 		if ($isfile) {
 			$result = [
 				'name' => $parse['filename'],
 				'extension' => $parse['extension'],
 				'file' => $parse['basename'],
-				'path' => $parse['dirname'] . DS
+				'path' => $dirname
 			];
 		} else {
 			$result = [
 				'name' => null,
 				'extension' => null,
 				'file' => null,
-				'path' => $parse['dirname'] . DS . $parse['basename'] . DS
+				'path' => $dirname . $parse['basename'] . DS
 			];
 		}
 		

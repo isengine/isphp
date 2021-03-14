@@ -13,6 +13,11 @@ use is\Model\Globals;
 
 class Language extends Globals\Language {
 	
+	public $settings = [];
+	public $list = [];
+	public $codes = [];
+	public $code;
+	
 	public function setLang($lang) {
 		
 		if (!$lang) {
@@ -36,48 +41,37 @@ class Language extends Globals\Language {
 	}
 	
 	public function mergeLang($lang) {
-		
-		if (!$lang) {
-			return null;
-		}
-		
-		if (Objects::match($this -> list, $lang)) {
-			return $lang;
-		} else {
-			$l = $lang;
-			$lang = null;
-			if ($this -> settings) {
-				foreach ($this -> settings as $key => $item) {
-					if (Objects::match($item['alias'], $l)) {
-						$lang = $key;
-						break;
-					}
-				}
-				unset($key, $item);
-			}
-		}
-		
-		return $lang;
-		
+		return $lang ? $this -> list[$lang] : null;
 	}
 	
 	public function setSettings($settings) {
-		
 		$this -> settings = $settings;
-		$this -> setList();
-		$this -> setCode();
+	}
+	
+	public function addList($key, $array = null) {
+		
+		if (
+			System::set($array) &&
+			System::typeOf($array, 'iterable')
+		) {
+			$this -> list = Objects::merge($this -> list, Objects::fill($array, $key));
+		} else {
+			$this -> list[$key] = $key;
+		}
 		
 	}
 	
-	public function setList() {
+	public function addCode($key, $item = null) {
 		
-		$this -> list = Objects::keys($this -> settings);
+		$item = Prepare::upper($item ? $item : $key);
+		
+		$this -> codes[$key] = $item;
 		
 	}
 	
 	public function setCode() {
 		
-		$this -> code = $this -> settings[$this -> lang]['code'];
+		$this -> code = $this -> codes[$this -> lang];
 		
 	}
 	

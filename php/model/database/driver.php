@@ -452,7 +452,8 @@ abstract class Driver extends Data {
 		if ($keys) {
 			$entry['data'] = Objects::add(
 				$entry['data'],
-				Objects::combine([], $keys, null)
+				Objects::fill($keys, null)
+				//Objects::combine([], $keys, null)
 			);
 		}
 		

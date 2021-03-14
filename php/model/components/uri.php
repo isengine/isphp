@@ -15,7 +15,7 @@ class Uri extends Globals\Uri {
 	public $file;
 	public $folder;
 	
-	public $route;
+	public $language;
 	
 	public $url;
 	public $previous;
@@ -69,20 +69,20 @@ class Uri extends Globals\Uri {
 		}
 	}
 	
-	public function setRoute() {
-		$this -> route = $this -> path['array'];
-	}
-	
-	public function addRoute($data) {
-		$this -> route[] = $data;
-	}
-	
 	public function addPathArray($data) {
 		$this -> path['array'][] = $data;
 	}
 	
+	public function getPathArray($id = null) {
+		return !$id ? Objects::first($this -> path['array'], 'value') : Objects::n($this -> path['array'], 1, 'value');
+	}
+	
+	public function unPathArray($id = null) {
+		$this -> path['array'] = !$id ? Objects::reset( Objects::unfirst($this -> path['array']) ) : Objects::reset( Objects::unn($this -> path['array'], $id) );
+	}
+	
 	public function setUrl() {
-		$this -> url = $this -> domain . $this -> path['base'] . $this -> path['string'] . $this -> query['string'];
+		$this -> url = $this -> domain . ($this -> language ? $this -> language . '/' : null) . $this -> path['string'] . $this -> query['string'];
 	}
 	
 }

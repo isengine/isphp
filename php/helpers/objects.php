@@ -455,6 +455,19 @@ class Objects {
 		
 	}
 
+	static public function fill($keys, $values) {
+		
+		/*
+		*  НОВАЯ Функция создания массива из массива ключей
+		*  который заполняется элементами values
+		*  
+		*  Фактически, это одно из поведений функции combine
+		*/
+		
+		return System::type($values) === 'array' ? self::combine($values, $keys) : self::combine([], $keys, $values);
+		
+	}
+	
 	static public function combine($values, $keys = null, $default = null) {
 		
 		/*

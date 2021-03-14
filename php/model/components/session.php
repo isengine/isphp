@@ -11,6 +11,12 @@ use is\Model\Globals;
 
 class Session extends Globals\Session {
 	
+	public function reinit() {
+		session_regenerate_id(true);
+		$_SESSION['token'] = null;
+		$this -> init();
+	}
+	
 	public function reset() {
 		
 		if (session_id()) {

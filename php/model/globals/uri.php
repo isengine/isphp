@@ -43,7 +43,6 @@ class Uri extends Parents\Globals {
 		$this -> port = $urlparse['port'];
 			
 		$this -> path = [
-			'base' => null,
 			'string' => Strings::unfirst($urlparse['path']),
 			'array' => Objects::reset(Strings::split($urlparse['path'], '\/', true))
 		];

@@ -24,12 +24,13 @@ class Error extends Globals {
 	
 	public function setPath($path = null) {
 		
-		if ($path) {
-			$path = Paths::convertToUrl($path);
-			$path = Paths::clearSlashes($path);
-		}
+		//if ($path) {
+		//	$path = Paths::convertToUrl($path);
+		//	$path = Paths::clearSlashes($path);
+		//}
+		//$this -> path = !$path || $path === '/' ? '/' : '/' . $path . '/';
 		
-		$this -> path = !$path || $path === '/' ? '/' : '/' . $path . '/';
+		$this -> path = Paths::relativeUrl($path);
 		
 	}
 	

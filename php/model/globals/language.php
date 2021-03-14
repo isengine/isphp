@@ -12,9 +12,6 @@ use is\Model\Parents;
 
 class Language extends Parents\Globals {
 	
-	public $settings = [];
-	public $list = [];
-	public $code;
 	public $lang;
 	
 	public function init() {
