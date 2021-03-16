@@ -54,7 +54,9 @@ class System {
 		} elseif (
 			!isset($item) ||
 			$item === false ||
-			$item === null
+			$item === 'false' ||
+			$item === null ||
+			$item === 'null'
 		) {
 			return null;
 		} elseif (
@@ -221,7 +223,7 @@ class System {
 		return $result;
 		
 	}
-	
+
 	static public function server($name) {
 		
 		// НОВАЯ ФУНКЦИЯ - ВОЗРАЩАЕТ РАЗНЫЕ ДАННЫЕ СЕРВЕРА
@@ -233,13 +235,15 @@ class System {
 			//$name = $_SERVER['SERVER_NAME'];
 		} elseif ($name === 'request') {
 			$name = urldecode($_SERVER['REQUEST_URI']);
+		} elseif ($name === 'method') {
+			$name = strtolower($_SERVER['REQUEST_METHOD']);
 		} elseif ($name === 'ip') {
 			$name = $_SERVER['REMOTE_ADDR'];
 		} else {
 			$name = null;
 		}
 		
-	return $name;
+		return $name;
 		
 	}
 

@@ -337,131 +337,42 @@ class Prepare {
 		
 	}
 	
-	static public function crypt($str) {
+	static public function encode($str) {
 		
 		/*
-		*  Функция которая шифрует данные
+		*  Функция которая кодирует данные
 		*  на входе нужно указать исходную строку
 		*  на выходе отдает готовую строку
-		*  
-		*  новый алгоритм шифрования:
-		*  + более сложный для распознавания
-		*  + меньше расчетов
-		*  + генератор привязан ко времени
-		*  + нет выявленных ошибок кодирования-декодирования
-		*    * в том числе кодирует цифру ноль и отбрасывает все, кроме чисел и строк
-		*  - строка увеличивается в среднем в 4-5 раз (старый алгоритм - в 3 раза)
-		*    * чем больше строка, тем меньше увеличение
-		*    * например, один символ увеличивается в 18 раз
-		*    * а стих пушкина - в 3,5 раза
+		*  кодирование происходит в формат base64
 		*/
 		
 		if (!System::typeOf($str, 'scalar')) {
 			return null;
 		}
 		
-		//$a = '1234567890';
-		//$a = 'привет на сто лет';
-		//$a = time();
-		
-		$a0 = substr(time(), -2);
-		$a1 = base64_encode($str);
-		$a2 = strlen($a1);
-		$a3 = '';
-		
-		$str = '';
-		
-		$c = 0;
-		while ($c < $a2) {
-			$a3 .= 999 - (ord($a1[$c]) + $a0);
-			$c++;
+		$len = Strings::len($str) % 3;
+		if ($len) {
+			$str = Strings::fillup($str, 3 - $len);
 		}
 		
-		$a30 = 9 - strlen($a3) % 9;
-		
-		if ($a30) {
-			$a31 = substr($a3, (0 - (9 - $a30)));
-			$a32 = substr($a3, 0, (0 - (9 - $a30)));
-			$a33 = str_repeat('0', $a30);
-			$a3 = $a32 . $a33 . $a31;
-		}
-		
-		$a4 = strlen($a3) / 9;
-		$a5 = '';
-		
-		$c = 0;
-		while ($c < $a4) {
-			
-			$a5 = substr($a3, $c * 9, 9);
-			$a5 = strrev($a5);
-			$a5 = dechex((int) $a5);
-			
-			$a50 = 8 - strlen($a5);
-			
-			if ($a50) {
-				$a51 = str_repeat('0', $a50);
-				$a5 = $a51 . $a5;
-			}
-			
-			$str .= $a5;
-			$c++;
-			
-		}
-		
-		$str .= $a0;
-		
-		//echo $a . ' : ' . strlen($a) . '<br>' . $b . ' : ' . strlen($b) . ' (в ' . (strlen($b) / strlen($a)) . ' раз)<br>';
-		
-		return $str;
+		return base64_encode($str);
 		
 	}
 	
-	static public function decrypt($str) {
-
+	static public function decode($str) {
+		
 		/*
-		*  Функция которая дешифрует данные
+		*  Функция которая декодирует данные
 		*  на входе нужно указать исходную строку
 		*  на выходе отдает готовую строку
+		*  декодирование происходит из формата base64
 		*/
-
-		if (!set($str) || !is_string($str) && !is_numeric($str)) {
+		
+		if (!System::typeOf($str, 'scalar')) {
 			return null;
 		}
 		
-		$b0 = substr($str, -2);
-		$b1 = str_split(substr($str, 0, -2), 8);
-		$b2 = '';
-		
-		$str = '';
-		
-		foreach ($b1 as $i) {
-			$i = (string) hexdec($i);
-			$i = strrev($i);
-			
-			$b20 = 9 - strlen($i);
-			if ($b20) {
-				$b21 = str_repeat('0', $b20);
-				$i = $i . $b21;
-			}
-			
-			$b2 .= $i;
-		}
-		
-		unset($i);
-		
-		$b3 = array_diff(str_split($b2, 3), ['000']);
-		
-		foreach ($b3 as $i) {
-			$i = 999 - ($i + $b0);
-			$i = chr($i);
-			$str .= $i;
-		}
-		
-		unset($i);
-		
-		$str = base64_decode($str);
-		
-		return $str;
+		return base64_decode($str);
 		
 	}
 	
@@ -473,29 +384,61 @@ class Prepare {
 		*  на выходе отдает готовую строку
 		*/
 		
-		$str = [
-			'string' => $str,
-			'code' => base64_encode($str),
-			'temp' => '',
-			'len' => ''
-		];
+		if (!System::typeOf($str, 'scalar')) {
+			return null;
+		}
 		
-		$str['len'] = strlen($str['string']);
-		$str['len'] = floor($str['len'] / 2);
+		return md5($str);
 		
-		$str['temp'] = strlen($str['code']);
-		$str['temp'] = floor($str['temp'] / 4);
+	}
+	
+	static public function matchHash($str, $hash) {
 		
-		$str['code'] =
-			strrev(substr($str['code'], $str['temp'] * 2, $str['temp'])) . 
-			substr($str['string'], 0, $str['len']) . 
-			substr($str['code'], $str['temp'], $str['temp']) . 
-			substr($str['string'], $str['len']);
+		/*
+		*  Функция которая проверяет,
+		*  соответствует ли переданная строка своему хэшу
+		*  на входе нужно указать исходную строку и ее хэш
+		*  на выходе отдает результат проверки
+		*/
 		
-		$str = strlen($str['string']) . strrev(md5($str['code']));
-		// данный код может давать предупреждения антивируса, однако он является безопасным
+		if (!System::typeOf($str, 'scalar')) {
+			return null;
+		}
 		
-		return $str;
+		return md5($str) === $hash;
+		
+	}
+	
+	static public function crypt($str) {
+		
+		/*
+		*  Функция которая делает необратимое шифрование данных
+		*  на входе нужно указать исходную строку
+		*  на выходе отдает готовую строку
+		*/
+		
+		if (!System::typeOf($str, 'scalar')) {
+			return null;
+		}
+		
+		return password_hash($str, PASSWORD_DEFAULT);
+		
+	}
+	
+	static public function matchCrypt($str, $hash) {
+		
+		/*
+		*  Функция которая проверяет,
+		*  соответствует ли переданная строка своему хэшу в необратимом шифровании
+		*  на входе нужно указать исходную строку и ее хэш
+		*  на выходе отдает результат проверки
+		*/
+		
+		if (!System::typeOf($str, 'scalar')) {
+			return null;
+		}
+		
+		return password_verify($str, $hash);
 		
 	}
 	

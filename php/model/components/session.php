@@ -15,9 +15,14 @@ class Session extends Globals\Session {
 		session_regenerate_id(true);
 		$_SESSION['token'] = null;
 		$this -> init();
+		Sessions::setCookie('session', $token);
 	}
 	
-	public function reset() {
+	public function open() {
+		session_start();
+	}
+	
+	public function close() {
 		
 		if (session_id()) {
 			session_unset();

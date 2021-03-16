@@ -357,6 +357,32 @@ class Strings {
 		
 	}
 
+	static public function fill($string, $len, $values = ' ', $reverse = null) {
+		
+		/*
+		*  НОВАЯ Функция дополнения строки string до указанной длины len
+		*  символами или подстрокой values
+		*  последний аргумент reverse заставляет дополнять строку в начало
+		*/
+		
+		return str_pad($string, $len, $values, $reverse ? STR_PAD_LEFT : STR_PAD_RIGHT);
+		
+	}
+
+	static public function fillup($string, $len, $values = ' ', $reverse = null) {
+		
+		/*
+		*  НОВАЯ Функция дополнения строки string на указанное число символов $len
+		*  символами или подстрокой values
+		*  последний аргумент reverse заставляет дополнять строку в начало
+		*  отличие от fill в том, что здесь указывается
+		*  на какое еще число символов нужно увеличить строку
+		*/
+		
+		return self::fill($string, self::len($string) + $len, $values, $reverse);
+		
+	}
+
 }
 
 ?>

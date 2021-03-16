@@ -52,6 +52,8 @@ is.Helpers.System = class {
 			type === 'undefined' ||
 			item === false ||
 			item === null ||
+			item === 'false' ||
+			item === 'null' ||
 			item === '' ||
 			Number.isNaN(item)
 		) {

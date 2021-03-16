@@ -455,31 +455,27 @@ class Objects {
 		
 	}
 
-	static public function fill($keys, $values) {
+	//static public function combine($keys, $values, $default = null) {
+	//устаревшая функция
+
+	static public function fill($keys, $values, $default = null) {
 		
 		/*
-		*  НОВАЯ Функция создания массива из массива ключей
-		*  который заполняется элементами values
+		*  НОВАЯ Функция создания массива из двух массивов
+		*  первый используется в качестве ключей
+		*  второй - в качестве значений
 		*  
-		*  Фактически, это одно из поведений функции combine
-		*/
-		
-		return System::type($values) === 'array' ? self::combine($values, $keys) : self::combine([], $keys, $values);
-		
-	}
-	
-	static public function combine($values, $keys = null, $default = null) {
-		
-		/*
-		*  Функция создания массива из двух массивов
-		*  первый используется в качестве значений
-		*  второй - в качестве ключей
 		*  если длина массивов разная, то
-		*  //итоговый массив создается по самому короткому массиву
-		*  НОВОЕ ПОВЕДЕНИЕ!!!
 		*  итоговый массив создается по длине массива ключей
 		*  дополняясь элементами default
+		*  
+		*  если в качестве значения передан не массив,
+		*  то массив ключей целиком заполняется переданным значением
 		*/
+		
+		if (System::type($values) !== 'array') {
+			return self::fill($keys, [], $values);
+		}
 		
 		if (System::type($keys) !== 'array' || !count($keys)) {
 			return array_values($values);
@@ -812,6 +808,60 @@ class Objects {
 		*/
 		
 		return self::values($item);
+		
+	}
+
+	static public function pairs($array) {
+		
+		/*
+		*  НОВАЯ Функция которая разделяет массив по-очереди на ключи и значения
+		*/
+		
+		$keys = self::select($array, 2);
+		$values = self::select($array, 2, 1);
+		
+		return self::fill($keys, $values);
+		
+	}
+
+	static public function unpairs($array) {
+		
+		/*
+		*  НОВАЯ Функция которая разбивает ключи и значения на последовательный массив
+		*/
+		
+		$keys = self::keys($array);
+		$values = self::values($array);
+		
+		$result = [];
+		
+		foreach ($keys as $key => $item) {
+			$result[] = $item;
+			$result[] = $values[$key];
+		}
+		unset($key, $item);
+		
+		return $result;
+		
+	}
+
+	static public function select($array, $n, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция которая выбирает каждое n-ное значение массива со смещением
+		*/
+		
+		$result = [];
+		$i = 0;
+		foreach ($array as $key => $item) {
+			if (($i + $offset) % $n === 0) {
+				$result[$key] = $item;
+			}
+			$i++;
+		}
+		unset($key, $item, $i);
+		
+		return $result;
 		
 	}
 

@@ -19,6 +19,22 @@ class Match {
 		
 	}
 
+	static public function regexp($haystack, $regexp) {
+		
+		// функция проверяет наличие строки по регулярному выражению
+		
+		return preg_match('/' . $regexp . '/u', $haystack);
+		
+	}
+
+	static public function mask($haystack, $mask) {
+		
+		// функция проверяет наличие строки по маске
+		
+		return self::regexp($haystack, self::maskToRegexp($mask));
+		
+	}
+
 	static public function numeric($haystack, $min = null, $max = null) {
 		
 		// функция сравнивает число в диапазоне от мин до макс включительно
@@ -38,7 +54,7 @@ class Match {
 	static public function equalIn($haystack, $needle, $and = true) {
 		
 		// функция задействует сравнение, приводя данные к строке
-		// сравнение идет в массиве haystack
+		// сравнение идет с массивом haystack
 		
 		foreach ($haystack as $item) {
 			$result = self::equal($item, $needle);
@@ -55,7 +71,7 @@ class Match {
 	static public function stringIn($haystack, $needle, $and = true) {
 		
 		// функция проверяет наличие строки
-		// сравнение идет в массиве haystack
+		// сравнение идет с массивом haystack
 		
 		foreach ($haystack as $item) {
 			$result = self::string($item, $needle);
@@ -69,11 +85,37 @@ class Match {
 		
 	}
 
+	static public function regexpIn($haystack, $regexp, $and = true) {
+		
+		// функция проверяет наличие строки по регулярному выражению
+		// сравнение идет с массивом haystack
+		
+		foreach ($haystack as $item) {
+			$result = self::regexp($item, $regexp);
+			if ( ($and && !$result) || (!$and && $result) ) {
+				break;
+			}
+		}
+		unset($item);
+		
+		return $result;
+		
+	}
+
+	static public function maskIn($haystack, $mask, $and = true) {
+		
+		// функция проверяет наличие строки по маске
+		// сравнение идет с массивом haystack
+		
+		return self::regexpIn($haystack, self::maskToRegexp($mask));
+		
+	}
+
 	static public function numericIn($haystack, $min = null, $max = null, $and = true) {
 		
 		// функция сравнивает число в диапазоне от мин до макс включительно
 		// если мин/макс не заданы, то считаются минус/плюс бесконечностью
-		// сравнение идет в массиве haystack
+		// сравнение идет с массивом haystack
 		
 		foreach ($haystack as $item) {
 			$result = self::numeric($item, $min, $max);
@@ -90,7 +132,7 @@ class Match {
 	static public function equalOf($haystack, $needle, $and = true) {
 		
 		// функция задействует сравнение, приводя данные к строке
-		// сравнение идет c массивом needle
+		// сравнение идет по массиву needle
 		
 		foreach ($needle as $item) {
 			$result = self::equal($haystack, $item);
@@ -107,10 +149,44 @@ class Match {
 	static public function stringOf($haystack, $needle, $and = true) {
 		
 		// функция проверяет наличие строки
-		// сравнение идет c массивом needle
+		// сравнение идет по массиву needle
 		
 		foreach ($needle as $item) {
 			$result = self::string($haystack, $item);
+			if ( ($and && !$result) || (!$and && $result) ) {
+				break;
+			}
+		}
+		unset($item);
+		
+		return $result;
+		
+	}
+
+	static public function regexpOf($haystack, $regexp, $and = true) {
+		
+		// функция проверяет наличие строки по регулярному выражению
+		// сравнение идет по массиву регулярных выражений regexp
+		
+		foreach ($regexp as $item) {
+			$result = self::regexp($haystack, $item);
+			if ( ($and && !$result) || (!$and && $result) ) {
+				break;
+			}
+		}
+		unset($item);
+		
+		return $result;
+		
+	}
+
+	static public function maskOf($haystack, $mask, $and = true) {
+		
+		// функция проверяет наличие строки по маске
+		// сравнение идет по массиву масок mask
+		
+		foreach ($mask as $item) {
+			$result = self::mask($haystack, $item);
 			if ( ($and && !$result) || (!$and && $result) ) {
 				break;
 			}
@@ -125,7 +201,7 @@ class Match {
 		
 		// функция сравнивает число в диапазоне от мин до макс включительно
 		// если мин/макс не заданы, то считаются минус/плюс бесконечностью
-		// сравнение идет c массивом needle
+		// сравнение идет по массиву значений minmax
 		
 		foreach ($minmax as $item) {
 			$result = self::numeric($haystack, Objects::first($item, 'value'), Objects::last($item, 'value'));
@@ -136,6 +212,14 @@ class Match {
 		unset($item);
 		
 		return $result;
+		
+	}
+
+	static public function maskToRegexp($mask) {
+		
+		// функция преобразования маски в регулярное выражение
+		
+		return $mask = '^' . str_replace(['\*', '\?'], ['.*', '.'], preg_quote($mask)) . '$';
 		
 	}
 

@@ -128,7 +128,8 @@ class TableDB extends Driver {
 				continue;
 			}
 			
-			$entry = Objects::combine($row, $keys);
+			$entry = Objects::fill($keys, $row);
+			//$entry = Objects::combine($row, $keys);
 			
 			// проверка по имени
 			if (!$this -> verifyName($entry['name'])) {

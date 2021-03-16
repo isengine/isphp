@@ -20,8 +20,9 @@ class Session extends Parents\Globals {
 	protected $origin;
 	protected $request;
 	
-	protected $token;
 	protected $id;
+	protected $token;
+	protected $time;
 	protected $ip;
 	
 	protected $cookie;
@@ -32,25 +33,32 @@ class Session extends Parents\Globals {
 		
 		$this -> init = $time -> format('Y.m.d-H.i.s.u');
 		
-		$this -> agent = $_SERVER['HTTP_USER_AGENT'];
+		$this -> agent = $_SERVER['HTTP_USER_AGENT'] ? Prepare::hash($_SERVER['HTTP_USER_AGENT']) : null;
 		$this -> referrer = $_SERVER['HTTP_REFERER'];
 		$this -> origin = !empty($_SERVER['ORIGIN']) ? $_SERVER['ORIGIN'] : $_SERVER['HTTP_ORIGIN'];
 		$this -> request = Prepare::lower($_SERVER['REQUEST_METHOD']);
 		
-		$this -> token = Prepare::crypt(time());
 		$this -> id = session_id();
 		$this -> ip = Ip::real();
 		
 		if ($this -> id) {
-			
-			$this -> uid = md5($this -> id . $this -> ip . $this -> agent);
-			
 			if ($_SESSION['token']) {
 				$this -> token = $_SESSION['token'];
 			} else {
-				$_SESSION['token'] = $this -> token;
+				
+				$token = Prepare::encode(json_encode([
+					'id' => $this -> id,
+					'ip' => $this -> ip,
+					'agent' => $this -> agent,
+					'time' => time()
+				]));
+				
+				$this -> token = $token;
+				$_SESSION['token'] = $token;
+				
+				unset($token);
+				
 			}
-			
 		}
 		
 	}

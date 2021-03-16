@@ -38,7 +38,7 @@ class Uri extends Globals\Uri {
 	}
 	
 	public function setFromArray() {
-		$this -> path['array'] = Objects::combine($this -> path['array']);
+		$this -> path['array'] = Objects::reset($this -> path['array']);
 		$this -> setFile();
 		$this -> setPathString();
 		$this -> setFolder();
@@ -46,7 +46,8 @@ class Uri extends Globals\Uri {
 	}
 	
 	public function setPathArray() {
-		$this -> path['array'] = Strings::split($this -> path['string'], '\/', true);
+		//$this -> path['array'] = Strings::split($this -> path['string'], '\/');
+		$this -> path['array'] = Objects::reset(Strings::split($this -> path['string'], '\/'));
 	}
 	
 	public function setPathString() {
@@ -74,7 +75,7 @@ class Uri extends Globals\Uri {
 	}
 	
 	public function getPathArray($id = null) {
-		return !$id ? Objects::first($this -> path['array'], 'value') : Objects::n($this -> path['array'], 1, 'value');
+		return !System::set($id) ? $this -> path['array'] : Objects::n($this -> path['array'], $id, 'value');
 	}
 	
 	public function unPathArray($id = null) {

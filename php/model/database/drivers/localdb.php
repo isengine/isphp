@@ -140,13 +140,14 @@ class LocalDB extends Driver {
 			$parse = Objects::add([$key], $parse);
 		}
 		
-		$parse = Objects::combine($parse, [
-			'id',
-			'name',
-			'type',
-			'owner',
-			'dtime',
-		]);
+		$parse = Objects::fill(['id', 'name', 'type', 'owner', 'dtime'], $parse);
+		//$parse = Objects::combine($parse, [
+		//	'id',
+		//	'name',
+		//	'type',
+		//	'owner',
+		//	'dtime',
+		//]);
 		
 		return [
 			'path' => $item['fullpath'],
