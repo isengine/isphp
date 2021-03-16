@@ -481,6 +481,7 @@ class Objects {
 			return array_values($values);
 		}
 		
+		$keys = self::clear($keys);
 		$lkeys = self::len($keys);
 		$lvalues = self::len($values);
 		

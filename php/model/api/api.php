@@ -5,9 +5,9 @@ namespace is\Model\Apis;
 use is\Helpers\Sessions;
 use is\Helpers\Paths;
 use is\Helpers\Prepare;
-use is\Model\Parents\Data;
+use is\Model\Parents\Singleton;
 
-class Api extends Data {
+class Api extends Singleton {
 	
 	public $class;
 	public $method;
@@ -15,9 +15,8 @@ class Api extends Data {
 	public $key;
 	public $token;
 	
-	public function __construct($settings) {
-		$this -> init($settings);
-	}
+	public $settings;
+	public $user;
 	
 	public function init($settings) {
 		
@@ -47,6 +46,10 @@ class Api extends Data {
 			'current' => time(),
 			'request' => Prepare::decode($token)
 		];
+	}
+	
+	public function setSettings($settings) {
+		$this -> settings = $settings;
 	}
 	
 }

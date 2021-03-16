@@ -7,6 +7,7 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
+use is\Helpers\Prepare;
 use is\Model\Globals;
 
 class Session extends Globals\Session {
@@ -34,6 +35,23 @@ class Session extends Globals\Session {
 		$cookies = Objects::keys(Sessions::getCookie());
 		Sessions::unCookie($cookies);
 		
+	}
+	
+	public function setCsrf() {
+		$_SESSION['csrf-match'] = $_SESSION['csrf-token'];
+		$_SESSION['csrf-token'] = Prepare::hash(time());
+		if (!$_SESSION['csrf-match']) {
+			$_SESSION['csrf-match'] = $_SESSION['csrf-token'];
+		}
+		Sessions::setHeader(['X-CSRF-Token' => $_SESSION['csrf-token']]);
+	}
+	
+	public function getCsrf() {
+		return $_SESSION['csrf-token'];
+	}
+	
+	public function matchCsrf($match) {
+		return $_SESSION['csrf-match'] === $match;
 	}
 	
 	public function getSession($name) {
