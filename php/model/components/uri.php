@@ -22,8 +22,9 @@ class Uri extends Globals\Uri {
 		
 	public $reload;
 	public $original;
-
-	public function setInit() {
+	
+	public function init() {
+		parent::init();
 		$this -> setFile();
 		$this -> setFolder();
 		$this -> setUrl();
