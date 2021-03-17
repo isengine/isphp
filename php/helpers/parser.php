@@ -271,7 +271,7 @@ class Parser {
 		*  содержащим определенный параметр (языковую конструкцию)
 		*/
 		
-		foreach ($data as $key => $item) {
+		foreach ($data as $key => &$item) {
 			if (
 				mb_strpos($key, '!') === 0 ||
 				!is_array($item) && strpos($item, '!') === 0

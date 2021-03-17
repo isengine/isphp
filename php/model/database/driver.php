@@ -67,6 +67,7 @@ abstract class Driver extends Data {
 	public $rights; // права доступа к базе данных
 	public $filter; // параметры фильтрации результата из базы данных
 	public $fields; // параметры правил обработки полей
+	public $format; // формат данных в json (это может быть контент или структура)
 	
 	public function __construct($settings) {
 		$this -> settings = $settings;
@@ -162,6 +163,10 @@ abstract class Driver extends Data {
 		$this -> fields[$key] = $item;
 	}
 	
+	public function format($item) {
+		$this -> format = $item;
+	}
+	
 	public function rights($rights, $owner = null) {
 		$this -> rights = $rights;
 		$this -> owner = $owner;
@@ -201,56 +206,83 @@ abstract class Driver extends Data {
 	}
 	
 	public function rightsEntry($entry) {
-		
 		if (!$entry || !$this -> rights) {
 			return null;
 		}
 		
 		$rights = $this -> setRights();
 		
-		$allow = $rights['allow'];
-		$deny = $rights['deny'];
-		
 		$owner = $entry['owner'] && System::typeOf($entry['owner'], 'iterable') ? Objects::match($entry['owner'], $this -> owner) : $entry['owner'] === $this -> owner;
 		
-		// возможные значения, в порядке приоритета обработки:
-		// 1. owner - разрешен доступ к записям, если совпадает владелец (имя)
-		// 2. allow = [...] | deny = true - запрещено все, кроме ...
-		// 3. allow = true | deny = [...] - разрешено все, кроме ...
-		// 4. allow = true | deny = false - разрешено все
-		// 5. allow = false | deny = true - запрещено все
+		// теперь нет allow и deny - правила строятся на основе фильтров
+		// owner также разрешает доступ к записям, если совпадает владелец (имя)
+		// и он также в приоритете
 		
 		if ($rights['owner'] && $this -> owner && $owner) {
 			// если это условие убрать, то приоритеты проверки сломаются
-		} elseif (is_array($allow)) {
-			$new = [];
-			foreach ($allow as $item) {
-				if (Strings::match($item, ':')) {
-					$levels = Parser::fromString($item);
-					$new = Objects::level($new, $levels, Objects::extract($entry, $levels));
-				} else {
-					$new[$item] = $entry[$item];
+		} elseif (is_array($rights)) {
+			
+			if (is_array($rights['filters'])) {
+				
+				// сохраняем настройки и значения фильтров
+				
+				$filters = $this -> filter;
+				
+				// задаем новые
+				
+				$this -> resetFilter();
+				if ($rights['method']) {
+					$this -> methodFilter($rights['method']);
 				}
-			}
-			$entry = $new;
-			unset($item, $new);
-		} elseif (is_array($deny)) {
-			foreach ($deny as $item) {
-				if (Strings::match($item, ':')) {
-					$levels = Parser::fromString($item);
-					$entry = Objects::level($entry, $levels, null);
-				} else {
-					$entry[$item] = null;
+				unset($rights['method']);
+				
+				// здесь делаем добавление правил из $rights в фильтры
+				
+				foreach ($rights['filters'] as $key => $item) {
+					if (!is_array($item)) {
+						$this -> addFilter($key, $item);
+					}
 				}
+				unset($key, $item);
+				
+				// здесь делаем проверку по фильтру
+				
+				if (!$this -> filter($entry)) {
+					$entry = null;
+				}
+				
+				// возвращаем сохраненные настройки и значения фильтров
+				
+				$this -> filter = $filters;
+				
 			}
-			unset($item);
-		} elseif ($allow || !$deny) {
-			// если это условие убрать, то разрешение станет в приоритете к запрещению
-			// а сейчас запрещение назначается последним, если не прошли все проверки
-		} else {
+			
+			// здесь очищаем поля deny
+			// либо оставляем только поля allow
+			// это касается только ключей полей данных записи, ключи исключения передаются в массиве
+			
+			$allow = $rights['allow'] && is_array($rights['allow']);
+			$deny = $rights['deny'] && is_array($rights['deny']);
+			
+			if (
+				($allow || $deny) && $entry['data'] && is_array($entry['data'])
+			) {
+				foreach ($entry['data'] as $key => $item) {
+					if (
+						$allow && !Match::maskOf($key, $rights['allow']) ||
+						$deny && Match::maskOf($key, $rights['deny'])
+					) {
+						unset($entry['data'][$key]);
+					}
+				}
+				unset($key, $item);
+			}
+			
+		} elseif (!$rights) {
 			$entry = null;
 		}
 		
+		//echo '[' . $this -> collection . ':' . print_r($entry, 1) . ']<br><br>';
 		return $entry;
 		
 	}
@@ -347,10 +379,10 @@ abstract class Driver extends Data {
 	
 	public function filter($entry) {
 		
-		if (!$entry || !$this -> filter) {
+		if (!$entry || !$this -> filter || !$this -> filter['filters']) {
 			return true;
 		}
-
+		
 		$and = $this -> filter['method'] === 'and';
 		
 		$tpass = $and;

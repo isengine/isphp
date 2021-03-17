@@ -6,6 +6,7 @@ use is\Helpers\Sessions;
 use is\Helpers\Paths;
 use is\Helpers\Prepare;
 use is\Model\Parents\Singleton;
+use is\Model\Apis\Method;
 
 class Api extends Singleton {
 	
@@ -16,7 +17,6 @@ class Api extends Singleton {
 	public $token;
 	
 	public $settings;
-	public $user;
 	
 	public function init($settings) {
 		
@@ -34,6 +34,15 @@ class Api extends Singleton {
 		if ($settings['data']) {
 			$this -> setData($settings['data']);
 		}
+		
+	}
+	
+	public function launch() {
+		
+		$class_name = __NAMESPACE__ . '\\Methods\\' . $this -> class;
+		$class = new $class_name($this -> getData());
+		$method = $this -> method;
+		$class -> $method();
 		
 	}
 	

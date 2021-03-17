@@ -24,9 +24,10 @@ class Database extends Singleton {
 	
 	public function init($settings) {
 		
-		$settings['driver'] = __NAMESPACE__ . '\\Drivers\\' . $settings['driver'];
+		$driver = __NAMESPACE__ . '\\Drivers\\' . $settings['driver'];
+		unset($settings['driver']);
 		
-		$this -> driver = new $settings['driver'] ($settings);
+		$this -> driver = new $driver ($settings);
 		
 		$this -> data = new Collection;
 		$this -> driver -> connect();

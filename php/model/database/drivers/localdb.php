@@ -115,7 +115,7 @@ class LocalDB extends Driver {
 	
 	private function readDataFromFile($path) {
 		$file = Local::readFile($path);
-		return Parser::fromJson($file);
+		return Parser::fromJson($file, $this -> format ? $this -> format : true);
 	}
 	
 	private function createInfoFromFile($item, $key) {
