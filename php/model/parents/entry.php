@@ -40,6 +40,10 @@ class Entry extends Data {
 		}
 	}
 	
+	public function getEntryData($key = null) {
+		return $key ? $this -> data[$key] : $this -> data;
+	}
+	
 	public function setEntry($data) {
 		
 		$array = [

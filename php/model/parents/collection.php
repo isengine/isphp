@@ -60,12 +60,14 @@ class Collection extends Data {
 	
 	public function getFirstData() {
 		$result = $this -> getFirst();
-		return $result['data'];
+		//return $result['data'];
+		return $result -> getEntryData();
 	}
 	
 	public function getLastData() {
 		$result = $this -> getLast();
-		return $result['data'];
+		//return $result['data'];
+		return $result -> getEntryData();
 	}
 	
 	public function getNames() {
@@ -101,12 +103,14 @@ class Collection extends Data {
 	
 	public function getDataById($id) {
 		$result = $this -> getById($id);
-		return $result['data'];
+		//return $result['data'];
+		return $result -> getEntryData();
 	}
 	
 	public function getDataByName($name) {
 		$result = $this -> getByName($name);
-		return $result['data'];
+		//return $result['data'];
+		return $result -> getEntryData();
 	}
 	
 	public function add($data, $replace = true) {
@@ -114,21 +118,41 @@ class Collection extends Data {
 		$id = $this -> getLastId();
 		
 		$new = new Entry;
-		$new = Objects::merge( (array) $new, $data);
-		$new['id'] = System::type($id, 'numeric') ? $id + 1 : 0;
+		$new -> setEntry($data);
 		
-		if (Objects::match($this -> names, $new['name'])) {
+		$new -> setEntryKey('id', System::type($id, 'numeric') ? $id + 1 : 0);
+		$new_id = $new -> getEntryKey('id');
+		$new_name = $new -> getEntryKey('name');
+		
+		if (Objects::match($this -> names, $new_name)) {
 			if ($replace) {
-				$new['id'] = $this -> getId($new['name']);
-				$this -> data[$new['id']] = $new;
+				$new_id = $this -> getId($new_name);
+				$this -> data[$new_id] = $new;
 			}
 			return;
 		}
 		
 		$this -> data[] = $new;
-		$this -> names[] = $new['name'];
-		$this -> indexes[ $new['name'] ] = $new['id'];
+		$this -> names[] = $new_name;
+		$this -> indexes[$new_name] = $new_id;
 		$this -> count++;
+		
+		//$new = new Entry;
+		//$new = Objects::merge( (array) $new, $data);
+		//$new['id'] = System::type($id, 'numeric') ? $id + 1 : 0;
+		//
+		//if (Objects::match($this -> names, $new['name'])) {
+		//	if ($replace) {
+		//		$new['id'] = $this -> getId($new['name']);
+		//		$this -> data[$new['id']] = $new;
+		//	}
+		//	return;
+		//}
+		//
+		//$this -> data[] = $new;
+		//$this -> names[] = $new['name'];
+		//$this -> indexes[ $new['name'] ] = $new['id'];
+		//$this -> count++;
 		
 	}
 	
@@ -209,8 +233,11 @@ class Collection extends Data {
 	public function sortByEntry($value) {
 		$this -> names = [];
 		foreach ($this -> data as $item) {
-			if (System::typeData($item, 'object')) {
-				$this -> names[ $item['name'] ] = System::typeOf($item[$value], 'scalar') ? $item[$value] : '';
+			if (System::typeClass($item, 'entry')) {
+				$name = $item -> getEntryKey('name');
+				$val = $item -> getEntryKey($value);
+				$this -> names[$name] = System::typeOf($val, 'scalar') ? $val : '';
+				unset($name, $val);
 			}
 		}
 		unset($item);
@@ -221,8 +248,11 @@ class Collection extends Data {
 	public function sortByData($value) {
 		$this -> names = [];
 		foreach ($this -> data as $item) {
-			if (System::typeData($item['data'], 'object')) {
-				$this -> names[ $item['name'] ] = System::typeOf($item['data'][$value], 'scalar') ? $item['data'][$value] : '';
+			if (System::typeClass($item, 'entry')) {
+				$name = $item -> getEntryKey('name');
+				$val = $item -> getEntryData($value);
+				$this -> names[$name] = System::typeOf($val, 'scalar') ? $val : '';
+				unset($name, $val);
 			}
 		}
 		unset($item);

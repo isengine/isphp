@@ -146,8 +146,8 @@ class System {
 		Второй аргумент позволяет задать сравнение с типом и вывести его результат
 		
 		Призвана заменить многократные проверки
-		type === string || type === numeric
-		type === array || type === object
+		type && ( type === string || type === numeric )
+		type && ( type === array || type === object )
 		
 		данная функция возвращает тип, даже если содержимое пустое
 		*/
@@ -222,6 +222,44 @@ class System {
 		
 		return $result;
 		
+	}
+
+	static public function typeClass($item = null, $compare = null) {
+		
+		/*
+		Проверка на принадлежность к имени класса
+		Второй аргумент позволяет выполнить сравнение и вывести его результат
+		*/
+		
+		// НОВАЯ ФУНКЦИЯ
+		
+		$type = self::type($item);
+		
+		if (!is_object($item)) {
+			return null;
+		}
+		
+		$name = get_class($item);
+		$pos = mb_strrpos($name, '\\');
+		$result = mb_strtolower(mb_substr($name, $pos !== false ? $pos + 1 : 0));
+		
+		if ($compare) {
+			return $compare === $result ? true : null;
+		}
+		
+		return $result;
+		
+	}
+
+	static public function typeIterable($item = null) {
+		
+		/*
+		НОВАЯ ФУНКЦИЯ - проверка переменной на возможность его итерировать
+		Призвана заменить многократные проверки
+		type && ( type === array || type === object )
+		*/
+		
+		return self::set($item) && self::typeOf($item, 'iterable');
 	}
 
 	static public function server($name) {

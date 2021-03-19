@@ -79,22 +79,37 @@ class Paths {
 		return DR . self::relativeReal($path);
 	}
 	
+	static public function mergeAbsolutePath($path = null) {
+		return preg_match('/\:(\/|\\\\)/u', $path);
+		//return preg_match('/\:(?!\/|\\\\)/u', $path);
+	}
+	
+	static public function prepareUrl($path = null) {
+		$path = self::relativeUrl($path, 'file');
+		$first = Strings::first($path);
+		return $first === '/' ? Strings::unfirst($path) : $path;
+	}
+	
 	static public function relativeUrl($path = null) {
 		$parse = self::parseFile($path, 'file');
+		$absolue = self::mergeAbsolutePath($path);
 		$path = self::clearSlashes( self::convertToUrl($path) );
-		return $path ? '/' . $path . (!$parse ? '/' : null) : '/';
+		return $path ? ($absolue ? null : '/') . $path . (!$parse ? '/' : null) : '/';
 	}
 	
 	static public function absoluteUrl($path, $scheme = null) {
-		return self::host($scheme) . self::relativeUrl($path);
+		$absolue = self::mergeAbsolutePath($path);
+		return ($absolue ? null : self::host($scheme)) . self::relativeUrl($path);
 	}
 	
 	static public function convertToReal($path) {
-		return str_replace([':', '\\', '/'], DS, $path);
+		//return str_replace([':', '\\', '/'], DS, $path);
+		return preg_replace('/\:(?!\/)+|\\\\|\//u', DS, $path);
 	}
 	
 	static public function convertToUrl($path) {
-		return str_replace([':', '\\', '/'], '/', $path);
+		//return str_replace([':', '\\', '/'], '/', $path);
+		return preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
 	}
 	
 	static public function clearSlashes($path) {
