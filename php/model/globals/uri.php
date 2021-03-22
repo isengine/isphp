@@ -45,7 +45,8 @@ class Uri extends Parents\Globals {
 		$this -> path = [
 			'string' => Strings::unfirst($urlparse['path']),
 			//'array' => Objects::reset(Strings::split($urlparse['path'], '\/', true))
-			'array' => Objects::reset(Objects::unfirst(Strings::split($urlparse['path'], '\/')))
+			//'array' => Objects::reset(Objects::unfirst(Strings::split($urlparse['path'], '\/')))
+			'array' => Objects::reset(Strings::split(Paths::clearSlashes($urlparse['path']), '\/'))
 		];
 		
 		$this -> query = [

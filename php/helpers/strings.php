@@ -271,6 +271,31 @@ class Strings {
 		
 	}
 
+	static public function combine($item, $keys = null, $values = null, $first = null, $last = null) {
+		
+		/*
+		*  НОВАЯ Функция объединяет массив в строку с разделителями
+		*  можно указать разделители между ключами, между значениями
+		*  первую и последную строки, которые будут добавлены только если результат не будет пустым
+		*/
+		
+		if (!System::typeIterable($item)) {
+			return $item;
+		}
+		
+		$result = null;
+		
+		$f = Objects::first($item, 'key');
+		
+		foreach ($item as $k => $i) {
+			$result .= ($k === $f ? null : $keys) . $k . $values . $i;
+		}
+		unset($k, $i);
+		
+		return $result ? $first . $result . $last : null;
+		
+	}
+
 	static public function replace($item, $search, $replace) {
 		
 		/*

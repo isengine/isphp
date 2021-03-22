@@ -866,6 +866,16 @@ class Objects {
 		
 	}
 
+	static public function flip($array) {
+		
+		/*
+		*  НОВАЯ Функция которая меняет значения и ключи массива местами
+		*/
+		
+		return array_flip($array);
+		
+	}
+
 	static public function array_simple($item) {
 		
 		/*

@@ -8,7 +8,8 @@ use is\Helpers\Objects;
 use is\Helpers\Parser;
 use is\Helpers\Prepare;
 use is\Model\Parents\Singleton;
-use is\Model\Parents\Collection;
+//use is\Model\Parents\Collection;
+use is\Model\Components\Collection;
 use is\Model\Databases\Driver;
 
 class Database extends Singleton {
@@ -42,7 +43,7 @@ class Database extends Singleton {
 	}
 	
 	public function clear() {
-		$this -> driver -> resetFilter();
+		$this -> driver -> filter -> resetFilter();
 		$this -> data -> reset();
 	}
 	

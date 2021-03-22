@@ -8,7 +8,7 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Model\Parents;
-use is\Model\Parents\Collection;
+//use is\Model\Parents\Collection;
 
 class Router extends Parents\Globals {
 	
@@ -16,7 +16,7 @@ class Router extends Parents\Globals {
 	
 	public function init() {
 		
-		$this -> structure = new Collection;
+		//$this -> structure = new Collection;
 		
 		//$this -> structure = [];
 		//$this -> data = new Collection;

@@ -12,34 +12,7 @@ class Collection extends Data {
 	protected $indexes = [];
 	protected $count;
 	
-	public function __construct($data = null) {
-		if (System::typeData($data, 'object')) {
-			$this -> data = $data;
-			$this -> init();
-		}
-	}
-	
-	public function __clone() {
-		// это надо пробовать, возможно, лучше создать отдельный объект, хранящий свойства коллекции
-		unset($this -> data);
-	}
-	
-	public function init() {
-		
-		// обновляем счетчик
-		
-		$this -> count = Objects::len($this -> data);
-		
-		// обновляем список имен
-		
-		$this -> names = [];
-		$this -> indexes = [];
-		foreach ($this -> data as $key => $item) {
-			$this -> names[] = $item['name'];
-			$this -> indexes[ $item['name'] ] = $key;
-		}
-		unset($key, $item);
-		
+	public function __construct() {
 	}
 	
 	public function count() {
@@ -72,6 +45,10 @@ class Collection extends Data {
 	
 	public function getNames() {
 		return $this -> names;
+	}
+	
+	public function getIndexes() {
+		return $this -> indexes;
 	}
 	
 	public function getFirstId() {

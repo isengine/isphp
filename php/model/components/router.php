@@ -13,6 +13,31 @@ use is\Model\Globals;
 
 class Router extends Globals\Router {
 	
+	public $home;
+	public $route;
+	public $current;
+	public $template;
+	
+	public function init() {
+		
+		$this -> structure = new Collection;
+		
+		//$this -> structure = [];
+		//$this -> data = new Collection;
+		
+	}
+	
+	public function setHome() {
+		$this -> structure -> addFilter('type', 'home');
+		$home = $this -> structure -> filterByList();
+		$this -> structure -> resetFilter();
+		$this -> home = Objects::first($home, 'value');
+	}
+	
+	public function getHome() {
+		return $this -> home;
+	}
+	
 	public function setStructure($data) {
 		$this -> structure -> addByList($data);
 	}
@@ -46,6 +71,15 @@ class Router extends Globals\Router {
 				'sub' => System::typeOf($item, 'iterable'),
 				'link' => Paths::prepareUrl(System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
 			];
+			
+			if ($i['type'] === 'home') {
+				$i['data']['link'] = null;
+			} elseif (System::typeOf($item, 'scalar')) {
+				$i['data']['link'] = $item;
+			} else {
+				$i['data']['link'] = $parents_string . $name . '/';
+			}
+						$i['data']['link'] = Paths::prepareUrl($i['data']['link']);
 			
 			unset($i['template']);
 			$this -> structure -> add($i);

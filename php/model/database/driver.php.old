@@ -10,7 +10,6 @@ use is\Helpers\Parser;
 use is\Helpers\System;
 use is\Helpers\Prepare;
 use is\Helpers\Match;
-use is\Model\Components\Filter;
 
 abstract class Driver extends Data {
 	
@@ -72,7 +71,10 @@ abstract class Driver extends Data {
 	
 	public function __construct($settings) {
 		$this -> settings = $settings;
-		$this -> filter = new Filter;
+		$this -> filter = [
+			'method' => 'and',
+			'filters' => []
+		];
 	}
 	
 	abstract public function connect();
@@ -228,9 +230,9 @@ abstract class Driver extends Data {
 				
 				// задаем новые
 				
-				$this -> filter -> resetFilter();
+				$this -> resetFilter();
 				if ($rights['method']) {
-					$this -> filter -> methodFilter($rights['method']);
+					$this -> methodFilter($rights['method']);
 				}
 				unset($rights['method']);
 				
@@ -238,14 +240,14 @@ abstract class Driver extends Data {
 				
 				foreach ($rights['filters'] as $key => $item) {
 					if (!is_array($item)) {
-						$this -> filter -> addFilter($key, $item);
+						$this -> addFilter($key, $item);
 					}
 				}
 				unset($key, $item);
 				
 				// здесь делаем проверку по фильтру
 				
-				if (!$this -> filter -> filtration($entry)) {
+				if (!$this -> filter($entry)) {
 					$entry = null;
 				}
 				
@@ -282,6 +284,185 @@ abstract class Driver extends Data {
 		
 		//echo '[' . $this -> collection . ':' . print_r($entry, 1) . ']<br><br>';
 		return $entry;
+		
+	}
+	
+	public function methodFilter($name) {
+		$this -> filter['method'] = $name;
+	}
+	
+	public function resetFilter() {
+		$this -> filter['filters'] = [];
+	}
+	
+	public function addFilter($name = null, $data = null) {
+		
+		if (is_array($name)) {
+			$this -> filter['filters'][] = $name;
+		} else {
+			
+			$item = [
+				'name' => null,
+				'data' => null,
+				'values' => []
+			];
+			
+			$array = Parser::fromString($name);
+			$item['name'] = Objects::first($array, 'value');
+			if ($item['name'] === 'data') {
+				$item['name'] = Objects::n($array, 1, 'value');
+				$item['data'] = true;
+			}
+			unset($array);
+			
+			if ($data) {
+				$array = Parser::fromString($data);
+				foreach ($array as $i) {
+					
+					$value = [
+						'name' => null,
+						'type' => 'equal',
+						'require' => null,
+						'except' => null
+					];
+					
+					$first = Strings::first($i);
+					$num = Strings::match($i, '_');
+					
+					if (
+						$first === '+' ||
+						$first === '-'
+					) {
+						$value['except'] = $first === '-' ? true : null;
+						$value['require'] = true;
+						$i = Strings::unfirst($i);
+						$value['name'] = $i;
+						$first = Strings::first($i);
+					}
+					
+					if ($first === '*') {
+						$value['type'] = 'string';
+						$value['name'] = Strings::unfirst($i);
+					} elseif ($num) {
+						$value['type'] = 'numeric';
+						$value['name'] = Strings::split($i, '_');
+						foreach ($value['name'] as &$ii) {
+							if ($ii) {
+								$ii = Prepare::numeric($ii);
+							}
+						}
+						unset($ii);
+					} else {
+						$value['name'] = $i;
+					}
+					
+					$item['values'][] = $value;
+					
+					unset($value);
+					
+				}
+				unset($i, $array);
+			} else {
+				$item['values'][] = ['type' => 'noempty'];
+			}
+			
+			$this -> filter['filters'][] = $item;
+			
+			unset($item);
+			
+			//echo '<pre>' . print_r($item, 1) . '</pre><br>';
+			//$this -> driver -> $name = $data;
+			
+		}
+		
+	}
+	
+	public function filter($entry) {
+		
+		if (!$entry || !$this -> filter || !$this -> filter['filters']) {
+			return true;
+		}
+		
+		$and = $this -> filter['method'] === 'and';
+		
+		$tpass = $and;
+		
+		foreach ($this -> filter['filters'] as $key => $item) {
+			
+			if ($item['data']) {
+				$data = $entry['data'][$item['name']];
+			} else {
+				$data = $entry[$item['name']];
+			}
+			
+			$gpass = null;
+			
+			foreach ($item['values'] as $i) {
+				
+				//if ($i['type'] === 'noempty') {
+				//	$pass = System::set($data);
+				//} elseif ($i['type'] === 'equal') {
+				//	$pass = is_array($data) ? Match::equalIn($data, $i['name'], null) : Match::equal($data, $i['name']);
+				//} elseif ($i['type'] === 'string') {
+				//	$pass = is_array($data) ? Match::stringIn($data, $i['name'], null) : Match::string($data, $i['name']);
+				//} elseif ($i['type'] === 'numeric') {
+				//	$pass = is_array($data) ? Match::numericIn($data, $i['name'][0], $i['name'][1], null) : Match::numeric($data, $i['name']);
+				//}
+				
+				if ($i['type'] === 'noempty') {
+					$pass = System::set($data);
+				} else {
+					$func = $i['type'] . (is_array($data) ? 'In' : null);
+					if ($i['type'] === 'numeric') {
+						$pass = Match::$func($data, $i['name'][0], $i['name'][1], null);
+					} else {
+						$pass = Match::$func($data, $i['name'], null);
+					}
+					unset($func);
+				}
+				
+				if ($i['except']) {
+					$pass = !$pass;
+				}
+				
+				if ($i['require'] && !$pass) {
+					$gpass = null;
+					break;
+				}
+				
+				if ($pass || $gpass) {
+					$gpass = true;
+				}
+				
+				unset($pass);
+				//echo '<pre>I:' . print_r($i, 1) . '</pre>';
+				
+			}
+			unset($i);
+			
+			if ($and && $gpass && $tpass) {
+				$tpass = true;
+			} elseif (!$and && ($gpass || $tpass)) {
+				$tpass = true;
+			} else {
+				$tpass = null;
+			}
+			
+			unset($gpass);
+			
+			//echo '<pre>' . print_r($entry, 1) . '</pre>';
+			//echo '<pre>' . print_r($item, 1) . '</pre>';
+			//echo '<pre>DATA:' . print_r($data, 1) . '</pre>';
+			//echo '<pre>RESULT:' . print_r($tpass, 1) . '</pre>';
+			//echo '<hr>';
+			
+		}
+		unset($key, $item);
+		
+		//echo '<pre>RESULT:' . print_r($tpass, 1) . '</pre>';
+		// если вернуть пустое значение, то текущая запись не внесется в общий лист
+		
+		return $tpass;
 		
 	}
 	
@@ -417,7 +598,7 @@ abstract class Driver extends Data {
 		$entry = $this -> rightsEntry($entry);
 		
 		// проверка по фильтру
-		if (!$this -> filter -> filtration($entry)) {
+		if (!$this -> filter($entry)) {
 			$entry = null;
 		}
 		

@@ -46,15 +46,37 @@ class Uri extends Globals\Uri {
 		$this -> setUrl();
 	}
 	
-	public function setPathArray() {
-		//$this -> path['array'] = Strings::split($this -> path['string'], '\/');
-		$this -> path['array'] = Objects::reset(Strings::split($this -> path['string'], '\/'));
+	public function setQueryArray($data = null) {
+		if (System::typeOf($data, 'scalar')) {
+			$this -> query['string'] = $data;
+		}
+		$this -> query['array'] = $this -> query['string'] ? Objects::pairs( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
 	}
 	
-	public function setPathString() {
+	public function setQueryString($data = null) {
+		if (System::typeIterable($data)) {
+			$this -> query['array'] = $data;
+		}
+		$this -> query['string'] = System::typeIterable($this -> query['array']) ? Strings::combine($this -> query['array'], '&', '=', '?') : null;
+	}
+	
+	public function setPathArray($data = null) {
+		if (System::typeOf($data, 'scalar')) {
+			$this -> path['string'] = $data;
+		}
+		$this -> path['array'] = $this -> path['string'] ? Objects::reset(Strings::split(Paths::clearSlashes($this -> path['string']), '\/')) : [];
+	}
+	
+	public function setPathString($data = null) {
+		
+		if (System::typeIterable($data)) {
+			$this -> path['array'] = $data;
+		}
+		
 		$this -> path['string'] = !empty($this -> path['array']) ? Strings::join($this -> path['array'], '/') . (!$this -> file ? '/' : null) : null;
 		$this -> path['string'] = preg_replace('/^\/+/ui', null, $this -> path['string']);
 		$this -> path['string'] = preg_replace('/\/+/ui', '/', $this -> path['string']);
+		
 	}
 	
 	public function setFile() {
