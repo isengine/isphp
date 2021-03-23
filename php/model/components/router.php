@@ -15,7 +15,6 @@ class Router extends Globals {
 	
 	public $structure;
 	
-	public $home;
 	public $route;
 	public $current;
 	public $template;
@@ -24,20 +23,11 @@ class Router extends Globals {
 		
 		$this -> structure = new Collection;
 		
-		//$this -> structure = [];
-		//$this -> data = new Collection;
+		$this -> template = [
+			'name' => null,
+			'section' => null
+		];
 		
-	}
-	
-	public function setHome() {
-		$this -> structure -> addFilter('type', 'home');
-		$home = $this -> structure -> filterByList();
-		$this -> structure -> resetFilter();
-		$this -> home = Objects::first($home, 'value');
-	}
-	
-	public function getHome() {
-		return $this -> home;
 	}
 	
 	public function setStructure($data) {
