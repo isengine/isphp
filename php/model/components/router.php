@@ -9,9 +9,11 @@ use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
 use is\Helpers\Paths;
-use is\Model\Globals;
+use is\Model\Parents\Globals;
 
-class Router extends Globals\Router {
+class Router extends Globals {
+	
+	public $structure;
 	
 	public $home;
 	public $route;
@@ -46,7 +48,7 @@ class Router extends Globals\Router {
 		return $this -> structure -> getData();
 	}
 	
-	public function parseStructure($array = null, $level = 0, $parents = []) {
+	public function parseStructure($array = null, $level = 0, $parents = [], $groups = null) {
 		
 		$parents_string = $parents ? Strings::join($parents, '/') . '/' : null;
 		
@@ -66,32 +68,41 @@ class Router extends Globals\Router {
 			
 			$i['data'] = [
 				'name' => $name,
+				'groups' => $groups,
 				'template' => $i['template'],
 				'level' => $level,
 				'sub' => System::typeOf($item, 'iterable'),
-				'link' => Paths::prepareUrl(System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
+				'link' => $i['type'] === 'group' ? null : (System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
 			];
 			
-			if ($i['type'] === 'home') {
-				$i['data']['link'] = null;
-			} elseif (System::typeOf($item, 'scalar')) {
-				$i['data']['link'] = $item;
-			} else {
-				$i['data']['link'] = $parents_string . $name . '/';
+			if (
+				$i['type'] !== 'group' &&
+				$i['type'] !== 'special'
+			) {
+				$i['data']['link'] = Paths::relativeUrl($i['data']['link']);
 			}
-						$i['data']['link'] = Paths::prepareUrl($i['data']['link']);
 			
 			unset($i['template']);
 			$this -> structure -> add($i);
 			
 			if (System::typeOf($item, 'iterable')) {
-				$level++;
-				$parents[] = $name;
 				
-				$this -> parseStructure($item, $level, $parents);
+				if ($i['type'] === 'group') {
+					$groups[] = $name;
+				} else {
+					$level++;
+					$parents[] = $name;
+				}
 				
-				$level--;
-				$parents = Objects::unlast($parents);
+				$this -> parseStructure($item, $level, $parents, $groups);
+				
+				if ($i['type'] === 'group') {
+					$groups = Objects::unlast($groups);
+				} else {
+					$level--;
+					$parents = Objects::unlast($parents);
+				}
+				
 			}
 			
 			//echo '<pre>' . print_r($i, 1) . '</pre>';

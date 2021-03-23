@@ -84,17 +84,27 @@ class Paths {
 		//return preg_match('/\:(?!\/|\\\\)/u', $path);
 	}
 	
+	static public function mergeFragmentPath($path = null) {
+		if (Strings::match($path, '#') && Strings::last($path) === '/') {
+			$path = Strings::unlast($path);
+		}
+		return $path;
+	}
+	
 	static public function prepareUrl($path = null) {
 		$path = self::relativeUrl($path, 'file');
-		$first = Strings::first($path);
-		return $first === '/' ? Strings::unfirst($path) : $path;
+		if (Strings::first($path) === '/') {
+			$path = Strings::unfirst($path);
+		}
+		return self::mergeFragmentPath($path);
 	}
 	
 	static public function relativeUrl($path = null) {
 		$parse = self::parseFile($path, 'file');
 		$absolue = self::mergeAbsolutePath($path);
 		$path = self::clearSlashes( self::convertToUrl($path) );
-		return $path ? ($absolue ? null : '/') . $path . (!$parse ? '/' : null) : '/';
+		$path = $path ? ($absolue ? null : '/') . $path . (!$parse ? '/' : null) : '/';
+		return self::mergeFragmentPath($path);
 	}
 	
 	static public function absoluteUrl($path, $scheme = null) {

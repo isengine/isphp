@@ -7,13 +7,20 @@ use is\Helpers\Strings;
 use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
-use is\Model\Globals;
+use is\Model\Parents\Entry;
+use is\Model\Parents\Globals;
 
-class User extends Globals\User {
+class User extends Globals {
 	
-	//public $file;
-	//public $folder;
-
+	public $settings;
+	public $special;
+	public $rights;
+	
+	public function init() {
+		unset($this -> data);
+		$this -> data = new Entry;
+	}
+	
 	public function setSettings($settings) {
 		$this -> settings = $settings;
 	}

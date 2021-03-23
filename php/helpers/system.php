@@ -53,10 +53,10 @@ class System {
 			return true;
 		} elseif (
 			!isset($item) ||
+			//$item === 'false' ||
+			//$item === 'null' ||
 			$item === false ||
-			$item === 'false' ||
-			$item === null ||
-			$item === 'null'
+			$item === null
 		) {
 			return null;
 		} elseif (
@@ -154,7 +154,9 @@ class System {
 		
 		$type = null;
 		
-		if (is_scalar($item)) {
+		//if (is_scalar($item) && !is_bool($item)) {
+		if (is_scalar($item) && $item !== false) {
+			// УСЛОВИЕ ПРОВЕРКИ ДОПОЛНИЛОСЬ НА ОТМЕНУ BOOLEAN
 			$type = 'scalar';
 		} elseif (is_array($item) || is_object($item)) {
 			$type = 'iterable';
