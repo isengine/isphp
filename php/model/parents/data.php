@@ -31,11 +31,11 @@ class Data {
 		// или целиком перезаписывает массив данных
 		
 		if ($second) {
-			$key = $first;
-			$data = $second;
+			$key = &$first;
+			$data = &$second;
 		} else {
 			$key = null;
-			$data = $first;
+			$data = &$first;
 		}
 		
 		if (System::set($key)) {
@@ -46,11 +46,20 @@ class Data {
 		
 	}
 	
-	public function addData($data) {
+	//public function addData($data) {
+	//	// Добавляет данные
+	//	$this -> data[] = $data;
+	//}
+	
+	public function addData($first, $second = null) {
 		
 		// Добавляет данные
 		
-		$this -> data[] = $data;
+		if ($second) {
+			$this -> data[$first] = $second;
+		} else {
+			$this -> data[] = $first;
+		}
 		
 	}
 	

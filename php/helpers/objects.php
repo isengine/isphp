@@ -786,12 +786,17 @@ class Objects {
 		*/
 		
 		foreach($needle as $i) {
-			if (array_key_exists($i, $haystack)) {
-				if (is_array($haystack)) {
-					$haystack = $haystack[$i];
-				} elseif (is_object($haystack)) {
-					$haystack = $haystack -> $i;
-				} 
+			
+			if (
+				System::type($haystack, 'array') &&
+				System::set($haystack[$i])
+			) {
+				$haystack = $haystack[$i];
+			} elseif (
+				System::type($haystack, 'object') &&
+				System::set($haystack -> $i)
+			) {
+				$haystack = $haystack -> $i;
 			} else {
 				$haystack = null;
 				break;
