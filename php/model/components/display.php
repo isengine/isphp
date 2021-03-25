@@ -7,7 +7,6 @@ use is\Helpers\Objects;
 use is\Helpers\Strings;
 use is\Helpers\Sessions;
 use is\Helpers\Local;
-use is\Model\Components\Path;
 use is\Model\Parents\Globals;
 
 class Display extends Globals {

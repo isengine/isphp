@@ -11,14 +11,18 @@ class System {
 		echo '<!--' . (empty($title) ? null : ' // ' . $title) . "\r\n" . (empty($item) ? 'null' : print_r($item, true)) . "\r\n"  . '-->';
 	}
 
-	static public function include($item) {
+	static public function include($item, $base = __DIR__ . DS . DP, $return = null) {
 		
 		$item = str_replace(['..','\/','\\','.',':'], ['','','','',DS], $item);
-		$item = realpath(__DIR__ . DS . DP) . DS . $item . '.php';
+		$path = realpath($base) . DS . $item . '.php';
 		
-		if (file_exists($item)) {
-			require_once $item;
-			return true;
+		if (file_exists($path)) {
+			require_once $path;
+			if ($return) {
+				return $$return;
+			} else {
+				return true;
+			}
 		} else {
 			return false;
 		}

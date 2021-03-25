@@ -3,7 +3,6 @@
 namespace is\Model\Apis;
 
 use is\Helpers\Sessions;
-use is\Helpers\Paths;
 use is\Helpers\Prepare;
 use is\Model\Parents\Singleton;
 use is\Model\Apis\Method;

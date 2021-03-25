@@ -69,7 +69,7 @@ class Router extends Globals {
 				$i['type'] !== 'group' &&
 				$i['type'] !== 'special'
 			) {
-				$i['data']['link'] = Paths::relativeUrl($i['data']['link']);
+				$i['data']['link'] = Paths::prepareUrl($i['data']['link']);
 			}
 			
 			unset($i['template']);

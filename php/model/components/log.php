@@ -4,10 +4,10 @@ namespace is\Model\Components;
 
 use is\Helpers\System;
 use is\Helpers\Objects;
+use is\Helpers\Strings;
 use is\Helpers\Sessions;
 use is\Helpers\Ip;
 use is\Helpers\Local;
-use is\Model\Components\Path;
 use is\Model\Parents\Globals;
 
 class Log extends Globals {
@@ -22,7 +22,9 @@ class Log extends Globals {
 		}
 		
 		$this -> setName($name);
-		$this -> setPath($path);
+		if ($path) {
+			$this -> setPath($path);
+		}
 		
 	}
 	
@@ -30,10 +32,8 @@ class Log extends Globals {
 		$this -> name = $name;
 	}
 	
-	public function setPath($name) {
-		$path = new Path($name);
-		$this -> path = $path -> real;
-		unset($path);
+	public function setPath($path) {
+		$this -> path = $path;
 	}
 	
 	public function close() {

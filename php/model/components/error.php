@@ -5,7 +5,6 @@ namespace is\Model\Components;
 use is\Helpers\Sessions;
 use is\Helpers\Paths;
 use is\Model\Parents\Globals;
-use is\Model\Components\Path;
 
 class Error extends Globals {
 	
@@ -23,15 +22,7 @@ class Error extends Globals {
 	}
 	
 	public function setPath($path = null) {
-		
-		//if ($path) {
-		//	$path = Paths::convertToUrl($path);
-		//	$path = Paths::clearSlashes($path);
-		//}
-		//$this -> path = !$path || $path === '/' ? '/' : '/' . $path . '/';
-		
-		$this -> path = Paths::relativeUrl($path);
-		
+		$this -> path = Paths::prepareUrl($path);
 	}
 	
 	public function setError($code = null) {

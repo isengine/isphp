@@ -65,73 +65,69 @@ class Paths {
 		return ($scheme ? $scheme : $_SERVER['REQUEST_SCHEME']) . '://' . (extension_loaded('intl') ? idn_to_utf8($_SERVER['HTTP_HOST']) : $_SERVER['HTTP_HOST']);
 	}
 	
-	static public function relativeReal($path) {
-		$root_len = Strings::len(DR);
-		if (Strings::get($path, 0, $root_len) === DR) {
-			$path = Strings::get($path, $root_len);
+	static public function prepareUrl($path = null, $host = null) {
+		
+		// корректно преобразует заданный путь в относительный
+		// оставляет начало в абсолютном пути
+		
+		// узнаем, файл это или папка
+		// и определяем, содержит ли путь фрагмент
+		
+		$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#');
+		
+		// определяем, абсолютный путь или нет (относительный) по :\ и :/ в строке
+		// в unix-системах пути будут относительными
+		
+		$absolute = preg_match('/\:(\/|\\\\)/u', $path);
+		
+		$path = preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
+		$path = self::clearSlashes($path);
+		
+		if ($path) {
+			return ($absolute ? null : ($host ? self::host() : null) . '/') . $path . (!$nofolder ? '/' : null);
+		} else {
+			return '/';
 		}
-		$parse = self::parseFile($path, 'file');
-		$path = self::clearSlashes( self::convertToReal($path) );
-		return $path ? $path . (!$parse ? DS : null) : null;
-	}
-	
-	static public function absoluteReal($path) {
-		return DR . self::relativeReal($path);
-	}
-	
-	static public function mergeAbsolutePath($path = null) {
-		return preg_match('/\:(\/|\\\\)/u', $path);
-		//return preg_match('/\:(?!\/|\\\\)/u', $path);
-	}
-	
-	static public function mergeFragmentPath($path = null) {
-		if (Strings::match($path, '#') && Strings::last($path) === '/') {
-			$path = Strings::unlast($path);
-		}
-		return $path;
-	}
-	
-	static public function prepareUrl($path = null) {
-		$path = self::relativeUrl($path, 'file');
-		if (Strings::first($path) === '/') {
-			$path = Strings::unfirst($path);
-		}
-		return self::mergeFragmentPath($path);
-	}
-	
-	static public function relativeUrl($path = null) {
-		$parse = self::parseFile($path, 'file');
-		$absolue = self::mergeAbsolutePath($path);
-		$path = self::clearSlashes( self::convertToUrl($path) );
-		$path = $path ? ($absolue ? null : '/') . $path . (!$parse ? '/' : null) : '/';
-		return self::mergeFragmentPath($path);
-	}
-	
-	static public function absoluteUrl($path, $scheme = null) {
-		$absolue = self::mergeAbsolutePath($path);
-		return ($absolue ? null : self::host($scheme)) . self::relativeUrl($path);
+		
 	}
 	
 	static public function parent($path) {
+		
+		// корректно выбирает родительский каталог в заданном пути
+		
+		$host = Strings::find($path, ':\\\\');
+		if ($host) {
+			$path = Strings::get($path, $host + 2);
+		} else {
+			$host = Strings::find($path, '://');
+			if ($host) {
+				$path = Strings::get($path, $host + 2);
+			} else {
+				$host = Strings::find($path, ':\\');
+				if ($host) {
+					$path = Strings::get($path, $host + 1);
+				} else {
+					$host = Strings::find($path, ':/');
+					if ($host) {
+						$path = Strings::get($path, $host + 2);
+					}
+				}
+			}
+		}
 		
 		$convert = Strings::replace($path, [':', '\\', '/'], ':');
 		$last = Strings::last($convert);
 		if (Strings::last($convert) === ':') {
 			$convert = Strings::unlast($convert);
 		}
-		$pos = Strings::find($convert, ':', 'r') + 1;
-		return Strings::get($path, 0, $pos);
 		
-	}
-	
-	static public function convertToReal($path) {
-		//return str_replace([':', '\\', '/'], DS, $path);
-		return preg_replace('/\:(?!\/)+|\\\\|\//u', DS, $path);
-	}
-	
-	static public function convertToUrl($path) {
-		//return str_replace([':', '\\', '/'], '/', $path);
-		return preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
+		$pos = Strings::find($convert, ':', 'r');
+		//if ($pos) { $pos++; } else { $pos = 0; }
+		
+		$path = $pos ? Strings::get($path, 0, $pos + 1) : '/';
+		
+		return $path;
+		
 	}
 	
 	static public function clearSlashes($path) {

@@ -45,11 +45,7 @@ System::include('model:parents:globals');
 // components
 System::include('model:components:config');
 System::include('model:components:state');
-System::include('model:components:catalog');
-System::include('model:components:local');
-System::include('model:components:content');
 System::include('model:components:log');
-System::include('model:components:path');
 System::include('model:components:error');
 System::include('model:components:display');
 System::include('model:components:session');
