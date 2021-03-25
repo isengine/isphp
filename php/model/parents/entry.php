@@ -46,6 +46,8 @@ class Entry extends Data {
 	
 	public function setEntry($data) {
 		
+		$data = (array) $data;
+		
 		$array = [
 			'id', 'name', 'type', 'parents', 'ctime', 'mtime', 'dtime', 'owner'
 		];

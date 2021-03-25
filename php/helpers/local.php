@@ -185,8 +185,8 @@ class Local {
 		*  Функция создает папку
 		*/
 		
+		$target = Paths::clearSlashes($target);
 		$split = Strings::split($target, '\\' . DS);
-		//echo print_r($a, 1);
 		
 		$result = null;
 		

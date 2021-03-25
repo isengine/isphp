@@ -62,7 +62,11 @@ class Paths {
 	}
 	
 	static public function host($scheme = null) {
-		return ($scheme ? $scheme : $_SERVER['REQUEST_SCHEME']) . '://' . (extension_loaded('intl') ? idn_to_utf8($_SERVER['HTTP_HOST']) : $_SERVER['HTTP_HOST']);
+		return ($scheme ? $scheme : $_SERVER['REQUEST_SCHEME']) . '://' . (extension_loaded('intl') ? idn_to_utf8(
+			$_SERVER['HTTP_HOST'],
+			null,
+			version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
+		) : $_SERVER['HTTP_HOST']);
 	}
 	
 	static public function prepareUrl($path = null, $host = null) {
