@@ -112,6 +112,18 @@ class Paths {
 		return ($absolue ? null : self::host($scheme)) . self::relativeUrl($path);
 	}
 	
+	static public function parent($path) {
+		
+		$convert = Strings::replace($path, [':', '\\', '/'], ':');
+		$last = Strings::last($convert);
+		if (Strings::last($convert) === ':') {
+			$convert = Strings::unlast($convert);
+		}
+		$pos = Strings::find($convert, ':', 'r') + 1;
+		return Strings::get($path, 0, $pos);
+		
+	}
+	
 	static public function convertToReal($path) {
 		//return str_replace([':', '\\', '/'], DS, $path);
 		return preg_replace('/\:(?!\/)+|\\\\|\//u', DS, $path);

@@ -52,18 +52,22 @@ class Uri extends Globals {
 		$this -> user = $urlparse['user'];
 		$this -> password = $urlparse['password'];
 		$this -> port = $urlparse['port'];
-			
+		
+		$this -> setPathArray(Strings::unfirst($urlparse['path']));
+		$this -> setQueryArray($urlparse['query'] ? '?' . $urlparse['query'] : '');
+		
+		/*
 		$this -> path = [
 			'string' => Strings::unfirst($urlparse['path']),
 			//'array' => Objects::reset(Strings::split($urlparse['path'], '\/', true))
 			//'array' => Objects::reset(Objects::unfirst(Strings::split($urlparse['path'], '\/')))
 			'array' => Objects::reset(Strings::split(Paths::clearSlashes($urlparse['path']), '\/'))
 		];
-		
 		$this -> query = [
 			'string' => !empty($urlparse['query']) ? '?' . $urlparse['query'] : null,
 			'array' => $_GET
 		];
+		*/
 		
 		$this -> fragment = $urlparse['fragment'];
 			

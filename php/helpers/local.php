@@ -201,6 +201,39 @@ class Local {
 		
 	}
 
+	static public function deleteFolder($target) {
+		
+		/*
+		*  Функция удаляет папку вместе со всем содержимым
+		*/
+		
+		self::eraseFolder($target);
+		chmod($target, 0755);
+		rmdir($target);
+		
+	}
+
+	static public function eraseFolder($target) {
+		
+		/*
+		*  Функция очищает содержимое папки
+		*/
+		
+		$list = self::list($target, ['subfolders' => true, 'merge' => true]);
+		$list = Objects::reverse($list);
+		
+		foreach ($list as $item) {
+			if ($item['type'] === 'folder') {
+				chmod($item['fullpath'], 0755);
+				rmdir($item['fullpath']);
+			} else {
+				self::deleteFile($item['fullpath']);
+			}
+		}
+		unset($item);
+		
+	}
+
 	static public function readFile($target) {
 		
 		/*
@@ -246,6 +279,100 @@ class Local {
 		fclose($handle);
 		
 		return $result;
+		
+	}
+
+	static public function printFileLine($target, $separator = null) {
+		
+		/*
+		*  Функция открывает файл $target и читает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
+		*  
+		*  отличие от предыдущей функции в том, что эта работает построчно
+		*  
+		*  функция возвращает строку
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
+		}
+		
+		$handle = fopen($target, "r");
+		while(!feof($handle)) {
+			echo fgets($handle) . $separator;
+		}
+		fclose($handle);
+		
+		return true;
+		
+	}
+
+	static public function printFileLineBuffer($target, $separator = null) {
+		
+		/*
+		*  Функция открывает файл $target и читает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
+		*  
+		*  отличие от предыдущей функции в том, что эта работает построчно
+		*  
+		*  функция возвращает строку
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
+		}
+		
+		$handle = fopen($target, "r");
+		while(!feof($handle)) {
+			ob_start();
+			echo fgets($handle) . $separator;
+			$data = ob_get_contents();
+			ob_end_clean();
+			echo $data;
+			unset($data);
+		}
+		fclose($handle);
+		
+		return true;
+		
+	}
+
+	static public function printFileLineBufferNew($target, $separator = null) {
+		
+		/*
+		*  Функция открывает файл $target и читает его построчно
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*  вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
+		*  
+		*  отличие от предыдущей функции в том, что эта работает построчно
+		*  
+		*  функция возвращает строку
+		*/
+		
+		if (!file_exists($target)) {
+			return null;
+		}
+		
+		$fp = fopen($target, 'rb');
+		fpassthru($fp);
+		
+		//$CHUNK_SIZE = 1024;
+		//
+		//$buffer = '';
+		//ob_start();
+		//$handle = fopen($target, "r");
+		//while(!feof($handle)) {
+		//	$buffer = fread($handle, $CHUNK_SIZE);
+		//	echo $buffer;
+		//	ob_flush();
+		//	flush();
+		//}
+		//fclose($handle);
+		//ob_end_clean();
+		
+		return true;
 		
 	}
 
@@ -322,7 +449,7 @@ class Local {
 			if (!$mode) {
 				return false;
 			} elseif ($mode === 'replace') {
-				unlink($target);
+				self::deleteFile($target);
 			}
 		}
 		
@@ -412,6 +539,7 @@ class Local {
 			return null;
 		}
 		
+		chmod($target, 0644);
 		unlink($target);
 		
 	}
@@ -424,11 +552,6 @@ class Local {
 		*/
 		
 		fclose(fopen($target, 'w'));
-		
-		//if (file_exists($target)) {
-		//	unlink($target);
-		//}
-		//file_put_contents($filename, null);
 		
 	}
 
@@ -532,7 +655,7 @@ class Local {
 			if (!$delete) {
 				return false;
 			} else {
-				unlink($filename);
+				self::deleteFile($filename);
 			}
 		}
 		
@@ -753,7 +876,7 @@ class Local {
 			$zip -> close();
 			
 			if ($delete === true) {
-				if (!unlink($filename)) {
+				if (!self::deleteFile($filename)) {
 					return false;
 				}
 			}

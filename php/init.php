@@ -26,25 +26,18 @@ System::include('helpers:parser');
 System::include('helpers:sessions');
 System::include('helpers:ip');
 System::include('helpers:local');
-System::include('helpers:url');
-
-// interfaces
-
-// traits
+System::include('helpers:paths');
 
 // parents
-System::include('parents:data');
-System::include('parents:entry');
-System::include('parents:collection');
-System::include('parents:singleton');
-System::include('parents:constants');
-System::include('parents:globals');
+System::include('model:parents:data');
+System::include('model:parents:entry');
+System::include('model:parents:collection');
+System::include('model:parents:singleton');
+System::include('model:parents:constants');
+System::include('model:parents:globals');
 
-// constants
-
-// globals
-System::include('model:globals:session');
-System::include('model:globals:uri');
+// interfaces
+// traits
 
 // data
 //System::include('model:data:localdata');
@@ -57,17 +50,32 @@ System::include('model:components:local');
 System::include('model:components:content');
 System::include('model:components:log');
 System::include('model:components:path');
-System::include('model:components:api');
 System::include('model:components:error');
 System::include('model:components:display');
 System::include('model:components:session');
 System::include('model:components:uri');
+System::include('model:components:user');
+System::include('model:components:collection');
+System::include('model:components:filter');
+System::include('model:components:language');
+System::include('model:components:router');
 
-// controller
-System::include('model:controller:database');
-System::include('model:controller:driver');
+// database
+System::include('model:databases:database');
+System::include('model:databases:datasheet');
+System::include('model:databases:driver');
+System::include('model:databases:drivers:localdb');
+System::include('model:databases:drivers:tabledb');
+System::include('model:databases:drivers:exceldb');
 
-// drivers
-System::include('model:controller:drivers:local');
+// api
+System::include('model:apis:api');
+System::include('model:apis:method');
+//System::include('model:apis:methods:files');
+
+// templates
+System::include('model:templates:template');
+System::include('model:templates:view');
+System::include('model:templates:views:defaultview');
 
 ?>
