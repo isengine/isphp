@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class System {
 
-	static public function print($item = null) {
+	static public function render($item = null) {
 		echo empty($item) ? 'null' : print_r($item, true);
 	}
 
@@ -11,7 +11,7 @@ class System {
 		echo '<!--' . (empty($title) ? null : ' // ' . $title) . "\r\n" . (empty($item) ? 'null' : print_r($item, true)) . "\r\n"  . '-->';
 	}
 
-	static public function include($item, $base = __DIR__ . DS . DP, $return = null) {
+	static public function includes($item, $base = __DIR__ . DS . DP, $return = null) {
 		
 		$item = str_replace(['..','\/','\\','.',':'], ['','','','',DS], $item);
 		$path = realpath($base) . DS . $item . '.php';
@@ -29,7 +29,7 @@ class System {
 		
 	}
 
-	static public function isset($item = null) {
+	static public function exists($item = null) {
 		return isset($item);
 	}
 

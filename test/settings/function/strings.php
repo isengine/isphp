@@ -14,7 +14,7 @@ use is\Helpers\Data;
 //$p = Data::parse($string, ['key' => true, 'clear' => true, 'simple' => true]);
 //}
 //echo '<pre>';
-//System::print($p);
+//System::render($p);
 //var_dump($p);
 //echo '</pre>';
 

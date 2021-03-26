@@ -39,14 +39,14 @@ class Display extends Globals {
 	}
 	
 	public function printBuffer() {
-		$this -> print($this -> buffer);
+		$this -> render($this -> buffer);
 	}
 	
 	public function printData() {
-		$this -> print($this -> data);
+		$this -> render($this -> data);
 	}
 	
-	public function print($data) {
+	public function render($data) {
 		if (System::typeOf($data, 'iterable')) {
 			foreach ($data as $item) {
 				echo $item . $this -> splitter;

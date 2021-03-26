@@ -278,7 +278,7 @@ class DefaultView extends View {
 		}
 	}
 	
-	public function include($name = null, $from = null, $cache = 'skip') {
+	public function includes($name = null, $from = null, $cache = 'skip') {
 		if (!$from) {
 			$this -> includePage($name, $cache);
 		} elseif ($from === 'block') {

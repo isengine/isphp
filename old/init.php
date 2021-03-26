@@ -18,60 +18,60 @@ if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); 
 require_once __DIR__ . DS . 'helpers' . DS . 'system.php';
 
 // helpers
-System::include('helpers:prepare');
-System::include('helpers:strings');
-System::include('helpers:objects');
-System::include('helpers:match');
-System::include('helpers:parser');
-System::include('helpers:sessions');
-System::include('helpers:ip');
-System::include('helpers:local');
-System::include('helpers:paths');
+System::includes('helpers:prepare');
+System::includes('helpers:strings');
+System::includes('helpers:objects');
+System::includes('helpers:match');
+System::includes('helpers:parser');
+System::includes('helpers:sessions');
+System::includes('helpers:ip');
+System::includes('helpers:local');
+System::includes('helpers:paths');
 
 // parents
-System::include('model:parents:data');
-System::include('model:parents:entry');
-System::include('model:parents:collection');
-System::include('model:parents:singleton');
-System::include('model:parents:constants');
-System::include('model:parents:globals');
+System::includes('model:parents:data');
+System::includes('model:parents:entry');
+System::includes('model:parents:collection');
+System::includes('model:parents:singleton');
+System::includes('model:parents:constants');
+System::includes('model:parents:globals');
 
 // interfaces
 // traits
 
 // data
-//System::include('model:data:localdata');
+//System::includes('model:data:localdata');
 
 // components
-System::include('model:components:config');
-System::include('model:components:state');
-System::include('model:components:log');
-System::include('model:components:error');
-System::include('model:components:display');
-System::include('model:components:session');
-System::include('model:components:uri');
-System::include('model:components:user');
-System::include('model:components:collection');
-System::include('model:components:filter');
-System::include('model:components:language');
-System::include('model:components:router');
+System::includes('model:components:config');
+System::includes('model:components:state');
+System::includes('model:components:log');
+System::includes('model:components:error');
+System::includes('model:components:display');
+System::includes('model:components:session');
+System::includes('model:components:uri');
+System::includes('model:components:user');
+System::includes('model:components:collection');
+System::includes('model:components:filter');
+System::includes('model:components:language');
+System::includes('model:components:router');
 
 // database
-System::include('model:databases:database');
-System::include('model:databases:datasheet');
-System::include('model:databases:driver');
-System::include('model:databases:drivers:localdb');
-System::include('model:databases:drivers:tabledb');
-System::include('model:databases:drivers:exceldb');
+System::includes('model:databases:database');
+System::includes('model:databases:datasheet');
+System::includes('model:databases:driver');
+System::includes('model:databases:drivers:localdb');
+System::includes('model:databases:drivers:tabledb');
+System::includes('model:databases:drivers:exceldb');
 
 // api
-System::include('model:apis:api');
-System::include('model:apis:method');
-//System::include('model:apis:methods:files');
+System::includes('model:apis:api');
+System::includes('model:apis:method');
+//System::includes('model:apis:methods:files');
 
 // templates
-System::include('model:templates:template');
-System::include('model:templates:view');
-System::include('model:templates:views:defaultview');
+System::includes('model:templates:template');
+System::includes('model:templates:view');
+System::includes('model:templates:views:defaultview');
 
 ?>

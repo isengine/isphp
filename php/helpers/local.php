@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class Local {
 
-	static public function list($path, $parameters = [], $basepath = null) {
+	static public function search($path, $parameters = [], $basepath = null) {
 		
 		// now dirconnect and fileconnect is localList
 		
@@ -117,7 +117,7 @@ class Local {
 					}
 					
 					if ($parameters['subfolders']) {
-						$sub = self::list($pathto, $parameters, $basepath ? $basepath : $path);
+						$sub = self::search($pathto, $parameters, $basepath ? $basepath : $path);
 						
 						$list['sub'] = array_merge_recursive(
 							$list['sub'] ? $list['sub'] : [],
@@ -219,7 +219,7 @@ class Local {
 		*  Функция очищает содержимое папки
 		*/
 		
-		$list = self::list($target, ['subfolders' => true, 'merge' => true]);
+		$list = self::search($target, ['subfolders' => true, 'merge' => true]);
 		$list = Objects::reverse($list);
 		
 		foreach ($list as $item) {

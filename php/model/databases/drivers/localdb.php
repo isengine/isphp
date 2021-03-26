@@ -78,7 +78,7 @@ class LocalDB extends Driver {
 		
 		$files = [];
 		
-		$files = Local::list($path, ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]);
+		$files = Local::search($path, ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]);
 		//echo '<pre>' . print_r($files, 1) . '</pre>';
 		
 		$count = 0;
