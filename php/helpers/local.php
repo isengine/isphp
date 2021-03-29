@@ -161,6 +161,16 @@ class Local {
 		
 	}
 
+	static public function copyFile($from, $to) {
+		
+		/*
+		*  Функция копирует файл
+		*/
+		
+		return copy($from, $to);
+		
+	}
+
 	static public function createFile($target) {
 		
 		/*

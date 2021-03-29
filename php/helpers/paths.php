@@ -84,8 +84,7 @@ class Paths {
 		
 		$absolute = preg_match('/\:(\/|\\\\)/u', $path);
 		
-		$path = preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
-		$path = self::clearSlashes($path);
+		$path = self::clearSlashes(self::toUrl($path));
 		
 		if ($path) {
 			return ($absolute ? null : ($host ? self::host() : null) . '/') . $path . (!$nofolder ? '/' : null);
@@ -95,42 +94,55 @@ class Paths {
 		
 	}
 	
-	static public function parent($path) {
+	static public function realToRelativeUrl($path = null) {
+		
+		// корректно преобразует заданный абсолютный путь в относительный
+		// относительно базовой директории хоста
+		
+		$host = System::server('root');
+		if (Strings::find($path, $host) === 0) {
+			return Strings::get($path, Strings::len($host) - 1);
+		}
+		
+	}
+	
+	static public function toUrl($path) {
+		return preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
+	}
+	
+	static public function toReal($path) {
+		return preg_replace('/\:(?!\/)+|\\\\|\//u', DS, $path);
+	}
+	
+	static public function parent($path, $level = null) {
 		
 		// корректно выбирает родительский каталог в заданном пути
+		// второй аргумент позволяет выбрать уровень смещения родителя
 		
-		$host = Strings::find($path, ':\\\\');
-		if ($host) {
-			$path = Strings::get($path, $host + 2);
-		} else {
-			$host = Strings::find($path, '://');
-			if ($host) {
-				$path = Strings::get($path, $host + 2);
+		$start = Strings::first($path);
+		$real = Strings::match($path, DS);
+		$url = Strings::match($path, '://');
+		$array = Strings::split($path, $real ? '\\\\' : '\/');
+		
+		$first = Objects::first($array, 'value');
+		if (!Objects::last($array, 'value')) {
+			$level++;
+		}
+		$array = Objects::get($array, 0, $level + 1, 'r');
+		
+		if (!System::set($array)) {
+			$array = $start === '\\' || $start === '/' ? true : null;
+		} elseif (Objects::len($array) === 1) {
+			$f = Objects::first($array, 'value');
+			if (Strings::match($f, ':')) {
+				$array = $first . ($url ? '/' : null);
 			} else {
-				$host = Strings::find($path, ':\\');
-				if ($host) {
-					$path = Strings::get($path, $host + 1);
-				} else {
-					$host = Strings::find($path, ':/');
-					if ($host) {
-						$path = Strings::get($path, $host + 2);
-					}
-				}
+				$array = null;
 			}
 		}
 		
-		$convert = Strings::replace($path, [':', '\\', '/'], ':');
-		$last = Strings::last($convert);
-		if (Strings::last($convert) === ':') {
-			$convert = Strings::unlast($convert);
-		}
-		
-		$pos = Strings::find($convert, ':', 'r');
-		//if ($pos) { $pos++; } else { $pos = 0; }
-		
-		$path = $pos ? Strings::get($path, 0, $pos + 1) : '/';
-		
-		return $path;
+		$result = $array === true ? '' : Strings::join($array, $real ? '\\' : '/');
+		return $result || $result === '' ? $result . ($real ? '\\' : '/') : null;
 		
 	}
 	

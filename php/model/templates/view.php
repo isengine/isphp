@@ -29,6 +29,8 @@ abstract class View extends Data {
 		$this -> init($path);
 	}
 	
+	abstract public function includes();
+	
 	public function init($path = null) {
 		$this -> lang = Language::getInstance();
 		$this -> router = Router::getInstance();
