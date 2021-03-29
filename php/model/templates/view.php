@@ -26,6 +26,10 @@ abstract class View extends Data {
 	public $uri;
 	
 	public function __construct($path = null) {
+		$this -> init($path);
+	}
+	
+	public function init($path = null) {
 		$this -> lang = Language::getInstance();
 		$this -> router = Router::getInstance();
 		$this -> uri = Uri::getInstance();
