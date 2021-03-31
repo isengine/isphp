@@ -10,6 +10,7 @@ use is\Helpers\Parser;
 use is\Helpers\System;
 use is\Helpers\Prepare;
 use is\Helpers\Match;
+use is\Helpers\Paths;
 use is\Model\Components\Language;
 use is\Model\Components\Router;
 use is\Model\Components\Uri;
@@ -63,15 +64,23 @@ abstract class View extends Data {
 		return $this -> lang -> list;
 	}
 	
+	public function langListCode() {
+		return $this -> lang -> codes;
+	}
+	
 	public function lang($data) {
-		$data = Parser::fromString($data);
-		$array = $this -> lang -> getData();
-		return Objects::extract($array, $data);
+		if (Strings::match($data, ':')) {
+			$data = Parser::fromString($data);
+			$array = $this -> lang -> getData();
+			return Objects::extract($array, $data);
+		} else {
+			return $this -> lang -> getData($data);
+		}
 	}
 	
 	// группа работы с uri
 	
-	public function uri() {
+	public function url() {
 		return $this -> uri -> url;
 	}
 	
@@ -218,6 +227,109 @@ abstract class View extends Data {
 	public function matchHome() {
 		// проверка на домашнюю страницу
 		return $this -> uriPathArray() ? null : true;
+	}
+	
+	// группа работы с парсингом
+	
+	public function parse($string) {
+		// парсер текстовых переменных
+		return Parser::textVariables($string, function($type, $data){
+			
+			// для ссылок и тегов здесь общее правило такое:
+			// пути и ключевые значения
+			// затем классы
+			// затем альты
+			
+			$result = null;
+			
+			if ($type === 'lang') {
+				
+				$result = $this -> lang( Strings::join($data, ':') );
+				
+			} elseif ($type === 'url') {
+				
+				$url = $data[0];
+				$absolute = Strings::find($url, '//') === 0 ? ' target="_blank"' : null;
+				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
+				
+				$result = '<a href="' . $url . '" alt="' . $data[2] . '"' . $class . $absolute . '>' . $data[2] . '</a>';
+				
+				//echo print_r(htmlentities($result), 1) . '<br>';
+				
+			} elseif ($type === 'mail') {
+				
+				$url = $data[0];
+				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
+				
+				if (!$data[2]) {
+					$data[2] = $url;
+				}
+				
+				$subject = $data[3] ? '?subject=' . $data[3] : null;
+				
+				$result = '<a href="mailto:' . $url . $subject . '" alt="' . $data[2] . '"' . $class . '>' . $data[2] . '</a>';
+				
+				//echo print_r(htmlentities($result), 1) . '<br>';
+				
+			} elseif ($type === 'phone') {
+				
+				$url = $data[0];
+				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
+				
+				if (!$data[2]) {
+					$data[2] = $url;
+				}
+				
+				$url = Prepare::phone($url, $this -> langName());
+				
+				$result = '<a href="tel:' . $url . '" alt="' . $data[2] . '"' . $class . '>' . $data[2] . '</a>';
+				
+			} elseif ($type === 'url') {
+				
+				$url = $data[0];
+				$absolute = Strings::find($url, '//') === 0 ? ' target="_blank"' : null;
+				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
+				
+				$result = '<a href="' . $url . '" alt="' . $data[2] . '"' . $class . $absolute . '>' . $data[2] . '</a>';
+				
+				//echo print_r(htmlentities($result), 1) . '<br>';
+				
+			} elseif ($type === 'icon') {
+				
+				$result = '<i class="' . $data[0] . '" aria-hidden="true"></i>';
+				
+			} elseif ($type === 'img') {
+				
+				// с помощью srcset можно организовать правильный lazyload
+				// для этого нужно установить js библиотеку
+				// и указать изображению соответствующий класс
+				
+				// https://apoorv.pro/lozad.js/
+				// <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+				// lozad('.demilazyload').observe();
+				// lozad( document.querySelector('img') ).observe();
+				
+				$url = $data[0];
+				if (Strings::find($url, '//') !== 0) {
+					$url = Paths::prepareUrl($url);
+				}
+				
+				$srcset = $data[1];
+				if ($srcset) {
+					$srcset = ' srcset="' . $srcset . '" data-srcset="' . $url . '"';
+				}
+				
+				$class = $data[2] ? ' class="' . $data[2] . '"' : null;
+				
+				$result = '<img src="' . $url . '"' . $srcset . ' alt="' . $data[3] . '"' . $class . ' />';
+				
+				//echo print_r(htmlentities($result), 1) . '<br>';
+				
+			}
+			
+			return $result;
+			
+		});
 	}
 	
 }

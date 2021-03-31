@@ -22,6 +22,7 @@ class Pages extends View {
 	public $path_page;
 	
 	// кэширование страниц
+	// здесь установка путей и механизм кэширования
 	
 	public function setCachePage($name = null) {
 		
@@ -62,6 +63,7 @@ class Pages extends View {
 	}
 	
 	// кэширование блоков
+	// здесь установка путей и механизм кэширования
 	
 	public function setCacheBlock($name) {
 		$array = $this -> parseBlockPath($name);
@@ -230,11 +232,11 @@ class Pages extends View {
 	
 	public function loadBlock($name) {
 		$path = $this -> getBlockPath($name);
-		echo '[' . $path . ']';
+		//echo '[' . $path . ']';
 		$this -> loadPath($path);
 	}
 	
-	public function loadPage($name) {
+	public function loadPage($name = null) {
 		if (!$name) {
 			$path = $this -> getPagePath();
 		} else {
@@ -245,6 +247,7 @@ class Pages extends View {
 	}
 	
 	public function includeBlock($name, $cache) {
+		$cache_backup = $this -> caching_blocks;
 		$this -> setCacheBlocks($cache);
 		if ($this -> caching_blocks) {
 			$cache = $this -> readCacheBlock($name);
@@ -259,9 +262,11 @@ class Pages extends View {
 		} else {
 			$this -> loadBlock($name);
 		}
+		$this -> setCacheBlocks($cache_backup);
 	}
 	
 	public function includePage($name, $cache) {
+		$cache_backup = $this -> caching_pages;
 		$this -> setCachePages($cache);
 		if ($this -> caching_pages) {
 			$cache = $this -> readCachePage($name);
@@ -276,6 +281,7 @@ class Pages extends View {
 		} else {
 			$this -> loadPage($name);
 		}
+		$this -> setCachePages($cache_backup);
 	}
 	
 	public function includes($name = null, $from = null, $cache = 'skip') {

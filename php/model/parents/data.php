@@ -3,11 +3,30 @@
 namespace is\Model\Parents;
 
 use is\Helpers\System;
+use is\Helpers\Strings;
 use is\Helpers\Objects;
+use is\Helpers\Parser;
 
 class Data {
 	
 	public $data = [];
+	
+	public function getIn($key = null) {
+		
+		// Отдает данные из многомерного массива
+		// по ключу, который парсится в массив
+		// или весь массив данных сразу
+		
+		if (Strings::match($key, ':')) {
+			$data = Parser::fromString($key);
+			return Objects::extract($this -> data, $data);
+		} elseif (System::set($key)) {
+			return $this -> data[$key];
+		} else {
+			return $this -> data;
+		}
+		
+	}
 	
 	public function getData($key = null) {
 		

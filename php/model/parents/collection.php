@@ -35,13 +35,15 @@ class Collection extends Data {
 	public function getFirstData() {
 		$result = $this -> getFirst();
 		//return $result['data'];
-		return $result -> getEntryData();
+		//return $result -> getEntryData();
+		return $result ? $result -> getEntryData() : null;
 	}
 	
 	public function getLastData() {
 		$result = $this -> getLast();
 		//return $result['data'];
-		return $result -> getEntryData();
+		//return $result -> getEntryData();
+		return $result ? $result -> getEntryData() : null;
 	}
 	
 	public function getNames() {

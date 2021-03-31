@@ -3,6 +3,50 @@ namespace is\Helpers;
 
 class Parser {
 
+	static public function textVariables($string, $function) {
+		
+		/*
+		*  Функция парсинга текстовых переменных с многоуровневыми вложениями
+		*  текстовая переменная должна иметь вид {type|data1:data2:data3...}
+		*  Функция требует на вход строку для парсинга и функцию-обработчик
+		*  Обработчик должен принимать первым аргуметом тип, вторым - массив данных
+		*  таким образом, эта функция - лишь инструмент для реализации
+		*  алгоритма разбора текстовых переменных
+		*  это сделано потому, что реализация тесно связана с реализацией шаблонов
+		*/
+		
+		if (!$string) {
+			return null;
+		} elseif (!Strings::match($string, '{')) {
+			return $string;
+		}
+		
+		$regexp = '/\{(?>[^}{]+|(?R))+\}/u';
+		
+		return preg_replace_callback($regexp, function($data) use ($function) {
+			
+			$data = $data[0];
+			$data = Strings::get($data, 1, 1, 'r');
+			
+			if (Strings::match($data, '{')) {
+				$data = self::textVariables($data, $function);
+			}
+			
+			$data = self::fromString($data, ['simple' => null]);
+			
+			if (!System::typeIterable($data)) {
+				return null;
+			}
+			
+			$type = $data[0][0];
+			$params = $data[1];
+			
+			return $function($type, $params);
+			
+		}, $string);
+		
+	}
+	
 	static public function fromString($item = null, $parameters = []) {
 		
 		/*
@@ -41,6 +85,7 @@ class Parser {
 						$r[$i] = null;
 					} else {
 						
+						//$spliti = Strings::split($i, '(?<!\\):', null);
 						$spliti = Strings::split($i, ':', null);
 						
 						$splitk = reset($spliti);
@@ -85,6 +130,7 @@ class Parser {
 						return $parameters['simple'] ? $i : [$i];
 					} else {
 						
+						//$spliti = Strings::split($i, '(?<!\\):', null);
 						$spliti = Strings::split($i, ':', null);
 						
 						$a = Objects::each($spliti, [], function($i, $k, &$a) use ($parameters) {
