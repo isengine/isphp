@@ -8,6 +8,7 @@ use is\Helpers\Objects;
 use is\Helpers\Match;
 use is\Helpers\Sessions;
 use is\Helpers\Prepare;
+use is\Helpers\Parser;
 use is\Model\Parents\Globals;
 
 class Language extends Globals {

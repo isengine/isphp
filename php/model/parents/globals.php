@@ -9,10 +9,6 @@ abstract class Globals extends Singleton {
 	
 	abstract public function init();
 	
-	public function get($name = null) {
-		return $name ? $this -> $name : get_object_vars($this);
-	}
-	
 	public function compare($keys, $value) {
 		
 		$keys = Objects::convert($keys);

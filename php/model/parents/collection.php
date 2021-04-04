@@ -20,10 +20,6 @@ class Collection extends Data {
 		return $this -> count;
 	}
 	
-	public function get() {
-		return $this -> data;
-	}
-	
 	public function getFirst() {
 		return Objects::first($this -> data, 'value');
 	}

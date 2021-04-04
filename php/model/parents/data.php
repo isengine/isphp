@@ -11,20 +11,34 @@ class Data {
 	
 	public $data = [];
 	
-	public function getIn($key = null) {
+	public function get($key = null, $from = null) {
 		
-		// Отдает данные из многомерного массива
-		// по ключу, который парсится в массив
-		// или весь массив данных сразу
+		// Отдает данные по ключу, который парсится в массив
+		// из публичных свойств объекта
+		// или из массива данных, включая многомерный массив
+		// источник, откуда брать данные, можно указать явно: class/data
+		// или он будет определен в автоматическом режиме
+		// по приоритету и наличию ключа
 		
-		if (Strings::match($key, ':')) {
+		$result = null;
+		
+		$set = System::set($key);
+		
+		if (!$set && $from !== 'class') {
+			$result = $this -> data;
+		} elseif (Strings::match($key, ':') && $from !== 'class') {
 			$data = Parser::fromString($key);
-			return Objects::extract($this -> data, $data);
-		} elseif (System::set($key)) {
-			return $this -> data[$key];
-		} else {
-			return $this -> data;
+			$result = Objects::extract($this -> data, $data);
+		} elseif ($this -> $key && $from !== 'data') {
+			$prop = new \ReflectionProperty(static::class, $key);
+			if ( !$prop -> isPrivate() ) {
+				$result = $this -> $key;
+			}
+		} elseif ($set && System::typeOf($key, 'scalar') && $from !== 'class') {
+			$result = $this -> data[$key];
 		}
+		
+		return $result;
 		
 	}
 	

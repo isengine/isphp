@@ -38,7 +38,7 @@ class Constants extends Singleton {
 		}
 	}
 	
-	public function get($key = null) {
+	public function get($key = null, $from = null) {
 		return System::set($key) ? $this -> constants[ $this -> convert($key) ] : $this -> constants;
 	}
 	
