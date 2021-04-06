@@ -1,8 +1,7 @@
 <?php
 
-namespace is\Model\Apis;
+namespace is\Model\Apis\Methods;
 
-use is\Model\Parents\Data;
 use is\Helpers\Local;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
@@ -11,7 +10,9 @@ use is\Helpers\System;
 use is\Helpers\Prepare;
 use is\Helpers\Match;
 
-abstract class Method extends Data {
+use is\Model\Parents\Data;
+
+abstract class Master extends Data {
 	
 	/*
 	это фактически интерфейс метода

@@ -3,9 +3,8 @@
 namespace is\Model\Templates\Variables;
 
 use is\Helpers\Strings;
-use is\Model\Templates\Variable;
 
-class Url extends Variable {
+class Url extends Master {
 	
 	public function init() {
 		

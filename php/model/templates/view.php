@@ -2,243 +2,63 @@
 
 namespace is\Model\Templates;
 
-use is\Model\Parents\Data;
-use is\Helpers\Local;
-use is\Helpers\Strings;
-use is\Helpers\Objects;
+use is\Helpers\Sessions;
 use is\Helpers\Parser;
+use is\Helpers\Objects;
+use is\Helpers\Strings;
+use is\Helpers\Local;
 use is\Helpers\System;
-use is\Helpers\Prepare;
 use is\Helpers\Match;
 use is\Helpers\Paths;
-use is\Model\Components\Language;
-use is\Model\Components\Router;
-use is\Model\Components\Uri;
+use is\Helpers\Prepare;
+use is\Model\Parents\Data;
 
-abstract class View extends Data {
+class View extends Data {
 	
-	/*
-	это фактически интерфейс вида
-	*/
+	// общие установки кэша
 	
 	public $path;
-	public $lang;
-	public $router;
-	public $uri;
+	public $cache;
 	
-	public function __construct($path = null) {
-		$this -> init($path);
-	}
-	
-	abstract public function includes();
-	
-	public function init($path = null) {
-		$this -> lang = Language::getInstance();
-		$this -> router = Router::getInstance();
-		$this -> uri = Uri::getInstance();
-		if ($path) {
-			$this -> setRealPath($path);
-		}
-	}
-	
-	// группа работы с абсолютным путем
-	
-	public function setRealPath($path) {
+	public function __construct($path, $cache) {
 		$this -> path = $path;
+		$this -> cache = $cache;
 	}
 	
-	public function getRealPath() {
-		return $this -> path;
-	}
-	
-	public function setRealCache($path) {
-		$this -> cache = $path;
-		Local::createFolder($this -> cache);
-	}
-	
-	public function getRealCache() {
-		return $this -> cache;
-	}
-	
-	// группа работы с роутером
-	
-	public function template() {
-		$template = Template::getInstance();
-		return $template -> router() -> template['name'];
-	}
-	
-	public function section() {
-		$template = Template::getInstance();
-		return $template -> router() -> template['section'];
-	}
-	
-	public function page() {
-		$entry = System::typeClass($this -> router -> current, 'entry');
-		return $entry ? $this -> router -> current -> getEntryData('name') : null;
-	}
-	
-	public function parents() {
-		$entry = System::typeClass($this -> router -> current, 'entry');
-		return $entry ? $this -> router -> current -> getEntryKey('parents') : null;
-	}
-	
-	public function type() {
-		$entry = System::typeClass($this -> router -> current, 'entry');
-		return $entry ? $this -> router -> current -> getEntryKey('type') : null;
-	}
-	
-	public function pageByLang() {
-		$name = $this -> page();
-		return $name ? $this -> lang('menu:' . $name) : null;
-	}
-	
-	public function parentsByLang() {
-		$parents = $this -> parents();
-		$result = [];
-		if (System::typeIterable($parents)) {
-			foreach ($parents as $item) {
-				$name = $this -> lang('menu:' . $item);
-				$result[] = $name ? $name : $item;
-			}
-			unset($key, $item);
+	public function add($type, $cache = 'skip') {
+		$name = __NAMESPACE__ . '\\Views\\' . (Prepare::upperFirst($type));
+		$this -> data[$type] = new $name($this -> path, $this -> cache);
+		if ($cache !== 'skip') {
+			$this -> cache($type, $cache);
 		}
-		return $result;
 	}
 	
-	public function routeByLang() {
-		$route = $this -> route();
-		$result = [];
-		if (System::typeIterable($route)) {
-			foreach ($route as $item) {
-				$name = $this -> lang('menu:' . $item);
-				$result[] = $name ? $name : $item;
-			}
-			unset($key, $item);
-		}
-		return $result;
+	public function get($type) {
+		return $this -> data[$type];
 	}
 	
-	// группа работы с определением
-	
-	public function main() {
-		// адрес главной страницы шаблона/раздела
-		$url = $this -> uri();
-		$route = Strings::join($this -> route(), '/');
-		$pos = $route ? Strings::find($url, $route) : null;
-		return Strings::get($url, 0, $pos);
+	public function init($type) {
+		$this -> data[$type] -> init();
 	}
 	
-	public function home() {
-		// адрес домашней страницы
-		return $this -> domain();
+	public function cache($type, $cache) {
+		$this -> data[$type] -> caching($cache);
 	}
 	
-	public function matchPage($name) {
-		// проверка на название страницы
-		return $this -> page() === $name ? true : null;
+	public function clear() {
+		Local::eraseFolder($this -> cache);
 	}
 	
-	public function matchMain() {
-		// проверка на главную страницу шаблона/раздела
-		return $this -> route() ? null : true;
-	}
-	
-	public function matchHome() {
-		// проверка на домашнюю страницу
-		return $this -> uriPathArray() ? null : true;
-	}
-	
-	// группа работы с парсингом
-	
-	public function parse($string) {
-		// парсер текстовых переменных
-		return Parser::textVariables($string, function($type, $data){
-			
-			// для ссылок и тегов здесь общее правило такое:
-			// пути и ключевые значения
-			// затем классы
-			// затем альты
-			
-			$result = null;
-			
-			if ($type === 'lang') {
-				
-				$result = $this -> lang( Strings::join($data, ':') );
-				
-			} elseif ($type === 'url') {
-				
-				$url = $data[0];
-				$absolute = Strings::find($url, '//') === 0 ? ' target="_blank"' : null;
-				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
-				
-				$result = '<a href="' . $url . '" alt="' . $data[2] . '"' . $class . $absolute . '>' . $data[2] . '</a>';
-				
-				//echo print_r(htmlentities($result), 1) . '<br>';
-				
-			} elseif ($type === 'mail') {
-				
-				$url = $data[0];
-				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
-				
-				if (!$data[2]) {
-					$data[2] = $url;
-				}
-				
-				$subject = $data[3] ? '?subject=' . $data[3] : null;
-				
-				$result = '<a href="mailto:' . $url . $subject . '" alt="' . $data[2] . '"' . $class . '>' . $data[2] . '</a>';
-				
-				//echo print_r(htmlentities($result), 1) . '<br>';
-				
-			} elseif ($type === 'phone') {
-				
-				$url = $data[0];
-				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
-				
-				if (!$data[2]) {
-					$data[2] = $url;
-				}
-				
-				$url = Prepare::phone($url, $this -> langName());
-				
-				$result = '<a href="tel:' . $url . '" alt="' . $data[2] . '"' . $class . '>' . $data[2] . '</a>';
-				
-			} elseif ($type === 'icon') {
-				
-				$result = '<i class="' . $data[0] . '" aria-hidden="true"></i>';
-				
-			} elseif ($type === 'img') {
-				
-				// с помощью srcset можно организовать правильный lazyload
-				// для этого нужно установить js библиотеку
-				// и указать изображению соответствующий класс
-				
-				// https://apoorv.pro/lozad.js/
-				// <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
-				// lozad('.demilazyload').observe();
-				// lozad( document.querySelector('img') ).observe();
-				
-				$url = $data[0];
-				if (Strings::find($url, '//') !== 0) {
-					$url = Paths::prepareUrl($url);
-				}
-				
-				$srcset = $data[1];
-				if ($srcset) {
-					$srcset = ' srcset="' . $srcset . '" data-srcset="' . $url . '"';
-				}
-				
-				$class = $data[2] ? ' class="' . $data[2] . '"' : null;
-				
-				$result = '<img src="' . $url . '"' . $srcset . ' alt="' . $data[3] . '"' . $class . ' />';
-				
-				//echo print_r(htmlentities($result), 1) . '<br>';
-				
-			}
-			
-			return $result;
-			
-		});
+	public function includes($name = null, $type = null, $cache = 'skip') {
+		$this -> data[$type] -> includes($name, $cache);
+		//if (!$from) {
+		//	$this -> includePage($name, $cache);
+		//} elseif ($from === 'block') {
+		//	$this -> includeBlock($name, $cache);
+		//} else {
+		//	$path = $this -> path . 'html' . DS . $from . DS . $this -> parsePagePath($name) . '.php';
+		//	$this -> load($path);
+		//}
 	}
 	
 }

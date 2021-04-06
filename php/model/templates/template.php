@@ -18,6 +18,7 @@ class Template extends Singleton {
 	public $settings;
 	public $view;
 	public $seo;
+	public $render;
 	
 	/*
 	НУЖНО НАСТРОИТЬ ВИД ТАК, ЧТОБЫ ОН СЧИТЫВАЛ НУЖНЫЙ PHP-ФАЙЛ
@@ -25,51 +26,74 @@ class Template extends Singleton {
 	ЗАТЕМ ПЕРЕБРАСЫВАЯ ДАННЫЕ В ПЕРЕМЕННУЮ
 	ЗАТЕМ РАСПАРСИВАЯ ТЕКСТОВЫЕ ПЕРЕМЕННЫЕ
 	И ТОЛЬКО ЗАТЕМ ОТПРАВЛЯТЬ ЕГО НА ВЫВОД
-	
-	КЭШИРОВАНИЕ И ЗАГРУЗКА СТРАНИЦ ДОЛЖЫ БЫТЬ ОТДЕЛЬНЫМ КЛАССОВ
-	СВЯЗЬ ПОД ВИДОМ БУДЕТ ЧЕРЕЗ ИНИЦИАЛИЗАЦИЮ ЛИБО
-	- РОДИТЕЛЬСКОГО КЛАССА ИЛИ КЛАССА, ВЫЗВАВШЕГО ПОДКЛАСС, (TEMPLATE от VIEW) ВОЗМОЖНО СВЯЗЬ БУДЕТ ИДТИ ЧЕРЕЗ ПЕРЕМЕННУЮ STATIC::CLASS
-	- ВЫЗОВА TEMPLATE -> ...
 	*/
 	
 	public function init($settings = []) {
-		$this -> settings = $settings;
+		
+		// инициализация настроек
+		$this -> settings = new Data;
+		
+		// инициализация seo
 		$this -> seo = new Data;
+		
+		// инициализация видов
+		$this -> view = new View($settings['path'], $settings['cache']);
+		
+		// настройки рендеринга
+		$this -> render = $settings['render'];
+		
+		unset($settings);
+		
 	}
 	
-	public function launch() {
-		$viewname = __NAMESPACE__ . '\\Views\\' . ($this -> settings['view'] ? $this -> settings['view'] : 'DefaultView');
-		$this -> view = new $viewname($this -> settings['path']);
-		$this -> view -> setRealCache($this -> settings['cache']);
+	// группа работы с определением
+	
+	public function main() {
+		// адрес главной страницы шаблона/раздела
+		$url = $this -> get('url');
+		$route = Strings::join($this -> get('route'), '/');
+		$pos = $route ? Strings::find($url, $route) : null;
+		return Strings::get($url, 0, $pos);
 	}
+	
+	public function home() {
+		// адрес домашней страницы
+		return $this -> get('domain');
+	}
+	
+	public function match($type, $name = null) {
+		if ($type === 'page') {
+			// проверка на название страницы
+			return $this -> get('page') === $name;
+		} elseif ($type === 'main') {
+			// проверка на главную страницу шаблона/раздела
+			return $this -> get('route') ? null : true;
+		} elseif ($type === 'home') {
+			// проверка на домашнюю страницу
+			return $this -> get('home');
+		}
+	}
+	
+	// группа краткого вызова компонентов
 	
 	public function lang() {
 		return Language::getInstance();
 	}
 	
-	public function router() {
-		return Router::getInstance();
+	public function parse() {
+		return new Variable;
 	}
 	
-	public function uri() {
-		return Uri::getInstance();
-	}
-	
-	public function parse($string) {
-		// парсер текстовых переменных
-		return Parser::textVariables($string, function($type, $data){
-			
-			// для ссылок и тегов здесь общее правило такое:
-			// пути и ключевые значения
-			// затем классы
-			// затем альты
-			
-			$varname = __NAMESPACE__ . '\\Variables\\' . (Prepare::upperFirst($type));
-			$var = new $varname($data);
-			
-			return $var -> init();
-			
-		});
+	public function render($type, $name) {
+		// вызов рендеринга
+		// например, render('css', 'filename')
+		$name = __NAMESPACE__ . '\\Renders\\' . (Prepare::upperFirst($type));
+		$render = new $name(
+			$this -> render['from'],
+			$this -> render['to'],
+			$this -> render['url']
+		);
+		$render -> launch($name);
 	}
 	
 }

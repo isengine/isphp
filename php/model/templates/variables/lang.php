@@ -4,9 +4,8 @@ namespace is\Model\Templates\Variables;
 
 use is\Helpers\Strings;
 use is\Model\Templates\Template;
-use is\Model\Templates\Variable;
 
-class Lang extends Variable {
+class Lang extends Master {
 	
 	public function init() {
 		

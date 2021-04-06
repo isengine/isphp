@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Templates;
+namespace is\Model\Templates\Renders;
 
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
@@ -11,26 +11,19 @@ use is\Helpers\System;
 use is\Helpers\Match;
 use is\Helpers\Paths;
 
-class Render {
+use is\Model\Parents\Data;
+
+abstract class Master extends Data {
 	
 	public $from;
 	public $to;
+	public $url;
 	public $mtime;
 	public $hash;
 	
-	public $path_from;
-	public $path_to;
-	public $path_url;
-	
 	// инициализация
 	
-	public function init($from, $to) {
-		$this -> from = $from;
-		$this -> to = $to;
-		$this -> mtime = file_exists($this -> from) ? filemtime($this -> from) : null;
-	}
-	
-	public function setPrepare($from, $to, $url) {
+	public function __construct($from, $to, $url) {
 		
 		// задаем базовые настройки путей
 		// каждый из них записан в виде массива с двумя индексами
@@ -42,14 +35,32 @@ class Render {
 		// to - real путь, куда будет скомпилирован файл
 		// url - url-путь, абсолютный или относительный, для ссылки на файл
 		
-		$this -> path_from = $from;
-		$this -> path_to = $to;
-		$this -> path_url = $url;
+		$this -> from = $from;
+		$this -> to = $to;
+		$this -> url = $url;
+		
+		$this -> mtime = file_exists($this -> from) ? filemtime($this -> from) : null;
+		
 	}
 	
-	public function getPrepare($name, $middle = null, $last = null) {
-		$name = 'path_' . $name;
-		$name = $this -> $name;
+	abstract public function launch();
+	abstract public function rendering();
+	
+	public function setPath($middle = null, $last = null) {
+		foreach (['from', 'to', 'url'] as $item) {
+			$name = $this -> $item;
+			$this -> $item = $name[0] . $middle . $name[1] . $last;
+		}
+		unset($name, $item);
+	}
+	
+	public function setPathByKey($key, $middle = null, $last = null) {
+		$name = $this -> $key;
+		$this -> $key = $name[0] . $middle . $name[1] . $last;
+	}
+	
+	public function getPathByKey($key, $middle = null, $last = null) {
+		$name = $this -> $key;
 		return $name[0] . $middle . $name[1] . $last;
 	}
 	
@@ -65,6 +76,7 @@ class Render {
 		// сброс настроек рендеринга
 		$this -> from = null;
 		$this -> to = null;
+		$this -> url = null;
 		$this -> mtime = null;
 		$this -> hash = [];
 	}
@@ -78,19 +90,14 @@ class Render {
 	}
 	
 	public function setHash() {
-		
 		// создание md5 хэша по времени последнего изменения
-		
 		$this -> hash = [
 			'file' => $this -> to . '.md5',
 			'from' => null,
 			'to' => null
 		];
-		
 		$this -> hash['to'] = file_exists($this -> hash['file']) ? file_get_contents($this -> hash['file']) : null;
-		
 		$this -> hash['from'] = $this -> mtime ? md5_file($this -> from) . md5($this -> mtime) : null;
-		
 	}
 	
 	public function getHash($name = null) {
@@ -113,25 +120,6 @@ class Render {
 		}
 		Local::writeFile($file, $this -> getHash('from'), 'replace');
 	}
-	
-	// use:
-	// init($from, $to);
-	// setHash();
-	// if (!matchHash()) {
-	//   if (some-function-with-rendering-and-return-rendering-process-result()) {
-	//     writeHash();
-	//   }
-	//   ...or...
-	//   $data = some-function-with-rendering-and-return-rendering-process-result();
-	//   if ($data) {
-	//     write($data);
-	//     writeHash();
-	//   }
-	// }
-	// modificator();
-	// some-function-with-print-rendering-link-result()
-	// ...or...
-	// return some-function-with-return-rendering-link-result()
 	
 }
 

@@ -1,8 +1,7 @@
 <?php
 
-namespace is\Model\Databases;
+namespace is\Model\Databases\Drivers;
 
-use is\Model\Parents\Data;
 use is\Helpers\Local;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
@@ -10,9 +9,11 @@ use is\Helpers\Parser;
 use is\Helpers\System;
 use is\Helpers\Prepare;
 use is\Helpers\Match;
+
+use is\Model\Parents\Data;
 use is\Model\Components\Filter;
 
-abstract class Driver extends Data {
+abstract class Master extends Data {
 	
 	/*
 	это фактически интерфейс драйвера

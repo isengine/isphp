@@ -2,9 +2,7 @@
 
 namespace is\Model\Templates\Variables;
 
-use is\Model\Templates\Variable;
-
-class Icon extends Variable {
+class Icon extends Master {
 	
 	public function init() {
 		

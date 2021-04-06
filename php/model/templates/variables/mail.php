@@ -2,9 +2,7 @@
 
 namespace is\Model\Templates\Variables;
 
-use is\Model\Templates\Variable;
-
-class Mail extends Variable {
+class Mail extends Master {
 	
 	public function init() {
 		

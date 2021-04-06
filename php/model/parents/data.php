@@ -24,21 +24,28 @@ class Data {
 		
 		$set = System::set($key);
 		
-		if (!$set && $from !== 'class') {
+		if (!$set && $from !== 'key') {
 			$result = $this -> data;
-		} elseif (Strings::match($key, ':') && $from !== 'class') {
+		} elseif (Strings::match($key, ':') && $from !== 'key') {
 			$data = Parser::fromString($key);
 			$result = Objects::extract($this -> data, $data);
 		} elseif ($this -> $key && $from !== 'data') {
-			$prop = new \ReflectionProperty(static::class, $key);
-			if ( !$prop -> isPrivate() ) {
-				$result = $this -> $key;
-			}
-		} elseif ($set && System::typeOf($key, 'scalar') && $from !== 'class') {
+			$result = $this -> getKey($key);
+		} elseif ($set && System::typeOf($key, 'scalar') && $from !== 'key') {
 			$result = $this -> data[$key];
 		}
 		
 		return $result;
+		
+	}
+	
+	public function getKey($key) {
+		
+		// Отдает данные объекта по ключу
+		// если данные не защищены
+		
+		$prop = new \ReflectionProperty(static::class, $key);
+		return $prop -> isPrivate() ? null : $this -> $key;
 		
 	}
 	

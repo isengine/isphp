@@ -2,7 +2,6 @@
 
 namespace is\Model\Databases\Drivers;
 
-use is\Model\Databases\Driver;
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
 use is\Helpers\Objects;
@@ -11,7 +10,7 @@ use is\Helpers\Local;
 use is\Helpers\System;
 use is\Helpers\Match;
 
-class LocalDB extends Driver {
+class LocalDB extends Master {
 	
 	protected $path;
 	

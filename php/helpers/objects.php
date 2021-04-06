@@ -632,9 +632,9 @@ class Objects {
 		
 		$find = [];
 		
-		if (!$needle && !$notneedle) {
-			return $haystack;
-		}
+		//if (!System::set($needle) && !System::set($notneedle)) {
+		//	return $haystack;
+		//}
 		
 		foreach ($haystack as $k => $i) {
 			if ($needle && $i === $needle) {

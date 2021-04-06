@@ -4,9 +4,8 @@ namespace is\Model\Templates\Variables;
 
 use is\Helpers\Prepare;
 use is\Model\Templates\Template;
-use is\Model\Templates\Variable;
 
-class Phone extends Variable {
+class Phone extends Master {
 	
 	public function init() {
 		

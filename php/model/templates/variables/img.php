@@ -4,9 +4,8 @@ namespace is\Model\Templates\Variables;
 
 use is\Helpers\Strings;
 use is\Helpers\Paths;
-use is\Model\Templates\Variable;
 
-class Img extends Variable {
+class Img extends Master {
 	
 	public function init() {
 		
