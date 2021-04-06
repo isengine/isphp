@@ -3,7 +3,7 @@ namespace is\Helpers;
 
 class Parser {
 
-	static public function textVariables($string, $function) {
+	static public function textVariables($string, $function, $start = '{', $end = '}') {
 		
 		/*
 		*  Функция парсинга текстовых переменных с многоуровневыми вложениями
@@ -17,11 +17,15 @@ class Parser {
 		
 		if (!$string) {
 			return null;
-		} elseif (!Strings::match($string, '{')) {
+		} elseif (!Strings::match($string, $start)) {
 			return $string;
 		}
 		
-		$regexp = '/\{(?>[^}{]+|(?R))+\}/u';
+		$start = quotemeta($start);
+		$end = quotemeta($end);
+		
+		$regexp = '/' . $start . '(?>[^' . $start . $end . ']+|(?R))+' . $end . '/u';
+		/*$regexp = '/\{(?>[^}{]+|(?R))+\}/u';*/
 		
 		return preg_replace_callback($regexp, function($data) use ($function) {
 			

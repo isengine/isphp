@@ -5,6 +5,8 @@ namespace is\Model\Templates;
 use is\Helpers\System;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
+use is\Helpers\Parser;
+use is\Helpers\Prepare;
 use is\Model\Parents\Data;
 use is\Model\Parents\Singleton;
 use is\Model\Components\Language;
@@ -53,6 +55,22 @@ class Template extends Singleton {
 		return Uri::getInstance();
 	}
 	
+	public function parse($string) {
+		// парсер текстовых переменных
+		return Parser::textVariables($string, function($type, $data){
+			
+			// для ссылок и тегов здесь общее правило такое:
+			// пути и ключевые значения
+			// затем классы
+			// затем альты
+			
+			$varname = __NAMESPACE__ . '\\Variables\\' . (Prepare::upperFirst($type));
+			$var = new $varname($data);
+			
+			return $var -> init();
+			
+		});
+	}
 	
 }
 

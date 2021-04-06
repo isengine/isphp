@@ -13,24 +13,10 @@ class Display extends Globals {
 	
 	public $buffer;
 	public $splitter;
-	public $wrapper;
 	
 	public function init() {
-		$this -> buffer = null;
-		$this -> data = [];
-		$this -> splitter = "\n";
-	}
-	
-	public function addBuffer($data) {
-		$this -> buffer .= $data;
-	}
-	
-	public function addDataToBuffer($data) {
-		$this -> buffer .= Strings::join($data, $this -> splitter);
-	}
-	
-	public function resetBuffer() {
-		$buffer = null;
+		$this -> reset();
+		$this -> setSplitter();
 	}
 	
 	public function reset() {
@@ -38,23 +24,32 @@ class Display extends Globals {
 		$this -> resetData();
 	}
 	
+	public function render($data) {
+		return System::typeOf($data, 'iterable') ? Strings::join($data, $this -> splitter) : $data;
+	}
+	
+	public function setSplitter($splitter = "\n") {
+		$this -> splitter = $splitter;
+	}
+	
+	public function setBuffer($data) {
+		$this -> buffer = $this -> render($data);
+	}
+	
+	public function addBuffer($data) {
+		$this -> buffer .= $this -> render($data);
+	}
+	
+	public function resetBuffer() {
+		$buffer = null;
+	}
+	
 	public function printBuffer() {
-		$this -> render($this -> buffer);
+		echo $this -> buffer;
 	}
 	
 	public function printData() {
-		$this -> render($this -> data);
-	}
-	
-	public function render($data) {
-		if (System::typeOf($data, 'iterable')) {
-			foreach ($data as $item) {
-				echo $item . $this -> splitter;
-			}
-			unset($item);
-		} else {
-			echo $data;
-		}
+		echo $this -> render($this -> data);
 	}
 	
 	public function dump($data, $before = '<pre>', $after = '</pre>') {

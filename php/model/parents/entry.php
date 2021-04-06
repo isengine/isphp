@@ -50,6 +50,8 @@ class Entry extends Data {
 			'id', 'name', 'type', 'parents', 'ctime', 'mtime', 'dtime', 'owner'
 		];
 		
+		$data = (array) $data;
+		
 		foreach ($array as $item) {
 			$this -> setEntryKey($item, $data[$item]);
 		}

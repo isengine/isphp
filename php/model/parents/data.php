@@ -120,6 +120,14 @@ class Data {
 		
 	}
 	
+	public function deleteDataKey($key) {
+		
+		// Удаляет данные по ключу
+		
+		unset($this -> data[$key]);
+		
+	}
+	
 	public function mergeData($data, $recursion = null) {
 		
 		// Заменяет текущие данные новыми, переданными в массиве 'merge'

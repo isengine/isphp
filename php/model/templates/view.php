@@ -41,85 +41,6 @@ abstract class View extends Data {
 		}
 	}
 	
-	// группа работы с языком
-	
-	public function langName() {
-		return $this -> lang -> lang;
-	}
-	
-	public function langCode($lang = null) {
-		if (!$lang) {
-			return $this -> lang -> code;
-		} else {
-			$name = $this -> lang -> list[$lang];
-			return $this -> lang -> codes[$name];
-		}
-	}
-	
-	public function langList() {
-		return Objects::keys($this -> lang -> settings);
-	}
-	
-	public function langListAll() {
-		return $this -> lang -> list;
-	}
-	
-	public function langListCode() {
-		return $this -> lang -> codes;
-	}
-	
-	public function lang($data) {
-		if (Strings::match($data, ':')) {
-			$data = Parser::fromString($data);
-			$array = $this -> lang -> getData();
-			return Objects::extract($array, $data);
-		} else {
-			return $this -> lang -> getData($data);
-		}
-	}
-	
-	// группа работы с uri
-	
-	public function url() {
-		return $this -> uri -> url;
-	}
-	
-	public function scheme() {
-		return $this -> uri -> scheme;
-	}
-	
-	public function host() {
-		return $this -> uri -> host;
-	}
-	
-	public function domain() {
-		return $this -> uri -> domain;
-	}
-	
-	public function previous() {
-		return $this -> uri -> previous;
-	}
-	
-	public function uriPath() {
-		return $this -> uri -> path['string'];
-	}
-	
-	public function uriPathArray() {
-		return $this -> uri -> path['array'];
-	}
-	
-	public function query() {
-		return $this -> uri -> query['string'];
-	}
-	
-	public function queryArray() {
-		return $this -> uri -> query['array'];
-	}
-	
-	public function data() {
-		return $this -> uri -> data;
-	}
-	
 	// группа работы с абсолютным путем
 	
 	public function setRealPath($path) {
@@ -141,16 +62,14 @@ abstract class View extends Data {
 	
 	// группа работы с роутером
 	
-	public function route() {
-		return $this -> router -> route;
-	}
-	
 	public function template() {
-		return $this -> router -> template['name'];
+		$template = Template::getInstance();
+		return $template -> router() -> template['name'];
 	}
 	
 	public function section() {
-		return $this -> router -> template['section'];
+		$template = Template::getInstance();
+		return $template -> router() -> template['section'];
 	}
 	
 	public function page() {
@@ -283,16 +202,6 @@ abstract class View extends Data {
 				$url = Prepare::phone($url, $this -> langName());
 				
 				$result = '<a href="tel:' . $url . '" alt="' . $data[2] . '"' . $class . '>' . $data[2] . '</a>';
-				
-			} elseif ($type === 'url') {
-				
-				$url = $data[0];
-				$absolute = Strings::find($url, '//') === 0 ? ' target="_blank"' : null;
-				$class = $data[1] ? ' class="' . $data[1] . '"' : null;
-				
-				$result = '<a href="' . $url . '" alt="' . $data[2] . '"' . $class . $absolute . '>' . $data[2] . '</a>';
-				
-				//echo print_r(htmlentities($result), 1) . '<br>';
 				
 			} elseif ($type === 'icon') {
 				
