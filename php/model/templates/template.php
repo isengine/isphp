@@ -80,6 +80,10 @@ class Template extends Singleton {
 		return Language::getInstance();
 	}
 	
+	public function view($type) {
+		return $this -> view -> data[$type];
+	}
+	
 	public function parse() {
 		return new Variable;
 	}
