@@ -82,6 +82,7 @@ class Template extends Singleton {
 	
 	public function view($type) {
 		return $this -> view -> data[$type];
+		// or link to this object &$this...
 	}
 	
 	public function parse() {
