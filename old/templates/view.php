@@ -37,30 +37,6 @@ class View extends Data {
 		return $this -> data[$type];
 	}
 	
-	public function init($type) {
-		$this -> data[$type] -> init();
-	}
-	
-	public function cache($type, $cache) {
-		$this -> data[$type] -> caching($cache);
-	}
-	
-	public function clear() {
-		Local::eraseFolder($this -> cache);
-	}
-	
-	public function includes($name = null, $type = null, $cache = 'skip') {
-		$this -> data[$type] -> includes($name, $cache);
-		//if (!$from) {
-		//	$this -> includePage($name, $cache);
-		//} elseif ($from === 'block') {
-		//	$this -> includeBlock($name, $cache);
-		//} else {
-		//	$path = $this -> path . 'html' . DS . $from . DS . $this -> parsePagePath($name) . '.php';
-		//	$this -> load($path);
-		//}
-	}
-	
 }
 
 ?>
