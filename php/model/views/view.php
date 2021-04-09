@@ -25,7 +25,31 @@ class View extends Singleton {
 	}
 	
 	public function get($type) {
+		if (Strings::match($type, '|')) {
+			$array = Strings::pairs($type, '|');
+			return $this -> data[$array[0]] -> get($array[1]);
+		}
 		return $this -> data[$type];
+	}
+	
+	public function launch($data) {
+		
+		if (!Strings::match($data, '|')) {
+			return null;
+		}
+		
+		$data = Strings::split($data, '|');
+		
+		if (!System::typeIterable($data)) {
+			return null;
+		}
+		
+		$type = $data[0];
+		$func = $data[1];
+		$params = $data[2];
+		
+		return $this -> data[$type] -> $func($params);
+		
 	}
 	
 	public function reset($type) {
@@ -33,5 +57,11 @@ class View extends Singleton {
 	}
 	
 }
+
+// now use
+// echo $view -> get('lang') -> get('information:work:0');
+// echo $view -> get('lang|information:work:0');
+// echo $view -> launch('lang|get|information:work:0');
+
 
 ?>

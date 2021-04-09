@@ -382,6 +382,42 @@ class Strings {
 		
 	}
 
+	static public function pairs($string, $splitter = ':') {
+		
+		/*
+		*  НОВАЯ Функция, которая разбивает строку на значения до сплиттера и после сплиттера
+		*  и возвращает в виде массива
+		*  сплиттер вырезается из строки
+		*/
+		
+		$pos = self::find($string, $splitter);
+		
+		return [
+			self::get($string, 0, $pos),
+			self::get($string, $pos + 1)
+		];
+		
+	}
+
+	static public function pairsByIndex($string, $index, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция, которая разбивает строку на значения до индекса и после индекса
+		*  и возвращает в виде массива
+		*  индекс вырезается из строки, но
+		*  можно задать смещение, и тогда индекс останется либо в строке после (1), либо в строке до (-1)
+		*/
+		
+		$before = $offset < 0 ? 1 : 0;
+		$after = $offset > 0 ? 0 : 1;
+		
+		return [
+			self::get($string, 0, $index + $before),
+			self::get($string, $index + $after)
+		];
+		
+	}
+
 	static public function fill($string, $len, $values = ' ', $reverse = null) {
 		
 		/*
