@@ -77,10 +77,26 @@ class Objects {
 
 	static public function match($haystack, $needle) {
 		
+		// ИСПРАВЛЕННАЯ
 		// Функция проверки наличия строки или символа в заданном массиве
 		// проверка по нестрогому соответствию, т.е. 3 === '3'
 		
-		$result = in_array($needle, $haystack);
+		//$result = in_array($needle, $haystack);
+		// исходный вариант в ряде случаев осуществляет неправильную проверку,
+		// например значение 0 в haystack (чаще в ключах массивов)
+		// дает постоянное совпадение с любой не numeric строкой
+		// такое поведение недопустимо, поэтому делаем дополнительную проверку
+		// и вводим ряд условий
+		
+		$type = System::type($needle);
+		
+		if ($type === 'numeric') {
+			$result = in_array((float)$needle, $haystack, true) || in_array((string)$needle, $haystack, true);
+		} elseif ($type === 'string') {
+			$result = in_array($needle, $haystack, true);
+		} else {
+			$result = in_array($needle, $haystack);
+		}
 		
 		return !System::set($result) || $result === false ? null : true;
 		

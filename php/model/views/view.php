@@ -32,21 +32,16 @@ class View extends Singleton {
 		return $this -> data[$type];
 	}
 	
-	public function launch($data) {
+	public function call($data, $params = null) {
 		
-		if (!Strings::match($data, '|')) {
-			return null;
-		}
+		$data = Parser::fromString($data);
 		
-		$data = Strings::split($data, '|');
-		
-		if (!System::typeIterable($data)) {
+		if (!$data[0] || !$data[1] || !System::typeIterable($data)) {
 			return null;
 		}
 		
 		$type = $data[0];
 		$func = $data[1];
-		$params = $data[2];
 		
 		return $this -> data[$type] -> $func($params);
 		
@@ -61,7 +56,7 @@ class View extends Singleton {
 // now use
 // echo $view -> get('lang') -> get('information:work:0');
 // echo $view -> get('lang|information:work:0');
-// echo $view -> launch('lang|get|information:work:0');
+// echo $view -> call('lang:get', 'information:work:0');
 
 
 ?>
