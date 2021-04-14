@@ -61,7 +61,8 @@ class Parser {
 		
 		$key = System::set($parameters['key']);
 		
-		if (System::type($item) !== 'string') {
+		//if (System::type($item) !== 'string') {
+		if (!System::typeOf($item, 'scalar')) {
 			return $item;
 		} elseif (
 			mb_strpos($item, ':') === false &&

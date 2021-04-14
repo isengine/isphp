@@ -64,7 +64,7 @@ class Strings {
 		*  1, 2, true : ositiona
 		*/
 		
-		if ($length && !$position) {
+		if (System::set($length) && !$position) {
 			if ($length < 0) {
 				$idx = $index;
 				$index += $length + 1;
