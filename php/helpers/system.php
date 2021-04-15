@@ -11,13 +11,19 @@ class System {
 		echo '<!--' . (empty($title) ? null : ' // ' . $title) . "\r\n" . (empty($item) ? 'null' : print_r($item, true)) . "\r\n"  . '-->';
 	}
 
-	static public function includes($item, $base = __DIR__ . DS . DP, $return = null) {
+	static public function includes($item, $base = __DIR__ . DS . DP, $return = null, $once = true) {
+		
+		// once влияет не на первое включение, а только на повторные
 		
 		$item = str_replace(['..','\/','\\','.',':'], ['','','','',DS], $item);
 		$path = realpath($base) . DS . $item . '.php';
 		
 		if (file_exists($path)) {
-			require_once $path;
+			if ($once) {
+				require_once $path;
+			} else {
+				require $path;
+			}
 			if ($return) {
 				return $$return;
 			} else {

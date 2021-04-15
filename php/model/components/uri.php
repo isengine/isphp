@@ -24,6 +24,8 @@ class Uri extends Globals {
 	public $query;
 	public $fragment;
 	
+	public $route;
+	
 	public $domain;
 	
 	public $file;
@@ -69,10 +71,12 @@ class Uri extends Globals {
 		$this -> setFile();
 		$this -> setFolder();
 		$this -> setUrl();
+		$this -> setRoute();
 		$this -> original = $this -> url;
 	}
 	
 	public function setFromString() {
+		// нигде не используется
 		$this -> setPathArray();
 		$this -> setFile();
 		$this -> setFolder();
@@ -95,6 +99,7 @@ class Uri extends Globals {
 	}
 	
 	public function setQueryString($data = null) {
+		// нигде не используется
 		if (System::typeIterable($data)) {
 			$this -> query['array'] = $data;
 		}
@@ -106,6 +111,9 @@ class Uri extends Globals {
 			$this -> path['string'] = $data;
 		}
 		$this -> path['array'] = $this -> path['string'] ? Objects::reset(Strings::split(Paths::clearSlashes($this -> path['string']), '\/')) : [];
+		if (!System::set($this -> path['array'])) {
+			$this -> path['array'] = [];
+		}
 	}
 	
 	public function setPathString($data = null) {
@@ -144,6 +152,36 @@ class Uri extends Globals {
 	
 	public function unPathArray($id = null) {
 		$this -> path['array'] = !$id ? Objects::reset( Objects::unfirst($this -> path['array']) ) : Objects::reset( Objects::unn($this -> path['array'], $id) );
+	}
+	
+	public function setRoute() {
+		$this -> route = $this -> path['array'];
+	}
+	
+	public function getRoute($id = null) {
+		if (!System::set($id)) {
+			return $this -> route;
+		} elseif ($id === 'first') {
+			return Objects::first($this -> route, 'value');
+		} elseif ($id === 'last') {
+			return Objects::last($this -> route, 'value');
+		} else {
+			return $this -> route[$id];
+		}
+	}
+	
+	public function addRoute($data) {
+		$this -> route[] = $data;
+	}
+	
+	public function unRoute($id) {
+		if ($id === 'first') {
+			$this -> route = Objects::unfirst($this -> route);
+		} elseif ($id === 'last') {
+			$this -> route = Objects::unlast($this -> route);
+		} else {
+			$this -> route = Objects::unn($this -> route, $id);
+		}
 	}
 	
 	public function setUrl() {
