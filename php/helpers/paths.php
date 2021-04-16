@@ -120,9 +120,12 @@ class Paths {
 		// второй аргумент позволяет выбрать уровень смещения родителя
 		
 		$start = Strings::first($path);
-		$real = Strings::match($path, DS);
+		//$real = Strings::match($path, DS);
 		$url = Strings::match($path, '://');
-		$array = Strings::split($path, $real ? '\\\\' : '\/');
+		//$array = Strings::split($path, $real ? '\\\\' : '\/');
+		$array = Strings::split($path, $url ? '\/' : '\\' . DS);
+		
+		//echo '[' . print_r($array, 1) . ']<br>';
 		
 		$first = Objects::first($array, 'value');
 		if (!Objects::last($array, 'value')) {
@@ -141,8 +144,9 @@ class Paths {
 			}
 		}
 		
-		$result = $array === true ? '' : Strings::join($array, $real ? '\\' : '/');
-		return $result || $result === '' ? $result . ($real ? '\\' : '/') : null;
+		$result = $array === true ? '' : Strings::join($array, $url ? '/' : DS);
+		
+		return $result || $result === '' ? $result . ($url ? '/' : DS) : null;
 		
 	}
 	

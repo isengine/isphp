@@ -24,7 +24,8 @@ class View extends Singleton {
 		$this -> data[$name] = new $ns;
 	}
 	
-	public function get($type) {
+	public function get($type = null, $null = null) {
+		if (!System::set($type)) { return null; }
 		if (Strings::match($type, '|')) {
 			$array = Strings::pairs($type, '|');
 			return $this -> data[$array[0]] -> get($array[1]);
