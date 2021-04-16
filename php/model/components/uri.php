@@ -184,6 +184,10 @@ class Uri extends Globals {
 		}
 	}
 	
+	public function resetRoute() {
+		$this -> route = Objects::reset($this -> route);
+	}
+	
 	public function setUrl() {
 		$this -> url = $this -> domain . ($this -> language ? $this -> language . '/' : null) . $this -> path['string'] . $this -> query['string'];
 	}

@@ -78,7 +78,9 @@ class Data {
 			$data = &$first;
 		}
 		
-		if (System::set($key)) {
+		if (!System::set($data)) {
+			$this -> resetData();
+		} elseif (System::set($key)) {
 			$this -> data[$key] = $data;
 		} else {
 			$this -> data = $data;

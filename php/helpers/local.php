@@ -244,6 +244,30 @@ class Local {
 		
 	}
 
+	static public function matchFolder($target) {
+		
+		/*
+		*  Функция проверяет существование файла $target
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*/
+		
+		return is_dir($target);
+		//return file_exists($target) && is_file($target);
+		
+	}
+
+	static public function matchFile($target) {
+		
+		/*
+		*  Функция проверяет существование файла $target
+		*  на входе нужно указать полный путь к файлу с названием и расширением
+		*/
+		
+		return is_file($target);
+		//return file_exists($target) && is_file($target);
+		
+	}
+
 	static public function readFile($target) {
 		
 		/*
