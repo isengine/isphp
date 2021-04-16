@@ -107,11 +107,11 @@ class Paths {
 	}
 	
 	static public function toUrl($path) {
-		return preg_replace('/\:(?!\/)+|\\\\|\//u', '/', $path);
+		return preg_replace('/\:(?!(\/|\\\\))+|\\\\|\//u', '/', $path);
 	}
 	
 	static public function toReal($path) {
-		return preg_replace('/\:(?!\/)+|\\\\|\//u', DS, $path);
+		return preg_replace('/\:(?!(\/|\\\\))+|\\\\|\//u', DS, $path);
 	}
 	
 	static public function parent($path, $level = null) {
