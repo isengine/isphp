@@ -74,6 +74,9 @@ class Router extends Globals {
 					if ($n === 'parent') {
 						$n = $cache[$ii];
 					}
+					if ($n) {
+						$cache[$ii] = $n;
+					}
 				}
 				unset($n);
 			}
@@ -87,6 +90,7 @@ class Router extends Globals {
 			}
 			
 			$this -> structure -> add($i);
+			//echo '<pre>' . print_r($i, 1) . '</pre>';
 			
 			if (System::typeOf($item, 'iterable')) {
 				
@@ -97,7 +101,7 @@ class Router extends Globals {
 					$parents[] = $name;
 				}
 				
-				$this -> parseStructure($item, $level, $parents, $groups, $i['data']['cache']);
+				$this -> parseStructure($item, $level, $parents, $groups, $cache);
 				
 				if ($i['type'] === 'group') {
 					$groups = Objects::unlast($groups);
@@ -107,8 +111,6 @@ class Router extends Globals {
 				}
 				
 			}
-			
-			//echo '<pre>' . print_r($i, 1) . '</pre>';
 			
 		}
 		unset($key, $item);
