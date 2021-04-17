@@ -284,11 +284,18 @@ class System {
 			$name = $_SERVER['HTTP_HOST'];
 			//$name = $_SERVER['SERVER_NAME'];
 		} elseif ($name === 'domain') {
-			$name = $_SERVER['REQUEST_SCHEME'] . '://' . (extension_loaded('intl') ? idn_to_utf8(
-				$_SERVER['HTTP_HOST'],
-				null,
-				version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
-			) : $_SERVER['HTTP_HOST']);
+			$name = (
+				(
+					(isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https') ||
+					(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+				) ? 'https' : 'http'
+			) . '://' . (
+				extension_loaded('intl') ? idn_to_utf8(
+					$_SERVER['HTTP_HOST'],
+					null,
+					version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
+				) : $_SERVER['HTTP_HOST']
+			);
 		} elseif ($name === 'request') {
 			$name = urldecode($_SERVER['REQUEST_URI']);
 		} elseif ($name === 'method') {
