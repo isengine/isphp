@@ -43,7 +43,7 @@ class Uri extends Globals {
 		
 		// получение данных
 		
-		$url = Paths::host() . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
+		$url = System::server('domain') . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
 		
 		$urlparse = Paths::parseUrl($url);
 		

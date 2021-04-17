@@ -61,14 +61,6 @@ class Paths {
 		
 	}
 	
-	static public function host($scheme = null) {
-		return ($scheme ? $scheme : $_SERVER['REQUEST_SCHEME']) . '://' . (extension_loaded('intl') ? idn_to_utf8(
-			$_SERVER['HTTP_HOST'],
-			null,
-			version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
-		) : $_SERVER['HTTP_HOST']);
-	}
-	
 	static public function prepareUrl($path = null, $host = null) {
 		
 		// корректно преобразует заданный путь в относительный
@@ -87,7 +79,7 @@ class Paths {
 		$path = self::clearSlashes(self::toUrl($path));
 		
 		if ($path) {
-			return ($absolute ? null : ($host ? self::host() : null) . '/') . $path . (!$nofolder ? '/' : null);
+			return ($absolute ? null : ($host ? System::server('domain') : null) . '/') . $path . (!$nofolder ? '/' : null);
 		} else {
 			return '/';
 		}

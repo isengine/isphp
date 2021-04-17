@@ -283,12 +283,20 @@ class System {
 		} elseif ($name === 'host') {
 			$name = $_SERVER['HTTP_HOST'];
 			//$name = $_SERVER['SERVER_NAME'];
+		} elseif ($name === 'domain') {
+			$name = $_SERVER['REQUEST_SCHEME'] . '://' . (extension_loaded('intl') ? idn_to_utf8(
+				$_SERVER['HTTP_HOST'],
+				null,
+				version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
+			) : $_SERVER['HTTP_HOST']);
 		} elseif ($name === 'request') {
 			$name = urldecode($_SERVER['REQUEST_URI']);
 		} elseif ($name === 'method') {
 			$name = strtolower($_SERVER['REQUEST_METHOD']);
 		} elseif ($name === 'ip') {
 			$name = $_SERVER['REMOTE_ADDR'];
+		} elseif ($name === 'agent') {
+			$name = $_SERVER['HTTP_USER_AGENT'];
 		} else {
 			$name = null;
 		}

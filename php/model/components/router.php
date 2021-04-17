@@ -14,8 +14,6 @@ use is\Model\Parents\Globals;
 class Router extends Globals {
 	
 	public $structure;
-	
-	public $route;
 	public $current;
 	public $template;
 	
@@ -38,32 +36,48 @@ class Router extends Globals {
 		return $this -> structure -> getData();
 	}
 	
-	public function parseStructure($array = null, $level = 0, $parents = [], $groups = null) {
+	public function parseStructure($array = null, $level = 0, $parents = [], $groups = null, $cache = null) {
 		
 		$parents_string = $parents ? Strings::join($parents, '/') . '/' : null;
 		
 		foreach ($array as $key => $item) {
 			
-			$i = Objects::fill(
-				['name', 'type', 'template'],
-				Parser::fromString($key)
-			);
+			$k = Parser::fromString($key, ['simple' => null]);
 			
-			$name = $i['name'];
+			$type = System::typeOf($k[0], 'scalar');
+			$name = $type ? $k[0] : $k[0][0];
 			
-			if ($parents) {
-				$i['name'] = Strings::join($parents, ':') . ':' . $name;
-				$i['parents'] = $parents;
-			}
-			
-			$i['data'] = [
-				'name' => $name,
-				'groups' => $groups,
-				'template' => $i['template'],
-				'level' => $level,
-				'sub' => System::typeOf($item, 'iterable'),
-				'link' => $i['type'] === 'group' ? null : (System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
+			$i = [
+				'name' => $parents ? Strings::join($parents, ':') . ':' . $name : $name,
+				'type' => $type ? null : $k[0][1],
+				'parents' => $parents ? $parents : null,
+				'data' => [
+					'name' => $name,
+					'groups' => $groups,
+					'template' => $k[1][0],
+					'cache' => [
+						'page' => $k[2],
+						'browser' => $k[3]
+					],
+					'level' => $level,
+					'sub' => System::typeOf($item, 'iterable'),
+					'link' => $i['type'] === 'group' ? null : (System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
+				]
 			];
+			
+			foreach (['page', 'browser'] as $ii) {
+				$n = &$i['data']['cache'][$ii];
+				if ($n) {
+					if (Objects::len($n) === 1) {
+						$n = Objects::first($n, 'value');
+					}
+					if ($n === 'parent') {
+						$n = $cache[$ii];
+					}
+				}
+				unset($n);
+			}
+			unset($ii);
 			
 			if (
 				$i['type'] !== 'group' &&
@@ -72,7 +86,6 @@ class Router extends Globals {
 				$i['data']['link'] = Paths::prepareUrl($i['data']['link']);
 			}
 			
-			unset($i['template']);
 			$this -> structure -> add($i);
 			
 			if (System::typeOf($item, 'iterable')) {
@@ -84,7 +97,7 @@ class Router extends Globals {
 					$parents[] = $name;
 				}
 				
-				$this -> parseStructure($item, $level, $parents, $groups);
+				$this -> parseStructure($item, $level, $parents, $groups, $i['data']['cache']);
 				
 				if ($i['type'] === 'group') {
 					$groups = Objects::unlast($groups);
@@ -99,7 +112,6 @@ class Router extends Globals {
 			
 		}
 		unset($key, $item);
-		
 		
 	}
 	
