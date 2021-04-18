@@ -69,12 +69,13 @@ class Paths {
 		// узнаем, файл это или папка
 		// и определяем, содержит ли путь фрагмент
 		
-		$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#');
+		$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#') || Strings::match($path, '?');
 		
 		// определяем, абсолютный путь или нет (относительный) по :\ и :/ в строке
 		// в unix-системах пути будут относительными
 		
-		$absolute = preg_match('/\:(\/|\\\\)/u', $path);
+		//$absolute = preg_match('/\:(\/|\\\\)/u', $path) || preg_match('/^(\/|\\\\){2}/u', $path);
+		$absolute = preg_match('/^(\/|\\\\){2}|\:(\/|\\\\)/u', $path);
 		
 		$path = self::clearSlashes(self::toUrl($path));
 		
@@ -83,11 +84,6 @@ class Paths {
 		} else {
 			return '/';
 		}
-		
-		// Paths::prepareUrl сейчас не учитывает специальный синтаксис
-		// и двойной слеш в начале строки //
-		// #...
-		// ?...=...&...=...
 		
 	}
 	
