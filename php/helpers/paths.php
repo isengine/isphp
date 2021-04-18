@@ -84,6 +84,11 @@ class Paths {
 			return '/';
 		}
 		
+		// Paths::prepareUrl сейчас не учитывает специальный синтаксис
+		// и двойной слеш в начале строки //
+		// #...
+		// ?...=...&...=...
+		
 	}
 	
 	static public function realToRelativeUrl($path = null) {

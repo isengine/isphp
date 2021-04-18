@@ -44,12 +44,12 @@ class Router extends Globals {
 			
 			$k = Parser::fromString($key, ['simple' => null]);
 			
-			$type = System::typeOf($k[0], 'scalar');
-			$name = $type ? $k[0] : $k[0][0];
+			$type = System::typeOf($k[0], 'scalar') ? null : $k[0][1];
+			$name = System::typeOf($k[0], 'scalar') ? $k[0] : $k[0][0];
 			
 			$i = [
 				'name' => $parents ? Strings::join($parents, ':') . ':' . $name : $name,
-				'type' => $type ? null : $k[0][1],
+				'type' => $type,
 				'parents' => $parents ? $parents : null,
 				'data' => [
 					'name' => $name,
@@ -61,9 +61,13 @@ class Router extends Globals {
 					],
 					'level' => $level,
 					'sub' => System::typeOf($item, 'iterable'),
-					'link' => $i['type'] === 'group' ? null : (System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
+					'link' => $type === 'group' ? null : (System::typeOf($item, 'scalar') ? $item : $parents_string . $name . '/')
 				]
 			];
+			
+			// special позволяет не делать обработку урла, что нужно для использования #... или ?..=..&..=..
+			// чтобы убрать special нужно сделать более правильную обработку урла через helper
+			// Paths::prepareUrl сейчас с этим не справляется, он не учитывает этот синтаксис
 			
 			foreach (['page', 'browser'] as $ii) {
 				$n = &$i['data']['cache'][$ii];
@@ -83,18 +87,20 @@ class Router extends Globals {
 			unset($ii);
 			
 			if (
-				$i['type'] !== 'group' &&
-				$i['type'] !== 'special'
+				$type !== 'group' &&
+				$type !== 'special'
 			) {
 				$i['data']['link'] = Paths::prepareUrl($i['data']['link']);
 			}
 			
-			$this -> structure -> add($i);
+			if ($type !== 'group') {
+				$this -> structure -> add($i);
+			}
 			//echo '<pre>' . print_r($i, 1) . '</pre>';
 			
 			if (System::typeOf($item, 'iterable')) {
 				
-				if ($i['type'] === 'group') {
+				if ($type === 'group') {
 					$groups[] = $name;
 				} else {
 					$level++;
@@ -103,7 +109,7 @@ class Router extends Globals {
 				
 				$this -> parseStructure($item, $level, $parents, $groups, $cache);
 				
-				if ($i['type'] === 'group') {
+				if ($type === 'group') {
 					$groups = Objects::unlast($groups);
 				} else {
 					$level--;
@@ -116,7 +122,6 @@ class Router extends Globals {
 		unset($key, $item);
 		
 	}
-	
 	
 }
 
