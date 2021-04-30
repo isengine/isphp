@@ -283,13 +283,22 @@ class System {
 		} elseif ($name === 'host') {
 			$name = $_SERVER['HTTP_HOST'];
 			//$name = $_SERVER['SERVER_NAME'];
+		} elseif ($name === 'protocol') {
+			$name = 'http';
+			if (
+				strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) === 'https' ||
+				($_SERVER['HTTPS'] && $_SERVER['HTTPS'] !== 'off') ||
+				$_SERVER['SERVER_PORT'] === 443 ||
+				$_SERVER['SERVER_PORT'] === '443' ||
+				$_SERVER['REQUEST_SCHEME'] === 'https' ||
+				$_SERVER['HTTP_X_FORWARDED_PORT'] === 443 ||
+				$_SERVER['HTTP_X_FORWARDED_PORT'] === '443' ||
+				$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'
+			) {
+				$name = 'https';
+			}
 		} elseif ($name === 'domain') {
-			$name = (
-				(
-					(isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https') ||
-					(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-				) ? 'https' : 'http'
-			) . '://' . (
+			$name = self::server('protocol') . '://' . (
 				extension_loaded('intl') ? idn_to_utf8(
 					$_SERVER['HTTP_HOST'],
 					null,

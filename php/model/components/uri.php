@@ -60,7 +60,7 @@ class Uri extends Globals {
 		
 		$this -> fragment = $urlparse['fragment'];
 			
-		$this -> domain = $urlparse['scheme'] . '://' . $urlparse['host'] . '/';
+		$this -> setDomain();
 		
 		unset($url, $urlparse);
 		
@@ -73,6 +73,10 @@ class Uri extends Globals {
 		$this -> setUrl();
 		$this -> setRoute();
 		$this -> original = $this -> url;
+	}
+	
+	public function setDomain() {
+		$this -> domain = $this -> scheme . '://' . $this -> host . '/';
 	}
 	
 	public function setFromString() {

@@ -15,17 +15,20 @@ use is\Model\Components\Uri;
 
 class File extends Singleton {
 	
+	public $info;
 	public $file;
 	public $error;
 	public $exists;
+	public $realfile;
 	
-	public function init() {
+	public function init($data = null) {
 		
-		$uri = Uri::getInstance();
-		$data = $uri -> file;
+		$this -> setInfo($data);
 		
-		if (System::set($data)) {
-			$ns = __NAMESPACE__ . '\\' . Prepare::upperFirst($data['extension']) . '\\' . Prepare::upperFirst($data['name']);
+		if ($this -> realfile) {
+			$this -> exists = true;
+		} elseif (System::set($this -> info)) {
+			$ns = __NAMESPACE__ . '\\' . Prepare::upperFirst($this -> info['extension']) . '\\' . Prepare::upperFirst($this -> info['name']);
 			if (class_exists($ns)) {
 				$this -> file = new $ns;
 				$this -> exists = true;
@@ -36,12 +39,38 @@ class File extends Singleton {
 		
 	}
 	
+	public function setInfo($data = null) {
+		
+		if (System::typeIterable($data)) {
+			$this -> info = [
+				'name' => $data['name'],
+				'extension' => $data['extension'],
+				'url' => $data['url'],
+				'real' => $data['real']
+			];
+		}
+		
+		if ($this -> info['name'] && $this -> info['real'] && file_exists($this -> info['real'])) {
+			$this -> realfile = true;
+		}
+		
+	}
+	
 	public function launch() {
+		
 		// запуск файла
-		$this -> file -> launch();
-		$this -> file -> printBuffer();
+		
 		Sessions::setHeaderCode(200);
+		
+		if ($this -> realfile) {
+			echo file_get_contents($this -> info['real']);
+		} else {
+			$this -> file -> launch();
+			$this -> file -> printBuffer();
+		}
+		
 		exit;
+		
 	}
 	
 }
