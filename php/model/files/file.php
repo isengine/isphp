@@ -63,6 +63,7 @@ class File extends Singleton {
 		Sessions::setHeaderCode(200);
 		
 		if ($this -> realfile) {
+			Sessions::setHeader(['Content-type' => mime_content_type($this -> info['real']) . '; charset=utf-8']);
 			echo file_get_contents($this -> info['real']);
 		} else {
 			$this -> file -> launch();
