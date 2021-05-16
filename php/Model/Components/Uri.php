@@ -1,0 +1,201 @@
+<?php
+
+namespace is\Model\Components;
+
+use is\Helpers\System;
+use is\Helpers\Strings;
+use is\Helpers\Objects;
+use is\Helpers\Match;
+use is\Helpers\Sessions;
+use is\Helpers\Paths;
+use is\Model\Parents\Globals;
+
+class Uri extends Globals {
+	
+	public $scheme;
+	public $host;
+	public $www;
+		
+	public $user;
+	public $password;
+	public $port;
+		
+	public $path;
+	public $query;
+	public $fragment;
+	
+	public $route;
+	
+	public $domain;
+	
+	public $file;
+	public $folder;
+	
+	public $language;
+	
+	public $url;
+	public $previous;
+		
+	public $reload;
+	public $original;
+	
+	public function create() {
+		
+		// получение данных
+		
+		$url = System::server('domain') . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
+		
+		$urlparse = Paths::parseUrl($url);
+		
+		$this -> scheme = $urlparse['scheme'];
+		$this -> host = $urlparse['host'];
+		$this -> www = Strings::find($urlparse['host'], 'www.', 0);
+			
+		$this -> user = $urlparse['user'];
+		$this -> password = $urlparse['password'];
+		$this -> port = $urlparse['port'];
+		
+		$this -> setPathArray(Strings::unfirst($urlparse['path']));
+		$this -> setQueryArray($urlparse['query'] ? '?' . $urlparse['query'] : '');
+		
+		$this -> fragment = $urlparse['fragment'];
+			
+		$this -> setDomain();
+		
+		unset($url, $urlparse);
+		
+	}
+	
+	public function init() {
+		$this -> create();
+		$this -> setFile();
+		$this -> setFolder();
+		$this -> setUrl();
+		$this -> setRoute();
+		$this -> original = $this -> url;
+	}
+	
+	public function setDomain() {
+		$this -> domain = $this -> scheme . '://' . $this -> host . '/';
+	}
+	
+	public function setFromString() {
+		// нигде не используется
+		$this -> setPathArray();
+		$this -> setFile();
+		$this -> setFolder();
+		$this -> setUrl();
+	}
+	
+	public function setFromArray() {
+		$this -> path['array'] = Objects::reset($this -> path['array']);
+		$this -> setFile();
+		$this -> setPathString();
+		$this -> setFolder();
+		$this -> setUrl();
+	}
+	
+	public function setQueryArray($data = null) {
+		if (System::typeOf($data, 'scalar')) {
+			$this -> query['string'] = $data;
+		}
+		$this -> query['array'] = $this -> query['string'] ? Objects::pairs( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
+	}
+	
+	public function setQueryString($data = null) {
+		// нигде не используется
+		if (System::typeIterable($data)) {
+			$this -> query['array'] = $data;
+		}
+		$this -> query['string'] = System::typeIterable($this -> query['array']) ? Strings::combine($this -> query['array'], '&', '=', '?') : null;
+	}
+	
+	public function setPathArray($data = null) {
+		if (System::typeOf($data, 'scalar')) {
+			$this -> path['string'] = $data;
+		}
+		$this -> path['array'] = $this -> path['string'] ? Objects::reset(Strings::split(Paths::clearSlashes($this -> path['string']), '\/')) : [];
+		if (!System::set($this -> path['array'])) {
+			$this -> path['array'] = [];
+		}
+	}
+	
+	public function setPathString($data = null) {
+		
+		if (System::typeIterable($data)) {
+			$this -> path['array'] = $data;
+		}
+		
+		$this -> path['string'] = !empty($this -> path['array']) ? Strings::join($this -> path['array'], '/') . (!$this -> file ? '/' : null) : null;
+		$this -> path['string'] = preg_replace('/^\/+/ui', null, $this -> path['string']);
+		$this -> path['string'] = preg_replace('/\/+/ui', '/', $this -> path['string']);
+		
+	}
+	
+	public function setFile() {
+		$this -> file = Paths::parseFile( Objects::last($this -> path['array'], 'value') );
+		if (!$this -> file['extension']) {
+			$this -> file = [];
+		}
+	}
+	
+	public function setFolder() {
+		$this -> folder = Strings::find($this -> path['string'], '/', -1);
+		if (!$this -> path['array'] && !$this -> file) {
+			$this -> folder = true;
+		}
+	}
+	
+	public function addPathArray($data) {
+		$this -> path['array'][] = $data;
+	}
+	
+	public function getPathArray($id = null) {
+		return !System::set($id) ? $this -> path['array'] : Objects::n($this -> path['array'], $id, 'value');
+	}
+	
+	public function unPathArray($id = null) {
+		$this -> path['array'] = !$id ? Objects::reset( Objects::unfirst($this -> path['array']) ) : Objects::reset( Objects::unn($this -> path['array'], $id) );
+	}
+	
+	public function setRoute() {
+		$this -> route = $this -> path['array'];
+	}
+	
+	public function getRoute($id = null) {
+		if (!System::set($id)) {
+			return $this -> route;
+		} elseif ($id === 'first') {
+			return Objects::first($this -> route, 'value');
+		} elseif ($id === 'last') {
+			return Objects::last($this -> route, 'value');
+		} else {
+			return $this -> route[$id];
+		}
+	}
+	
+	public function addRoute($data) {
+		$this -> route[] = $data;
+	}
+	
+	public function unRoute($id) {
+		if ($id === 'first') {
+			$this -> route = Objects::unfirst($this -> route);
+		} elseif ($id === 'last') {
+			$this -> route = Objects::unlast($this -> route);
+		} else {
+			$this -> route = Objects::unn($this -> route, $id);
+		}
+	}
+	
+	public function resetRoute() {
+		$this -> route = Objects::reset($this -> route);
+	}
+	
+	public function setUrl() {
+		$this -> url = $this -> domain . ($this -> language ? $this -> language . '/' : null) . $this -> path['string'] . $this -> query['string'];
+	}
+	
+}
+
+?>
