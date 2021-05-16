@@ -18,8 +18,11 @@ spl_autoload_register(function($class) {
 	$array = explode('\\', $class);
 	array_shift($array);
 	
-	$file = mb_strtolower(array_pop($array)) . '.php';
-	$folder = __DIR__ . DS . mb_strtolower(implode(DS, $array));
+	//$file = mb_strtolower(array_pop($array)) . '.php';
+	//$folder = __DIR__ . DS . mb_strtolower(implode(DS, $array));
+	
+	$file = array_pop($array) . '.php';
+	$folder = __DIR__ . DS . implode(DS, $array);
 	
 	$result = str_replace('\\', DS, $folder . DS . $file);
 	
