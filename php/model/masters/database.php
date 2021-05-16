@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Databases;
+namespace is\Model\Masters;
 
 use is\Helpers\Sessions;
 use is\Helpers\Strings;

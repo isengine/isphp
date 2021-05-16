@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Apis\Methods;
+namespace is\Model\Masters\Methods;
 
 use is\Helpers\Local;
 use is\Helpers\Strings;

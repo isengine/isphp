@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Views;
+namespace is\Model\Masters;
 
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
@@ -20,7 +20,7 @@ class View extends Singleton {
 	
 	public function add($name) {
 		$n = Prepare::upperFirst($name);
-		$ns = __NAMESPACE__ . '\\' . $n . '\\' . $n;
+		$ns = __NAMESPACE__ . '\\Extenders\\' . $n . '\\' . $n;
 		$this -> data[$name] = new $ns;
 	}
 	

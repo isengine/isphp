@@ -117,7 +117,7 @@ class Data {
 		
 		// Добавляет данные по ключу
 		
-		$this -> data[$key][] = $data;
+		$this -> data[$key] = $data;
 		
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Files;
+namespace is\Model\Masters;
 
 use is\Helpers\System;
 use is\Helpers\Strings;
@@ -13,7 +13,7 @@ use is\Model\Parents\Singleton;
 use is\Model\Components\State;
 use is\Model\Components\Uri;
 
-class File extends Singleton {
+class Generator extends Singleton {
 	
 	public $info;
 	public $file;
@@ -28,7 +28,7 @@ class File extends Singleton {
 		if ($this -> realfile) {
 			$this -> exists = true;
 		} elseif (System::set($this -> info)) {
-			$ns = __NAMESPACE__ . '\\' . Prepare::upperFirst($this -> info['extension']) . '\\' . Prepare::upperFirst($this -> info['name']);
+			$ns = __NAMESPACE__ . '\\Files\\' . Prepare::upperFirst($this -> info['extension']) . '\\' . Prepare::upperFirst($this -> info['name']);
 			if (class_exists($ns)) {
 				$this -> file = new $ns;
 				$this -> exists = true;

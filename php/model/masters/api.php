@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Apis;
+namespace is\Model\Masters;
 
 use is\Helpers\Sessions;
 use is\Helpers\Prepare;

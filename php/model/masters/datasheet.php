@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Databases;
+namespace is\Model\Masters;
 
 class Datasheet extends Database {
 	

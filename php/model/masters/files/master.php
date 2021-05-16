@@ -1,6 +1,6 @@
 <?php
 
-namespace is\Model\Files;
+namespace is\Model\Masters\Files;
 
 use is\Helpers\Sessions;
 use is\Helpers\Parser;
@@ -12,7 +12,7 @@ use is\Helpers\Match;
 use is\Helpers\Paths;
 
 use is\Model\Components\Display;
-use is\Model\Views\View;
+use is\Model\Masters\View;
 
 abstract class Master extends Display {
 	
