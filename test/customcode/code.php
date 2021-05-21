@@ -11,9 +11,9 @@ use is\Parents\Path;
 use is\Parents\Collection;
 use is\Parents\Catalog;
 
-use is\Model\Globals\Uri;
-use is\Model\Globals\Session;
-use is\Model\Constants\Config;
+use is\Globals\Uri;
+use is\Globals\Session;
+use is\Constants\Config;
 
 $real = __DIR__ . DS;
 $real = '..';

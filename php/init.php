@@ -20,11 +20,9 @@ spl_autoload_register(function($class) {
 	
 	//$file = mb_strtolower(array_pop($array)) . '.php';
 	//$folder = __DIR__ . DS . mb_strtolower(implode(DS, $array));
+	//$result = str_replace('\\', DS, $folder . DS . $file);
 	
-	$file = array_pop($array) . '.php';
-	$folder = __DIR__ . DS . implode(DS, $array);
-	
-	$result = str_replace('\\', DS, $folder . DS . $file);
+	$result = str_replace('\\', DS, __DIR__ . DS . implode(DS, $array) . DS . '.php');
 	
 	if (file_exists($result)) {
 		require $result;

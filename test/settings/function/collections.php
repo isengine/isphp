@@ -9,11 +9,11 @@ use is\Helpers\Prepare;
 use is\Parents\Collection;
 use is\Parents\Catalog;
 
-use is\Model\Globals\Uri;
-use is\Model\Globals\Session;
-use is\Model\Constants\Config;
+use is\Globals\Uri;
+use is\Globals\Session;
+use is\Constants\Config;
 
-//use is\Model\Managers\Uri as UriManager;
+//use is\Managers\Uri as UriManager;
 
 $str = 'sadfsd';
 $tags = '123:123:123|123:123';
