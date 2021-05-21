@@ -24,6 +24,10 @@ class View extends Singleton {
 		$this -> data[$name] = new $ns;
 	}
 	
+	public function set($name, $object) {
+		$this -> data[$name] = $object;
+	}
+	
 	public function get($type = null, $null = null) {
 		if (!System::set($type)) { return null; }
 		if (Strings::match($type, '|')) {
