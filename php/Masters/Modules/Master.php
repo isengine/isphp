@@ -5,6 +5,7 @@ namespace is\Masters\Modules;
 use is\Helpers\System;
 use is\Helpers\Objects;
 use is\Helpers\Strings;
+use is\Helpers\Local;
 
 use is\Parents\Data;
 
@@ -23,14 +24,26 @@ abstract class Master extends Data {
 	) {
 
 		$this -> instance = $instance;
-		$this -> settings = $settings;
 		$this -> path = $path;
 		$this -> custom = $custom;
-		$this -> launch();
+		
+		$this -> settings = $settings;
+		//$this -> settings = new Data;
+		//$this -> settings -> setData($settings);
+		
+		//$this -> launch();
 		
 	}
 	
 	abstract public function launch();
+	
+	public function elements($name) {
+		
+		if ( !System::includes($name, $this -> custom . 'elements', null, $this) ) {
+			System::includes($name, $this -> path . 'elements', null, $this);
+		}
+		
+	}
 	
 }
 

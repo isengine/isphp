@@ -57,10 +57,12 @@ class Module extends Singleton {
 		
 		// require template path in apps and next path template in vendor
 		
-		if (Local::matchFile($custom . 'templates' . DS . $instance . '.php')) {
-			require $custom . 'templates' . DS . $instance . '.php';
-		} elseif (Local::matchFile($path . 'templates' . DS . $instance . '.php')) {
-			require $path . 'templates' . DS . $instance . '.php';
+		if ( !System::includes($instance, $custom . 'templates', null, $module) ) {
+			if ( !System::includes($instance, $path . 'templates', null, $module) ) {
+				if ( !System::includes('default', $custom . 'templates', null, $module) ) {
+					System::includes('default', $path . 'templates', null, $module);
+				}
+			}
 		}
 		
 		// и еще не хватает чтения манифестов с проверкой на загруженные в системе необходимые библиотеки
