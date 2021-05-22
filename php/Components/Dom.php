@@ -24,7 +24,7 @@ class Dom {
 	private $settings;
 	private $print;
 	
-	public function __construct($data, $print = null) {
+	public function __construct($data, $display = null) {
 		
 		$data = Parser::fromString($data);
 		
@@ -55,7 +55,7 @@ class Dom {
 			]
 		];
 		
-		if ($print) {
+		if ($display) {
 			$this -> print();
 		}
 		
@@ -71,16 +71,22 @@ class Dom {
 	}
 	
 	public function print() {
+		$this -> print = null;
 		$this -> open();
 		$this -> content();
 		$this -> close();
+		echo $this -> print;
 	}
 	
 	public function get() {
-		return $this -> open(true) . $this -> content(true) . $this -> close(true);
+		$this -> print = null;
+		$this -> open();
+		$this -> content();
+		$this -> close();
+		return $this -> print;
 	}
 	
-	public function open($return = null) {
+	public function open($print = null) {
 		
 		$print = '<' . $this -> tag;
 		
@@ -114,16 +120,16 @@ class Dom {
 		
 		$print .= '>';
 		
-		if ($return) {
-			return $print;
+		if ($display) {
+			echo $print;
 		}
 		
-		echo $print;
+		$this -> print .= $print;
 		unset($print);
 		
 	}
 	
-	public function close($return = null) {
+	public function close($display = null) {
 		
 		$print = null;
 		
@@ -131,24 +137,24 @@ class Dom {
 			$print = '</' . $this -> tag . '>';
 		}
 		
-		if ($return) {
-			return $print;
+		if ($display) {
+			echo $print;
 		}
 		
-		echo $print;
+		$this -> print .= $print;
 		unset($print);
 		
 	}
 	
-	public function content($return = null) {
+	public function content($print = null) {
 		
 		$print = $this -> content;
 		
-		if ($return) {
-			return $print;
+		if ($display) {
+			echo $print;
 		}
 		
-		echo $print;
+		$this -> print .= $print;
 		unset($print);
 		
 	}

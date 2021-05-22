@@ -7,6 +7,8 @@ use is\Helpers\Objects;
 use is\Helpers\Strings;
 use is\Helpers\Local;
 
+use is\Components\Dom;
+
 use is\Parents\Data;
 
 abstract class Master extends Data {
@@ -15,6 +17,8 @@ abstract class Master extends Data {
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom; // путь до кастомной папки модуля в app
+	
+	public $elements; // группа элементов модуля
 	
 	public function __construct(
 		$instance,
@@ -31,18 +35,61 @@ abstract class Master extends Data {
 		//$this -> settings = new Data;
 		//$this -> settings -> setData($settings);
 		
+		$this -> elements();
+		$this -> classes();
+		
 		//$this -> launch();
 		
 	}
 	
 	abstract public function launch();
 	
-	public function elements($name) {
+	public function blocks($name) {
 		
-		if ( !System::includes($name, $this -> custom . 'elements', null, $this) ) {
-			System::includes($name, $this -> path . 'elements', null, $this);
+		if ( !System::includes($name, $this -> custom . 'blocks', null, $this) ) {
+			System::includes($name, $this -> path . 'blocks', null, $this);
 		}
 		
+	}
+	
+	public function elements() {
+		
+		unset($this -> elements);
+		$this -> elements = [];
+		
+		if ( !System::typeIterable($this -> settings['elements']) ) {
+			return;
+		}
+		
+		foreach ($this -> settings['elements'] as $key => $item) {
+			if ($item) {
+				$this -> elements[$key] = new Dom($item);
+			}
+		}
+		unset($key, $item);
+		
+	}
+	
+	public function classes() {
+		
+		if (
+			!System::typeIterable($this -> elements) ||
+			!System::typeIterable($this -> settings['classes'])
+		) {
+			return;
+		}
+		
+		foreach ($this -> settings['classes'] as $key => $item) {
+			if ($item && System::typeClass($this -> elements[$key], 'dom')) {
+				$this -> elements[$key] -> addClass($item);
+			}
+		}
+		unset($key, $item);
+		
+	}
+	
+	public function eget($element) {
+		return $this -> elements[$element];
 	}
 	
 }
