@@ -283,6 +283,8 @@ class System {
 		} elseif ($name === 'host') {
 			$name = $_SERVER['HTTP_HOST'];
 			//$name = $_SERVER['SERVER_NAME'];
+		} elseif ($name === 'fullprotocol') {
+			$name = $_SERVER['SERVER_PROTOCOL'];
 		} elseif ($name === 'protocol') {
 			$name = 'http';
 			if (

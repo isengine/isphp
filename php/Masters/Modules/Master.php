@@ -6,6 +6,7 @@ use is\Helpers\System;
 use is\Helpers\Objects;
 use is\Helpers\Strings;
 use is\Helpers\Local;
+use is\Helpers\Prepare;
 
 use is\Components\Dom;
 
@@ -17,6 +18,8 @@ abstract class Master extends Data {
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom; // путь до кастомной папки модуля в app
+	public $cache; // путь до папки кэша модуля в общей папке кэша
+	public $hash; // хэш экземпляра, нужен для проверки и записи/чтения кэша модуля
 	
 	public $elements; // группа элементов модуля
 	
@@ -24,12 +27,14 @@ abstract class Master extends Data {
 		$instance,
 		$settings,
 		$path,
-		$custom
+		$custom,
+		$cache
 	) {
 
 		$this -> instance = $instance;
 		$this -> path = $path;
 		$this -> custom = $custom;
+		$this -> cache = $cache;
 		
 		$this -> settings = $settings;
 		//$this -> settings = new Data;
@@ -37,6 +42,7 @@ abstract class Master extends Data {
 		
 		$this -> elements();
 		$this -> classes();
+		$this -> hash();
 		
 		//$this -> launch();
 		
@@ -86,6 +92,10 @@ abstract class Master extends Data {
 		}
 		unset($key, $item);
 		
+	}
+	
+	public function hash() {
+		$this -> hash = Prepare::hash($this -> instance . $this -> settings);
 	}
 	
 	public function eget($element) {

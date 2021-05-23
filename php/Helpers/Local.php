@@ -634,7 +634,7 @@ class Local {
 			$init = curl_init();
 			curl_setopt($init, CURLOPT_URL, $url);
 			curl_setopt($init, CURLOPT_HTTPGET, true);
-			curl_setopt($init, CURLOPT_USERAGENT, USER_AGENT);
+			curl_setopt($init, CURLOPT_USERAGENT, System::server('agent'));
 			curl_setopt($init, CURLOPT_RETURNTRANSFER, true);
 			//curl_setopt($init, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 			//curl_setopt($init, CURLOPT_HEADER, true);
@@ -668,16 +668,16 @@ class Local {
 				if ($redirect > 1) {
 					$target = false;
 				} else {
-					$target = localOpenUrl($info['redirect'], $method, $redirect++);
+					$target = self::openUrl($info['redirect'], $method, $redirect++);
 				}
 			} elseif ($info['code'] != '200') {
 				$target = false;
 			}
 			// конец кода
 			
-			if (DEFAULT_MODE === 'develop' && !empty($errors)) {
-				//$target = print_r($errors, true);
-			}
+			//if (DEFAULT_MODE === 'develop' && !empty($errors)) {
+			//	$target = print_r($errors, true);
+			//}
 			
 			curl_close($init);
 			
@@ -686,16 +686,16 @@ class Local {
 			// Устанавливаем соединение
 			$init = fsockopen($url, -1, $errno, $errstr, 30);
 			
-			if (!$init && DEFAULT_MODE === 'develop') {
-				
-				// Проверяем успешность установки соединения
-				$target = $errstr . ' (' . $errno . ')';
-				
-			} else {
+			//if (!$init && DEFAULT_MODE === 'develop') {
+			//	
+			//	// Проверяем успешность установки соединения
+			//	$target = $errstr . ' (' . $errno . ')';
+			//	
+			//} else {
 				
 				// Формируем HTTP-заголовки для передачи его серверу
-				$header = 'GET ' . $url . ' ' . $_SERVER['SERVER_PROTOCOL'] . "\r\n";
-				$header .= 'User-Agent: ' . USER_AGENT . "\r\n";
+				$header = 'GET ' . $url . ' ' . System::server('fullprotocol') . "\r\n";
+				$header .= 'User-Agent: ' . System::server('agent') . "\r\n";
 				$header .= "Connection: Close\r\n\r\n";
 				
 				// Отправляем HTTP-запрос серверу
@@ -709,7 +709,7 @@ class Local {
 				// Закрываем соединение
 				fclose($init);
 				
-			}
+			//}
 			
 		}
 		
@@ -753,7 +753,7 @@ class Local {
 				//$url .= ''
 			}
 			
-			curl_setopt($init, CURLOPT_USERAGENT, USER_AGENT);
+			curl_setopt($init, CURLOPT_USERAGENT, System::server('agent'));
 			curl_setopt($init, CURLOPT_RETURNTRANSFER, true);
 			
 			$target = curl_exec($init);

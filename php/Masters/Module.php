@@ -41,6 +41,7 @@ class Module extends Singleton {
 		$settings = $this -> settings($vendor, $name, $instance, $settings);
 		$path = $this -> path . $vendor . DS . $name . DS;
 		$custom = $this -> custom . $vendor . DS . $name . DS;
+		$cache = $this -> cache . $vendor . DS . $name . DS;
 		
 		// сюда же можно добавить кэш
 		
@@ -50,7 +51,8 @@ class Module extends Singleton {
 			$instance,
 			$settings,
 			$path,
-			$custom
+			$custom,
+			$cache
 		);
 		
 		$module -> launch();
