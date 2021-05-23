@@ -15,7 +15,7 @@ class Dom {
 	public $classes;
 	public $id;
 	public $data;
-	public $area;
+	public $aria;
 	public $styles;
 	public $link;
 	public $custom;
@@ -39,19 +39,19 @@ class Dom {
 		
 		$this -> settings = [
 			'autoclose' => [
-				'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+				'aria', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
 			],
 			'hreflink' => [
-				'area', 'a', 'base', 'link'
+				'aria', 'a', 'base', 'link'
 			],
 			'allow' => [
-				'tag', 'classes', 'id', 'data', 'area', 'styles', 'link', 'custom', 'content'
+				'tag', 'classes', 'id', 'data', 'aria', 'styles', 'link', 'custom', 'content'
 			],
 			'string' => [
 				'tag', 'id', 'link', 'content'
 			],
 			'keys' => [
-				'data', 'area', 'styles', 'custom'
+				'data', 'aria', 'styles', 'custom'
 			]
 		];
 		
@@ -62,6 +62,7 @@ class Dom {
 	}
 	
 	public function reset() {
+		$this -> print = null;
 		foreach ($this -> settings['allow'] as $item) {
 			if ($item !== 'tag') {
 				$this -> $item = null;
@@ -86,7 +87,11 @@ class Dom {
 		return $this -> print;
 	}
 	
-	public function open($print = null) {
+	public function open($display = null) {
+		
+		if (!$this -> tag) {
+			return;
+		}
 		
 		$print = '<' . $this -> tag;
 		
@@ -99,23 +104,23 @@ class Dom {
 		}
 		
 		if (System::typeIterable($this -> classes)) {
-			$print .= ' class="' . Strings::join($this -> classes, ' ') . '"';
+			$print .= ' class="' . Strings::except(Strings::join($this -> classes, ' '), '"') . '"';
 		}
 		
 		if (System::typeIterable($this -> data)) {
-			$print .= Strings::combine($this -> data, '" data-', '="', ' data-', '"');
+			$print .= Strings::combineMask($this -> data, ' data-{k}="{i}"', null, null, '"');
 		}
 		
-		if (System::typeIterable($this -> area)) {
-			$print .= Strings::combine($this -> area, '" area-', '="', ' area-', '"');
+		if (System::typeIterable($this -> aria)) {
+			$print .= Strings::combineMask($this -> aria, ' aria-{k}="{i}"', null, null, '"');
 		}
 		
 		if (System::typeIterable($this -> styles)) {
-			$print .= Strings::combine($this -> styles, ';', ':', ' style="', '"');
+			$print .= Strings::combineMask($this -> styles, '{k}:{i};', ' style="', '"', '"');
 		}
 		
 		if (System::typeIterable($this -> custom)) {
-			$print .= Strings::combine($this -> custom, '" ', '="', ' ', '"');
+			$print .= Strings::combineMask($this -> custom, ' {k}="{i}"', null, null, '"');
 		}
 		
 		$print .= '>';
@@ -130,6 +135,10 @@ class Dom {
 	}
 	
 	public function close($display = null) {
+		
+		if (!$this -> tag) {
+			return;
+		}
 		
 		$print = null;
 		
@@ -146,7 +155,11 @@ class Dom {
 		
 	}
 	
-	public function content($print = null) {
+	public function content($display = null) {
+		
+		if (!$this -> tag) {
+			return;
+		}
 		
 		$print = $this -> content;
 		
@@ -159,14 +172,14 @@ class Dom {
 		
 	}
 	
-	public function add($name, $first = null, $second = null) {
+	public function add($name, $first = null, $second = null, $precise = null) {
 		
 		if (!Objects::match($this -> settings['allow'], $name)) {
 			return;
 		}
 		
-		$key = $second ? $first : null;
-		$data = $key ? $second : $first;
+		$key = System::set($second) || $precise ? $first : null;
+		$data = System::set($key) || $precise ? $second : $first;
 		$array = System::typeIterable($data);
 		
 		if (Objects::match($this -> settings['string'], $name)) {
@@ -201,37 +214,94 @@ class Dom {
 	public function addTag($data) {
 		$this -> add('tag', $data);
 	}
-	
 	public function addClass($data) {
 		$this -> add('classes', $data);
 	}
-	
 	public function addId($data) {
 		$this -> add('id', $data);
 	}
-	
 	public function addData($first, $second = null) {
 		$this -> add('data', $first, $second);
 	}
-	
-	public function addArea($first, $second = null) {
-		$this -> add('area', $first, $second);
+	public function addAria($first, $second = null) {
+		$this -> add('aria', $first, $second);
 	}
-	
 	public function addStyle($first, $second = null) {
 		$this -> add('styles', $first, $second);
 	}
-	
 	public function addLink($data) {
 		$this -> add('link', $data);
 	}
-	
 	public function addCustom($first, $second = null) {
-		$this -> add('custom', $first, $second);
+		$this -> add('custom', $first, $second, true);
 	}
-	
 	public function addContent($data) {
 		$this -> add('content', $data);
+	}
+	
+	public function setTag($data) {
+		$this -> tag = null;
+		$this -> add('tag', $data);
+	}
+	public function setClass($data) {
+		$this -> classes = null;
+		$this -> add('classes', $data);
+	}
+	public function setId($data) {
+		$this -> id = null;
+		$this -> add('id', $data);
+	}
+	public function setData($first, $second = null) {
+		$this -> data = null;
+		$this -> add('data', $first, $second);
+	}
+	public function setAria($first, $second = null) {
+		$this -> aria = null;
+		$this -> add('aria', $first, $second);
+	}
+	public function setStyle($first, $second = null) {
+		$this -> styles = null;
+		$this -> add('styles', $first, $second);
+	}
+	public function setLink($data) {
+		$this -> link = null;
+		$this -> add('link', $data);
+	}
+	public function setCustom($first, $second = null) {
+		$this -> custom = null;
+		$this -> add('custom', $first, $second, true);
+	}
+	public function setContent($data) {
+		$this -> content = null;
+		$this -> add('content', $data);
+	}
+	
+	public function resetTag() {
+		$this -> tag = null;
+	}
+	public function resetClass() {
+		$this -> classes = null;
+	}
+	public function resetId() {
+		$this -> id = null;
+	}
+	public function resetData() {
+		$this -> data = null;
+	}
+	public function resetAria() {
+		$this -> aria = null;
+	}
+	public function resetStyle() {
+		$this -> styles = null;
+	}
+	public function resetLink() {
+		$this -> link = null;
+	}
+	public function resetCustom() {
+		$this -> custom = null;
+	}
+	public function resetContent() {
+		$this -> content = null;
 	}
 	
 }

@@ -296,6 +296,46 @@ class Strings {
 		
 	}
 
+	static public function combineMask($item, $mask, $first = null, $last = null, $except = null) {
+		
+		/*
+		*  НОВАЯ Функция объединяет массив в строку по маске {k} {i}
+		*  except содержит символы-исключения, которые будут очищены из массива
+		*/
+		
+		if (!System::typeIterable($item)) {
+			return $except ? self::except($item, $except) : $item;
+		}
+		
+		$result = $first;
+		
+		foreach ($item as $k => $i) {
+			if ($except) {
+				$k = self::except($k, $except);
+				$i = self::except($i, $except);
+			}
+			$result .= self::replace($mask, ['{k}', '{i}'], [$k, $i]);
+		}
+		unset($k, $i);
+		
+		return $result . $last;
+		
+	}
+
+	static public function except($item, $except = null) {
+		
+		/*
+		*  Функция очистки строки от указанных символов
+		*/
+		
+		if (!System::set($except)) {
+			return $item;
+		}
+		
+		return preg_replace('/[' . preg_quote($except, '/') . ']/u', '', $item);
+		
+	}
+
 	static public function replace($item, $search, $replace) {
 		
 		/*
