@@ -79,6 +79,8 @@ class Module extends Singleton {
 	public function settings($vendor, $name, $instance, $settings = null) {
 		
 		// сюда же можно добавить кэш
+		// нужно добавить в настройки текстовые переменные
+		// нужно добавить в настройки преобразование языков "val" : {"ru" : "..."} -> "val" : "..."
 		
 		// read from custom path
 		

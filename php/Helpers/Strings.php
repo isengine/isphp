@@ -48,20 +48,20 @@ class Strings {
 		*  специальное значение position = true задает $length от конца строки
 		*  
 		*  например, строка "positionare"
-		*  0 : positionare
-		*  3 : itionare
-		*  6 : onare
-		*  0, 3 : pos
-		*  3, 3 : iti
-		*  6, 3 : ona
-		*  6, -3 : tio
-		*  -3 : are
-		*  -6 : ionare
-		*  -6, 3 : ion
-		*  -6, -3 : iti
-		*  1, 0, true : ositionare
-		*  1, 1, true : ositionar
-		*  1, 2, true : ositiona
+		*  0 :          > positionare
+		*  3 :          >    itionare
+		*  6 :          >       onare
+		*  0, 3 :       > pos
+		*  3, 3 :       >    iti
+		*  6, 3 :       >       ona
+		*  6, -3 :      >     tio
+		*  -3 :         >         are
+		*  -6 :         >      ionare
+		*  -6, 3 :      >      ion
+		*  -6, -3 :     >    iti
+		*  1, 0, true : >  ositionare
+		*  1, 1, true : >  ositionar
+		*  1, 2, true : >  ositiona
 		*/
 		
 		if (System::set($length) && !$position) {
