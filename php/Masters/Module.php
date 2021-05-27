@@ -49,6 +49,7 @@ class Module extends Singleton {
 		
 		$module = new $ns(
 			$instance,
+			$template,
 			$settings,
 			$path,
 			$custom,
@@ -59,8 +60,8 @@ class Module extends Singleton {
 		
 		// require template path in apps and next path template in vendor
 		
-		if ( !System::includes($instance, $custom . 'templates', null, $module) ) {
-			if ( !System::includes($instance, $path . 'templates', null, $module) ) {
+		if ( !System::includes($template, $custom . 'templates', null, $module) ) {
+			if ( !System::includes($template, $path . 'templates', null, $module) ) {
 				if ( !System::includes('default', $custom . 'templates', null, $module) ) {
 					System::includes('default', $path . 'templates', null, $module);
 				}

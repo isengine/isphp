@@ -15,6 +15,7 @@ use is\Parents\Data;
 abstract class Master extends Data {
 	
 	public $instance; // имя экземпляра модуля
+	public $template; // имя экземпляра модуля
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom; // путь до кастомной папки модуля в app
@@ -25,6 +26,7 @@ abstract class Master extends Data {
 	
 	public function __construct(
 		$instance,
+		$template,
 		$settings,
 		$path,
 		$custom,
@@ -32,6 +34,7 @@ abstract class Master extends Data {
 	) {
 
 		$this -> instance = $instance;
+		$this -> template = $template;
 		$this -> path = $path;
 		$this -> custom = $custom;
 		$this -> cache = $cache;
