@@ -130,6 +130,7 @@ class Dom {
 		}
 		
 		$this -> print .= $print;
+		return $print;
 		unset($print);
 		
 	}
@@ -151,6 +152,7 @@ class Dom {
 		}
 		
 		$this -> print .= $print;
+		return $print;
 		unset($print);
 		
 	}
@@ -168,6 +170,7 @@ class Dom {
 		}
 		
 		$this -> print .= $print;
+		return $print;
 		unset($print);
 		
 	}
