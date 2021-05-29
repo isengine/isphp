@@ -307,6 +307,23 @@ class Dom {
 		$this -> content = null;
 	}
 	
+	public function getTag() {
+		return $this -> tag;
+	}
+	public function getClass() {
+		return $this -> classes;
+	}
+	public function getId() {
+		return $this -> id;
+	}
+	public function getLink() {
+		return $this -> link;
+	}
+	
+	public function leaveFirstClass() {
+		$this -> classes = [ Objects::first($this -> classes, 'value') ];
+	}
+	
 }
 
 ?>
