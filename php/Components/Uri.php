@@ -99,7 +99,8 @@ class Uri extends Globals {
 		if (System::typeOf($data, 'scalar')) {
 			$this -> query['string'] = $data;
 		}
-		$this -> query['array'] = $this -> query['string'] ? Objects::pairs( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
+		//$this -> query['array'] = $this -> query['string'] ? Objects::pairs( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
+		$this -> query['array'] = $_GET;
 	}
 	
 	public function setQueryString($data = null) {
