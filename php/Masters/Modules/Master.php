@@ -105,6 +105,14 @@ abstract class Master extends Data {
 		return $this -> elements[$element];
 	}
 	
+	public function ecopy($from, $to) {
+		$this -> elements[$to] = $this -> elements[$from] -> copy();
+	}
+	
+	public function ecreate($name, $tag) {
+		$this -> elements[$name] = new Dom($tag);
+	}
+	
 }
 
 ?>

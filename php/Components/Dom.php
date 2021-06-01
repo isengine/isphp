@@ -18,6 +18,7 @@ class Dom {
 	public $aria;
 	public $styles;
 	public $link;
+	public $attr;
 	public $custom;
 	public $content;
 	
@@ -45,7 +46,7 @@ class Dom {
 				'aria', 'a', 'base', 'link'
 			],
 			'allow' => [
-				'tag', 'classes', 'id', 'data', 'aria', 'styles', 'link', 'custom', 'content'
+				'tag', 'classes', 'id', 'data', 'aria', 'styles', 'link', 'custom', 'content', 'attr'
 			],
 			'string' => [
 				'tag', 'id', 'link', 'content'
@@ -59,6 +60,10 @@ class Dom {
 			$this -> print();
 		}
 		
+	}
+	
+	public function copy() {
+		return clone $this;
 	}
 	
 	public function reset() {
@@ -121,6 +126,10 @@ class Dom {
 		
 		if (System::typeIterable($this -> custom)) {
 			$print .= Strings::combineMask($this -> custom, ' {k}="{i}"', null, null, '"');
+		}
+		
+		if (System::typeIterable($this -> attr)) {
+			$print .= ' ' . Strings::join($this -> attr, ' ');
 		}
 		
 		$print .= '>';
@@ -241,6 +250,9 @@ class Dom {
 	public function addContent($data) {
 		$this -> add('content', $data);
 	}
+	public function addAttr($data) {
+		$this -> add('attr', $data);
+	}
 	
 	public function setTag($data) {
 		$this -> tag = null;
@@ -278,6 +290,10 @@ class Dom {
 		$this -> content = null;
 		$this -> add('content', $data);
 	}
+	public function setAttr($data) {
+		$this -> content = null;
+		$this -> add('attr', $data);
+	}
 	
 	public function resetTag() {
 		$this -> tag = null;
@@ -306,6 +322,9 @@ class Dom {
 	public function resetContent() {
 		$this -> content = null;
 	}
+	public function resetAttr() {
+		$this -> attr = null;
+	}
 	
 	public function getTag() {
 		return $this -> tag;
@@ -318,6 +337,9 @@ class Dom {
 	}
 	public function getLink() {
 		return $this -> link;
+	}
+	public function getAttr() {
+		return $this -> attr;
 	}
 	
 	public function leaveFirstClass() {
