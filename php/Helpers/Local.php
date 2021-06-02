@@ -104,7 +104,7 @@ class Local {
 					
 					if (
 						!$parameters['extension'] ||
-						$parameters['extension'] && $i['extension'] && Match::equalIn($parameters['extension'], $i['extension'])
+						$parameters['extension'] && $i['extension'] && Objects::match($parameters['extension'], $i['extension'])
 					) {
 						$list['files'][] = $parameters['info'] ? $i[$parameters['info']] : $i;
 					}

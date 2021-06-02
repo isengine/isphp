@@ -53,10 +53,10 @@ abstract class Master extends Data {
 	
 	abstract public function launch();
 	
-	public function blocks($name) {
+	public function blocks($name, $object = null) {
 		
-		if ( !System::includes($name, $this -> custom . 'blocks', null, $this) ) {
-			System::includes($name, $this -> path . 'blocks', null, $this);
+		if ( !System::includes($name, $this -> custom . 'blocks', null, $object ? $object : $this) ) {
+			System::includes($name, $this -> path . 'blocks', null, $object ? $object : $this);
 		}
 		
 	}

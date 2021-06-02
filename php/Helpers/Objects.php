@@ -540,6 +540,8 @@ class Objects {
 		*  позволяет перебирать элементы объекта или массива
 		*  только в том случае, если он не пустой
 		*
+		*  теперь он еще и позицию показывает - first, last или alone
+		*
 		*  сделана в основном для того, чтобы облегчить код
 		*  например:
 		*  Objects::each($sets['form'], function($i, $k){
@@ -559,8 +561,25 @@ class Objects {
 			return;
 		}
 		
+		$target = [
+			self::first($item, 'key'),
+			self::last($item, 'key'),
+			self::len($item)
+		];
+		
 		foreach ($item as $key => &$value) {
-			$value = call_user_func($callback, $value, $key);
+			
+			$position = null;
+			if ($target[2] === 1) {
+				$position = 'alone';
+			} elseif ($key === $target[0]) {
+				$position = 'first';
+			} elseif ($key === $target[1]) {
+				$position = 'last';
+			}
+			
+			$value = call_user_func($callback, $value, $key, $position);
+			
 		}
 		unset($key, $value);
 		

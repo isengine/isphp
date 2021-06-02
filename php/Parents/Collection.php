@@ -251,6 +251,12 @@ class Collection extends Data {
 		$this -> count = 0;
 	}
 	
+	public function iterate($callback) {
+		Objects::each($this -> getNames(), function($name, $key, $position) use ($callback) {
+			call_user_func($callback, $this -> getByName($name), $key, $position);
+		});
+	}
+	
 }
 
 ?>
