@@ -83,7 +83,7 @@ class Parser {
 			if ($key) {
 				
 				// это код для разбивки массива с ключами
-				$split = Objects::each($split, [], function($i, $k, &$r) use ($parameters) {
+				$split = Objects::eachOf($split, [], function($i, $k, &$r) use ($parameters) {
 					if (!System::set($i)) {
 						return null;
 					} elseif (mb_strpos($i, ':') === false) {
@@ -101,7 +101,7 @@ class Parser {
 						} if (!System::set($spliti)) {
 							$r[$splitk] = null;
 						} else {
-							$r[$splitk] = Objects::each($spliti, [], function($i, $k, &$a) use ($parameters) {
+							$r[$splitk] = Objects::eachOf($spliti, [], function($i, $k, &$a) use ($parameters) {
 								$r = mb_strpos($i, '!') !== 0 ? System::set($i, true) : null;
 								if (System::type($r) === 'numeric') { $r = (float) $r; } // сразу приведение типов
 								// этот код вместо вызова array_clear
@@ -126,7 +126,7 @@ class Parser {
 			} else {
 				
 				// это код для разбивки массива без ключей
-				$split = Objects::each($split, null, function($i) use ($parameters) {
+				$split = Objects::eachOf($split, null, function($i) use ($parameters) {
 					if (!System::set($i)) {
 						return null;
 					} elseif (mb_strpos($i, ':') === false) {
@@ -138,7 +138,7 @@ class Parser {
 						//$spliti = Strings::split($i, '(?<!\\):', null);
 						$spliti = Strings::split($i, ':', null);
 						
-						$a = Objects::each($spliti, [], function($i, $k, &$a) use ($parameters) {
+						$a = Objects::eachOf($spliti, [], function($i, $k, &$a) use ($parameters) {
 							$r = mb_strpos($i, '!') !== 0 ? System::set($i, true) : null;
 							if (System::type($r) === 'numeric') { $r = (float) $r; } // сразу приведение типов
 							// этот код вместо вызова array_clear

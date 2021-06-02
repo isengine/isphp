@@ -532,7 +532,43 @@ class Objects {
 		
 	}
 
-	static public function each(&$item = null, $parameters = null, $callback) {
+	static public function each(&$item, $callback) {
+		
+		/*
+		*  это ПЕРЕДЕЛАННАЯ ФУНКЦИЯ, старая теперь называется eachOf
+		*  это простая замена foreach
+		*  позволяет перебирать элементы объекта или массива
+		*  только в том случае, если он не пустой
+		*
+		*  сделана в основном для того, чтобы облегчить код
+		*  например:
+		*  Objects::each($sets['form'], function($i, $k){
+		*    $this -> eget('form') -> addCustom($k, $i);
+		*  });
+		*  вместо:
+		*  if (System::typeIterable($sets['form'])) {
+		*    foreach ($sets['form'] as $key => $item) {
+		*      $this -> eget('form') -> addCustom($key, $item);
+		*    }
+		*    unset($key, $item);
+		*  }
+		*/
+
+		
+		if (!System::typeIterable($item)) {
+			return;
+		}
+		
+		foreach ($item as $key => &$value) {
+			$value = call_user_func($callback, $value, $key);
+		}
+		unset($key, $value);
+		
+		return $item;
+		
+	}
+	
+	static public function eachOf(&$item = null, $parameters = null, $callback) {
 		
 		/*
 		*  это универсальная замена foreach, которая управляет элементами в текущем массиве
@@ -610,7 +646,7 @@ class Objects {
 			return $item;
 		}
 		
-		self::each($item, 'filter', function($i) use ($parameters) {
+		self::eachOf($item, 'filter', function($i) use ($parameters) {
 			if (System::typeOf($i, 'iterable')) {
 				$i = self::clear($i, $parameters);
 			}
@@ -908,7 +944,7 @@ class Objects {
 		}
 		
 		
-		self::each($item, null, function($i) {
+		self::eachOf($item, null, function($i) {
 			if (System::typeOf($i, 'iterable')) {
 				if (count($i) === 1) {
 					$i = reset($i);

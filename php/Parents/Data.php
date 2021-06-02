@@ -149,7 +149,7 @@ class Data {
 		
 		// Итератор данных
 		
-		return Objects::each($this -> data, $parameters, $callback);
+		return Objects::eachOf($this -> data, $parameters, $callback);
 		
 	}
 	
