@@ -188,6 +188,30 @@ class Collection extends Data {
 		
 	}
 	
+	public function removeByLen($skip, $len) {
+		
+		$this -> names = Objects::get($this -> names, $skip ? $skip : 0, $len ? $len : null);
+		
+		if ($by === 'name') {
+			foreach ($data as $item) {
+				$this -> remove(null, $item);
+			}
+			unset($item);
+		}
+		
+	}
+	
+	public function removeByCut($skip, $len) {
+		
+		$names = Objects::cut($this -> names, $skip ? $skip : 0, $len ? $len : null);
+		
+		foreach ($names as $item) {
+			$this -> remove(null, $item);
+		}
+		unset($item, $names);
+		
+	}
+	
 	public function removeFirst() {
 		$id = $this -> getFirstId();
 		$this -> remove($id['value'], null);

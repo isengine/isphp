@@ -69,7 +69,12 @@ class Filter extends Data {
 					];
 					
 					$first = Strings::first($i);
-					$num = Strings::match($i, '_');
+					
+					$num = null;
+					if (Strings::match($i, '_')) {
+						$nums = Strings::split($i, '_');
+						$num = (System::type($nums[0], 'numeric') || !$nums[0]) && (System::type($nums[1], 'numeric') || !$nums[1]);
+					}
 					
 					if (
 						$first === '+' ||
