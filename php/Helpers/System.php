@@ -94,6 +94,20 @@ class System {
 		
 	}
 
+	static public function setReturn($item = null, $before = null, $after = null, $not = null) {
+		
+		/*
+		НОВАЯ ФУНКЦИЯ
+		проверка значения с его возвратом
+		специальные аргументы
+		before и after - если проверка прошла успешно, значение возвращается с заданными строками перед и после него
+		not - данное значение возвращается в случае если проверка не прошла успешно
+		*/
+		
+		return self::set($item) ? $before . $item . $after : $not;
+		
+	}
+
 	static public function type($item = null, $compare = null) {
 		
 		/*
@@ -320,6 +334,18 @@ class System {
 		}
 		
 		return $name;
+		
+	}
+
+	static public function check($item, $stop = null) {
+		
+		// НОВАЯ ФУНКЦИЯ, вспомогательная, для отладки - выводит строку для проверки
+		
+		echo '[' . print_r($item, 1) . ']<br>';
+		
+		if ($stop) {
+			exit;
+		}
 		
 	}
 

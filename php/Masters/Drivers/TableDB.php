@@ -13,6 +13,7 @@ use is\Helpers\Match;
 class TableDB extends Master {
 	
 	protected $path;
+	protected $parent;
 	
 	public function connect() {
 		
@@ -22,6 +23,13 @@ class TableDB extends Master {
 	
 	public function close() {
 		
+	}
+	
+	public function parents($parent) {
+		if (!System::set($parent) && !System::typeIterable($parent)) {
+			return;
+		}
+		$this -> parent = System::typeIterable($parent) ? $parent : Strings::split($parent, ':');
 	}
 	
 	public function launch() {
@@ -68,12 +76,18 @@ class TableDB extends Master {
 	
 	public function hash() {
 		$json = json_encode($this -> filter) . json_encode($this -> fields) . json_encode($this -> rights);
-		$this -> hash = md5_file($this -> path . $this -> collection . '.csv') . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
+		$path = $this -> path . $this -> collection . ($this -> parent ? DS . Strings::join($this -> parent, DS) : null) . '.csv';
+		$this -> hash = (Local::matchFile($path) ? md5_file($path) : null) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
 	}
 	
 	public function prepare() {
 		
-		$path = $this -> path . $this -> collection . '.csv';
+		$path = $this -> path . $this -> collection . ($this -> parent ? DS . Strings::join($this -> parent, DS) : null) . '.csv';
+		
+		if (!Local::matchFile($path)) {
+			return;
+		}
+		
 		$stat = stat($path);
 		
 		if ($handle = fopen($path, "r")) {
@@ -176,6 +190,9 @@ class TableDB extends Master {
 				unset($k, $i);
 				
 				// несколько обязательных полей
+				if (!$entry['parents']) {
+					$entry['parents'] = $this -> parent;
+				}
 				if (!$entry['ctime']) {
 					$entry['ctime'] = $stat['ctime'];
 				}

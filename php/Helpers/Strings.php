@@ -154,6 +154,48 @@ class Strings {
 		
 	}
 
+	static public function before($haystack, $needle, $include = null, $reverse = null) {
+		
+		/*
+		*  НОВАЯ
+		*  Функция, которая возвращает подстроку до первого заданного значения
+		*  включение include позволяет включить в строку найденное значение
+		*  специальное значение reverse возвращает строку до последнего заданного значения
+		*/
+		
+		$pos = self::find($haystack, $needle, $reverse ? 'r' : null);
+		
+		if (!System::set($pos)) {
+			return $haystack;
+		} elseif (!$pos) {
+			return null;
+		}
+		
+		return self::get($haystack, 0, $include ? $pos + 1 : $pos);
+		
+	}
+
+	static public function after($haystack, $needle, $include = null, $reverse = null) {
+		
+		/*
+		*  НОВАЯ
+		*  Функция, которая возвращает подстроку после первого заданного значения
+		*  включение include позволяет включить в строку найденное значение
+		*  специальное значение reverse возвращает строку после последнего заданного значения
+		*/
+		
+		$pos = self::find($haystack, $needle, $reverse ? 'r' : null);
+		
+		if (!System::set($pos)) {
+			return $haystack;
+		} elseif (!$pos) {
+			return null;
+		}
+		
+		return self::get($haystack, $include ? $pos : $pos + 1);
+		
+	}
+
 	static public function add($haystack, $needle, $reverse = null) {
 		
 		/*

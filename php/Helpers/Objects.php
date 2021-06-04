@@ -214,6 +214,58 @@ class Objects {
 		
 	}
 
+	static public function before($haystack, $needle, $include = null, $reverse = null) {
+		
+		/*
+		*  НОВАЯ
+		*  Функция, которая возвращает срез массива до первого заданного значения
+		*  включение include позволяет включить в массив найденное значение
+		*  специальное значение reverse возвращает массив до последнего заданного значения
+		*/
+		
+		$key = self::find($haystack, $needle, $reverse ? 'r' : null);
+		
+		if (!System::set($key)) {
+			return $haystack;
+		} elseif (!$key) {
+			return null;
+		}
+		
+		$keys = self::keys($haystack);
+		$pos = self::find($keys, $key);
+		
+		$result = self::get($keys, 0, $pos + ($include ? 1 : 0));
+		
+		return array_intersect_key($haystack, self::fill($result, null));
+		
+	}
+
+	static public function after($haystack, $needle, $include = null, $reverse = null) {
+		
+		/*
+		*  НОВАЯ
+		*  Функция, которая возвращает срез массива после первого заданного значения
+		*  включение include позволяет включить в массив найденное значение
+		*  специальное значение reverse возвращает массив после последнего заданного значения
+		*/
+		
+		$key = self::find($haystack, $needle, $reverse ? 'r' : null);
+		
+		if (!System::set($key)) {
+			return $haystack;
+		} elseif (!$key) {
+			return null;
+		}
+		
+		$keys = self::keys($haystack);
+		$pos = self::find($keys, $key);
+		
+		$result = self::get($keys, $pos + 1 - ($include ? 1 : 0));
+		
+		return array_intersect_key($haystack, self::fill($result, null));
+		
+	}
+
 	static public function add($haystack, $needle, $recursive = null) {
 		
 		/*
@@ -885,6 +937,60 @@ class Objects {
 		*/
 		
 		return self::values($item);
+		
+	}
+
+	static public function split($array, $splitter, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция которая разделяет массив на два массива по значению
+		*/
+		
+		$key = self::find($array, $splitter);
+		
+		if (!System::set($key)) {
+			return [ $array, [] ];
+		}
+		
+		$keys = self::keys($array);
+		$pos = self::find($keys, $key);
+		
+		$before = $offset < 0 ? 1 : 0;
+		$after = $offset > 0 ? 0 : 1;
+		
+		$first = self::get($keys, 0, $pos + $before);
+		$last = self::get($keys, $pos + $after);
+		
+		return [
+			array_intersect_key($array, self::fill($first, null)),
+			array_intersect_key($array, self::fill($last, null))
+		];
+		
+	}
+
+	static public function splitByIndex($array, $splitter, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция которая разделяет массив на два массива по индексу
+		*/
+		
+		$keys = self::keys($array);
+		$pos = self::find($keys, $splitter);
+		
+		if (!System::set($pos)) {
+			return [ $array, [] ];
+		}
+		
+		$before = $offset < 0 ? 1 : 0;
+		$after = $offset > 0 ? 0 : 1;
+		
+		$first = self::get($keys, 0, $pos + $before);
+		$last = self::get($keys, $pos + $after);
+		
+		return [
+			array_intersect_key($array, self::fill($first, null)),
+			array_intersect_key($array, self::fill($last, null))
+		];
 		
 	}
 
