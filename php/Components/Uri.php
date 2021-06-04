@@ -43,7 +43,17 @@ class Uri extends Globals {
 		
 		// получение данных
 		
-		$url = System::server('domain') . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . urldecode($_SERVER['REQUEST_URI']);
+		$url = System::server('domain') . (!empty($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : null) . rawurldecode($_SERVER['REQUEST_URI']);
+		
+		// rawurldecode декодирует по стандарту RFC 3986
+		// в том числе поддерживается гуглом
+		// где символ пробела передается кодом %20
+		// и в дальнейшем не вызывает конфликтов
+		
+		// urldecode декодирует не по этому стандарту
+		// и символ пробела заменяет на знак +
+		// что в дальнейшем приводит к конфликтам
+		// при разборе параметов данных, например, в фильтрах
 		
 		$urlparse = Paths::parseUrl($url);
 		
