@@ -260,6 +260,20 @@ class Collection extends Data {
 		$this -> names = Objects::keys($this -> names);
 	}
 	
+	public function leaveByName($name) {
+		$current = $this -> getByName($name);
+		$this -> reset();
+		$this -> add($current);
+		unset($current);
+	}
+	
+	public function leaveById($id) {
+		$current = $this -> getById($id);
+		$this -> reset();
+		$this -> add($current);
+		unset($current);
+	}
+	
 	public function reverse() {
 		$this -> names = Objects::reverse($this -> names);
 	}
