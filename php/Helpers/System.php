@@ -3,14 +3,6 @@ namespace is\Helpers;
 
 class System {
 
-	static public function render($item = null) {
-		echo empty($item) ? 'null' : print_r($item, true);
-	}
-
-	static public function console($item = null, $title = null) {
-		echo '<!--' . (empty($title) ? null : ' // ' . $title) . "\r\n" . (empty($item) ? 'null' : print_r($item, true)) . "\r\n"  . '-->';
-	}
-
 	static public function includes($item, $base = __DIR__ . DS . DP, $once = true, $object = null, $return = null) {
 		
 		// once влияет не на первое включение, а только на повторные
@@ -39,22 +31,7 @@ class System {
 		return isset($item);
 	}
 
-	static public function set($item = null, $yes = null, $no = null) {
-		
-		if ($yes) {
-			
-			// return \is\Helpers\System::set()
-			// прямой вызов, неудобен тем, что жестко привязан
-			
-			// return self::set();
-			// относительный вызов
-			
-			// return static::set();
-			// позднее связывание, сработает в наследованиях, но для методов в этом, очевидно, нет нужды
-			
-			return self::set($item) ? ($yes === true ? $item : $yes) : $no;
-			
-		}
+	static public function set($item = null) {
 		
 		if (
 			isset($item) &&
@@ -337,13 +314,46 @@ class System {
 		
 	}
 
-	static public function check($item, $stop = null) {
+	static public function debug(...$item) {
 		
 		// НОВАЯ ФУНКЦИЯ, вспомогательная, для отладки - выводит строку для проверки
+		// default !q !console !dump !stop !hide
 		
-		echo '[' . print_r($item, 1) . ']<br>';
+		$c = count($item);
+		$action = null;
 		
-		if ($stop) {
+		$array = [
+			'default'  => [ '<pre>', '<br>', '</pre>' ],
+			'!q'       => [ '[', '', ']<br>' ],
+			'!console' => [ '<script>console.log(\'', '\n', '\');</script>' ],
+			'!hide'    => [ '<!--', "\r\n", '-->' ]
+		];
+		
+		if ($c > 1 && is_string(end($item)) && end($item)[0] === '!') {
+			$action = array_pop($item);
+		}
+		$array = $array[$action] ? $array[$action] : $array['default'];
+		
+		echo $array[0];
+		
+		foreach ($item as $i) {
+			
+			if ($action === '!console') {
+				$i = json_encode( print_r($i, true) );
+			} elseif ($action === '!dump') {
+				$i = var_export($i, true);
+			} else {
+				$i = print_r($i, true);				
+			}
+			
+			echo $i . $array[1];
+			
+		}
+		unset($i, $item);
+		
+		echo $array[2];
+		
+		if ($action === '!stop') {
 			exit;
 		}
 		

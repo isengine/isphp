@@ -278,8 +278,8 @@ class Collection extends Data {
 		$this -> names = Objects::reverse($this -> names);
 	}
 	
-	public function randomize() {
-		$this -> names = Objects::randomize($this -> names);
+	public function random() {
+		$this -> names = Objects::random($this -> names);
 	}
 	
 	public function reset() {

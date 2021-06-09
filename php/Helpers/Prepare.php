@@ -352,7 +352,7 @@ class Prepare {
 		
 		$len = Strings::len($str) % 3;
 		if ($len) {
-			$str = Strings::fillup($str, 3 - $len);
+			$str = Strings::add($str, 3 - $len);
 		}
 		
 		return base64_encode($str);

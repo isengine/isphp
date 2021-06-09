@@ -102,7 +102,7 @@ class Parser {
 							$r[$splitk] = null;
 						} else {
 							$r[$splitk] = Objects::eachOf($spliti, [], function($i, $k, &$a) use ($parameters) {
-								$r = mb_strpos($i, '!') !== 0 ? System::set($i, true) : null;
+								$r = mb_strpos($i, '!') !== 0 ? (System::set($i) ? $i : null) : null;
 								if (System::type($r) === 'numeric') { $r = (float) $r; } // сразу приведение типов
 								// этот код вместо вызова array_clear
 								// не пробегает лишний раз по массиву и экономит ресурсы
@@ -139,7 +139,7 @@ class Parser {
 						$spliti = Strings::split($i, ':', null);
 						
 						$a = Objects::eachOf($spliti, [], function($i, $k, &$a) use ($parameters) {
-							$r = mb_strpos($i, '!') !== 0 ? System::set($i, true) : null;
+							$r = mb_strpos($i, '!') !== 0 ? (System::set($i) ? $i : null) : null;
 							if (System::type($r) === 'numeric') { $r = (float) $r; } // сразу приведение типов
 							// этот код вместо вызова array_clear
 							// не пробегает лишний раз по массиву и экономит ресурсы
@@ -192,9 +192,16 @@ class Parser {
 		
 		$item = Objects::convert($item);
 		
+		$levels = 1;
+		foreach ($item as $i) {
+			if (System::typeOf($i, 'iterable')) {
+				$levels++;
+				break;
+			}
+		}
+		
 		$key = !empty($parameters['key']) ? true : null;
 		$clear = !empty($parameters['clear']) ? true : null;
-		$levels = Objects::levels($item, 2);
 		$str = '';
 		
 		$first = Objects::first($item);
@@ -203,8 +210,8 @@ class Parser {
 		if ($levels === 1) {
 			
 			if ($clear) {
-				$str .= $key ? $first['key'] . System::set($first['value'], ':') : null;
-				$str .= System::set($first['value'], true);
+				$str .= $key ? $first['key'] . (System::set($first['value']) ? ':' : null) : null;
+				$str .= System::set($first['value']) ? $first['value'] : null;
 			} else {
 				$str .= $key ? $first['key'] . ':' : null;
 				$str .= $first['value'];
@@ -213,7 +220,7 @@ class Parser {
 			if (System::typeData($item, 'object')) {
 				foreach ($item as $k => $i) {
 					$str .= $key ? '|' . $k : null;
-					$str .= $clear ? System::set($i, ':' . $i) : ':' . $i;
+					$str .= $clear ? (System::set($i) ? ':' . $i : null) : ':' . $i;
 				}
 				unset($k, $i);
 			}
@@ -227,7 +234,7 @@ class Parser {
 			
 			if (System::typeData($item, 'object')) {
 				foreach ($item as $k => $i) {
-					$str .= '|' . ($key ? $k . ($clear ? System::set($i, ':') : ':') : null);
+					$str .= '|' . ($key ? $k . ($clear ? (System::set($i) ? ':' : null) : ':') : null);
 					$str .= self::toString($i, $parameters);
 				}
 				unset($key, $item);
@@ -322,17 +329,20 @@ class Parser {
 		*  содержащим определенный параметр (языковую конструкцию)
 		*/
 		
+		if (!is_array($data)) {
+			return;
+		}
+		
 		foreach ($data as $key => &$item) {
 			if (
 				mb_strpos($key, '!') === 0 ||
 				!is_array($item) && strpos($item, '!') === 0
 			) {
 				unset($data[$key]);
-			} elseif (!empty($up) && is_array($up) && in_array($key, $up)) {
-				$data = Objects::merge($data, $data[$key]);
-				unset($data[$key]);
+			} elseif (!empty($up) && isset($item[$up])) {
+				$item = $item[$up];
 			} elseif (is_array($item)) {
-				$item = self::prepare($item);
+				$item = self::prepare($item, $up);
 			}
 		}
 		

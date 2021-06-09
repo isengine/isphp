@@ -130,7 +130,8 @@ class LocalDB extends Master {
 		$parse = Strings::split($item['file'], '\.');
 		
 		$first = Objects::first($parse, 'value');
-		$second = Objects::n($parse, 1, 'value');
+		//$second = Objects::n($parse, 1, 'value');
+		$second = Objects::first(Objects::get($parse, 1, 1), 'value');
 		
 		if (
 			!is_numeric($first) ||
@@ -139,7 +140,7 @@ class LocalDB extends Master {
 			$parse = Objects::add([$key], $parse);
 		}
 		
-		$parse = Objects::fill(['id', 'name', 'type', 'owner', 'dtime'], $parse);
+		$parse = Objects::join(['id', 'name', 'type', 'owner', 'dtime'], $parse);
 		//$parse = Objects::combine($parse, [
 		//	'id',
 		//	'name',

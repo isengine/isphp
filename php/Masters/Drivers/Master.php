@@ -304,7 +304,7 @@ abstract class Master extends Data {
 		if ($keys) {
 			$entry['data'] = Objects::add(
 				$entry['data'],
-				Objects::fill($keys, null)
+				Objects::join($keys, null)
 				//Objects::combine([], $keys, null)
 			);
 		}

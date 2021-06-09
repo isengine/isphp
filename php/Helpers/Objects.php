@@ -62,6 +62,26 @@ class Objects {
 		
 	}
 
+	static public function keys($item) {
+		
+		/*
+		*  Функция возврата ключей массива
+		*/
+		
+		return array_keys($item);
+		
+	}
+
+	static public function values($item) {
+		
+		/*
+		*  Функция возврата значений массива
+		*/
+		
+		return array_values($item);
+		
+	}
+
 	/*
 	static public function match($needle, $haystack, $parameters = ['method' => null, 'haystack' => null, 'needle' => null]) {
 	*  Функция проверки на совпадение элемента/ов needle в haystack
@@ -113,17 +133,17 @@ class Objects {
 		*  специальное значение 'r' задает возврат индекса/ключа последнего значения в массиве
 		*/
 		
-		//$find = array_keys($haystack, $needle);
-		$find = self::keys(self::filter($haystack, $needle));
+		$find = array_keys($haystack, $needle);
+		//$find = self::keys(self::filter($haystack, $needle));
 		
-		$pos = System::set($position);
+		//echo 'FIND:' . print_r($find, 1) . '<hr>';
 		
-		if ($pos && $position !== 'r') {
+		if (System::set($position) && $position !== true) {
 			if ($position < 0) {
 				$position = self::len($haystack) + $position;
 			}
 			return in_array($position, $find) === false ? null : true;
-		} elseif ($position === 'r') {
+		} elseif ($position === true) {
 			return self::last($find, 'value');
 		} else {
 			return self::first($find, 'value');
@@ -236,7 +256,7 @@ class Objects {
 		
 		$result = self::get($keys, 0, $pos + ($include ? 1 : 0));
 		
-		return array_intersect_key($haystack, self::fill($result, null));
+		return array_intersect_key($haystack, self::join($result, null));
 		
 	}
 
@@ -262,7 +282,7 @@ class Objects {
 		
 		$result = self::get($keys, $pos + 1 - ($include ? 1 : 0));
 		
-		return array_intersect_key($haystack, self::fill($result, null));
+		return array_intersect_key($haystack, self::join($result, null));
 		
 	}
 
@@ -371,25 +391,6 @@ class Objects {
 		
 	}
 
-	static public function n($item, $n, $result = null) {
-		
-		/*
-		*  Функция возврата n-ного значения массива
-		*/
-		
-		$r = self::get($item, $n, 1);
-		$r = self::first($r);
-		
-		if ($result === 'key') {
-			return $r['key'];
-		} elseif ($result === 'value') {
-			return $r['value'];
-		} else {
-			return $r;
-		}
-		
-	}
-
 	static public function refirst(&$item, $data) {
 		
 		/*
@@ -416,19 +417,6 @@ class Objects {
 		
 	}
 
-	static public function ren(&$item, $n, $data) {
-		
-		/*
-		*  Функция замены n-ного значения массива
-		*/
-		
-		if (!$item) { return; }
-		
-		$key = self::n($item, $n, 'key');
-		$item[$key] = $data;
-		
-	}
-
 	static public function unfirst(&$item) {
 		
 		/*
@@ -449,24 +437,6 @@ class Objects {
 		
 	}
 
-	static public function unn(&$item, $n, $result = null) {
-		
-		/*
-		*  Функция удаления n-ного значения массива
-		*/
-		
-		$item = self::cut($item, $n, 1);
-		
-		if ($result === 'key') {
-			return self::keys($item);
-		} elseif ($result === 'value') {
-			return self::values($item);
-		} else {
-			return $item;
-		}
-		
-	}
-
 	static public function len($item) {
 		
 		/*
@@ -477,56 +447,31 @@ class Objects {
 		
 	}
 
-	static public function levels($item, $max = null) {
+	static public function split($array) {
 		
 		/*
-		*  Функция подсчета глубины вложенности
-		*  вторым параметром можно указать предел подсчета глубины, чтобы снизить траты ресурсов
+		*  НОВАЯ Функция которая разделяет массив по-очереди на ключи и значения
 		*/
 		
-		$n = 0;
+		$result = [];
 		
-		if ( System::typeOf($item, 'iterable') ) {
-			foreach ($item as $i) {
-				if ( System::typeOf($i, 'iterable') ) {
-					$c = self::levels($i, $max);
-					$n = ($n > $c) ? $n : $c;
-				}
-				if ($max && $n + 1 >= $max) {
-					break;
-				}
+		$i = 0;
+		$key = null;
+		foreach ($array as $item) {
+			if ($i % 2 === 0) {
+				$key = $item;
+			} else {
+				$result[$key] = $item;
 			}
-			$n = $max && $n >= $max ? $max : $n + 1;
+			$i++;
 		}
+		unset($key, $item, $i);
 		
-		return $n;
-		
-	}
-
-	static public function keys($item) {
-		
-		/*
-		*  Функция возврата ключей массива
-		*/
-		
-		return array_keys($item);
+		return $result;
 		
 	}
 
-	static public function values($item) {
-		
-		/*
-		*  Функция возврата значений массива
-		*/
-		
-		return array_values($item);
-		
-	}
-
-	//static public function combine($keys, $values, $default = null) {
-	//устаревшая функция
-
-	static public function fill($keys, $values, $default = null) {
+	static public function join($keys, $values, $default = null) {
 		
 		/*
 		*  НОВАЯ Функция создания массива из двух массивов
@@ -542,7 +487,7 @@ class Objects {
 		*/
 		
 		if (System::type($values) !== 'array') {
-			return self::fill($keys, [], $values);
+			return self::join($keys, [], $values);
 		}
 		
 		if (System::type($keys) !== 'array' || !count($keys)) {
@@ -566,7 +511,53 @@ class Objects {
 		
 	}
 
-	static public function merge($item, $merge, $recursion = null) {
+	static public function combine($item, $result = []) {
+		
+		/*
+		*  НОВАЯ Функция объединяет многомерный массив в одномерный
+		*/
+		
+		if (!System::typeIterable($item)) {
+			return $item;
+		}
+		
+		foreach ($item as $i) {
+			if (System::typeIterable($i)) {
+				$i = self::combine($i);
+			}
+			$result = self::add($result, $i);
+		}
+		unset($i);
+		
+		return $result;
+		
+	}
+
+	static public function combineByIndex($item, $result = []) {
+		
+		/*
+		*  НОВАЯ Функция объединяет многомерный массив в одномерный с сохранением ключей
+		*/
+		
+		if (!System::typeIterable($item)) {
+			return $item;
+		}
+		
+		foreach ($item as $k => $i) {
+			if (System::typeIterable($i)) {
+				$i = self::combineByIndex($i);
+				$result = self::merge($result, $i);
+			} else {
+				$result[$k] = $i;
+			}
+		}
+		unset($i);
+		
+		return $result;
+		
+	}
+
+	static public function merge($item, $merge, $recursive = null) {
 		
 		/*
 		*  Функция объединения двух массивов в один
@@ -576,7 +567,7 @@ class Objects {
 			return $item;
 		}
 		
-		if ($recursion) {
+		if ($recursive) {
 			return array_replace_recursive($item, $merge);
 		} else {
 			return array_replace($item, $merge);
@@ -707,7 +698,7 @@ class Objects {
 		
 	}
 
-	static public function clear($item, $parameters = ['unique' => null]) {
+	static public function clear(&$item, $unique = null) {
 		
 		/*
 		*  Функция очищает массив от пустых элементов
@@ -717,16 +708,17 @@ class Objects {
 			return $item;
 		}
 		
-		self::eachOf($item, 'filter', function($i) use ($parameters) {
+		foreach ($item as $k => &$i) {
 			if (System::typeOf($i, 'iterable')) {
-				$i = self::clear($i, $parameters);
+				$i = self::clear($i, $unique);
 			}
-			return !System::set($i) ? false : $i;
-		});
+			if (!System::set($i)) {
+				unset($item[$k]);
+			}
+		}
+		unset($k, $i);
 		
-		//$item = array_diff($item, [null]);
-		
-		if ($parameters['unique']) {
+		if ($unique) {
 			$item = array_unique($item);
 		}
 		
@@ -741,33 +733,6 @@ class Objects {
 		*/
 		
 		return array_unique($item);
-		
-	}
-
-	static public function filter($haystack, $needle = null, $notneedle = null) {
-		
-		/*
-		*  Функция возвращает массив только с совпадающими значениями needle
-		*  или только с несовпадающими значениями notneedle
-		*  в дальнейшем возможно расширить функцию через поиск value и keys (and, or)
-		*  а еще передачей их в виде массива
-		*/
-		
-		$find = [];
-		
-		//if (!System::set($needle) && !System::set($notneedle)) {
-		//	return $haystack;
-		//}
-		
-		foreach ($haystack as $k => $i) {
-			if ($needle && $i === $needle) {
-				$find[$k] = $i;
-			} elseif ($notneedle && $i !== $notneedle) {
-				$find[$k] = $i;
-			}
-		}
-		
-		return $find;
 		
 	}
 
@@ -807,7 +772,7 @@ class Objects {
 		
 	}
 
-	static public function randomize($haystack) {
+	static public function random($haystack) {
 		
 		/*
 		*  Функция сортировки массива в случайном порядке
@@ -846,40 +811,104 @@ class Objects {
 		
 	}
 
-	static public function level($haystack, $needle, $value = null) {
+	static public function pairs($array, $splitter, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция которая разделяет массив на два массива по значению
+		*/
+		
+		$key = self::find($array, $splitter);
+		
+		if (!System::set($key)) {
+			return [ $array, [] ];
+		}
+		
+		$keys = self::keys($array);
+		$pos = self::find($keys, $key);
+		
+		$before = $offset < 0 ? 1 : 0;
+		$after = $offset > 0 ? 0 : 1;
+		
+		$first = self::get($keys, 0, $pos + $before);
+		$last = self::get($keys, $pos + $after);
+		
+		return [
+			array_intersect_key($array, self::join($first, null)),
+			array_intersect_key($array, self::join($last, null))
+		];
+		
+	}
+
+	static public function pairsByIndex($array, $splitter, $offset = null) {
+		
+		/*
+		*  НОВАЯ Функция которая разделяет массив на два массива по индексу
+		*/
+		
+		$keys = self::keys($array);
+		$pos = self::find($keys, $splitter);
+		
+		if (!System::set($pos)) {
+			return [ $array, [] ];
+		}
+		
+		$before = $offset < 0 ? 1 : 0;
+		$after = $offset > 0 ? 0 : 1;
+		
+		$first = self::get($keys, 0, $pos + $before);
+		$last = self::get($keys, $pos + $after);
+		
+		return [
+			array_intersect_key($array, self::join($first, null)),
+			array_intersect_key($array, self::join($last, null))
+		];
+		
+	}
+
+	static public function flip($array) {
+		
+		/*
+		*  НОВАЯ Функция которая меняет значения и ключи массива местами
+		*/
+		
+		return array_flip($array);
+		
+	}
+
+	static public function inject($haystack, $map, $value = null) {
 
 		/*
 		*  Функция которая производит объединение данных в многомерных массивах или объектах
 		*  на входе нужно указать:
 		*    целевой массив или объект, которЫЙ будем заполнять - $haystack
-		*    и массив или объект, который содержит ключи, которЫМИ будем заполнять haystack - $needle
+		*    и массив или объект, который содержит ключи, которЫМИ будем заполнять haystack - $map
 		*    третий, необязательный, аргумент - это значение
 		*  ТЕПЕРЬ ПОВЕДЕНИЕ ТАКОВО, ЧТО ПО-УМОЛЧАНИЮ ПУСТЫЕ ЗНАЧЕНИЯ НЕ ЗАПОЛНЯЮТСЯ!
 		*  
 		*  Например, если указать:
-		*  level(['data' => null], ['a', 'b', 'c'], 'value')
+		*  inject(['data' => null], ['a', 'b', 'c'], 'value')
 		*  то на выходе получим такой массив:
 		*  [ 'data' => ['a' => ['b' => ['c' => 'value']]] ];
 		*  
 		*  при этом, особенность данной функции в том, что она дополняет массив и не стирает другие имеющиеся в нем поля
 		*/
 		
-		if (!is_array($haystack) || !is_array($needle)) {
+		if (!is_array($haystack) || !is_array($map)) {
 			return null;
 		}
 		
-		$needle = array_reverse($needle);
-		$c = count($needle);
+		$map = array_reverse($map);
+		$c = count($map);
 		$item = $value;
 		
 		if (!empty($c) && is_int($c)) {
 			for ($i = 0; $i < $c; $i++) {
-				$k = array_shift($needle);
+				$k = array_shift($map);
 				$item = [$k => $item];
 			}
 		}
 		
-		unset($needle, $c, $i, $value);
+		unset($map, $c, $i, $value);
 		
 		if (!$item) { $item = []; }
 		
@@ -888,13 +917,13 @@ class Objects {
 		
 	}
 
-	static public function extract($haystack, $needle) {
+	static public function extract($haystack, $map) {
 		
 		/*
 		*  Функция которая производит извлечение данных в многомерных массивах или объектах
 		*  на входе нужно указать:
 		*    целевой массив или объект, ИЗ котороГО будем извлекать данные - $haystack
-		*    и массив или объект, согласно котороМУ будем извлекать эти данные - $needle
+		*    и массив или объект, согласно котороМУ будем извлекать эти данные - $map
 		*  
 		*  Третий аргумент может принимать значение true
 		*  и тогда результирующий массив будет преобразован в объект и наоборот
@@ -908,7 +937,7 @@ class Objects {
 		*  на выходе отдает готовый массив $haystack
 		*/
 		
-		foreach($needle as $i) {
+		foreach($map as $i) {
 			
 			if (
 				System::type($haystack, 'array') &&
@@ -940,148 +969,48 @@ class Objects {
 		
 	}
 
-	static public function split($array, $splitter, $offset = null) {
-		
-		/*
-		*  НОВАЯ Функция которая разделяет массив на два массива по значению
-		*/
-		
-		$key = self::find($array, $splitter);
-		
-		if (!System::set($key)) {
-			return [ $array, [] ];
-		}
-		
-		$keys = self::keys($array);
-		$pos = self::find($keys, $key);
-		
-		$before = $offset < 0 ? 1 : 0;
-		$after = $offset > 0 ? 0 : 1;
-		
-		$first = self::get($keys, 0, $pos + $before);
-		$last = self::get($keys, $pos + $after);
-		
-		return [
-			array_intersect_key($array, self::fill($first, null)),
-			array_intersect_key($array, self::fill($last, null))
-		];
-		
-	}
-
-	static public function splitByIndex($array, $splitter, $offset = null) {
-		
-		/*
-		*  НОВАЯ Функция которая разделяет массив на два массива по индексу
-		*/
-		
-		$keys = self::keys($array);
-		$pos = self::find($keys, $splitter);
-		
-		if (!System::set($pos)) {
-			return [ $array, [] ];
-		}
-		
-		$before = $offset < 0 ? 1 : 0;
-		$after = $offset > 0 ? 0 : 1;
-		
-		$first = self::get($keys, 0, $pos + $before);
-		$last = self::get($keys, $pos + $after);
-		
-		return [
-			array_intersect_key($array, self::fill($first, null)),
-			array_intersect_key($array, self::fill($last, null))
-		];
-		
-	}
-
-	static public function pairs($array) {
-		
-		/*
-		*  НОВАЯ Функция которая разделяет массив по-очереди на ключи и значения
-		*/
-		
-		$keys = self::select($array, 2);
-		$values = self::select($array, 2, 1);
-		
-		return self::fill($keys, $values);
-		
-	}
-
-	static public function unpairs($array) {
-		
-		/*
-		*  НОВАЯ Функция которая разбивает ключи и значения на последовательный массив
-		*/
-		
-		$keys = self::keys($array);
-		$values = self::values($array);
-		
-		$result = [];
-		
-		foreach ($keys as $key => $item) {
-			$result[] = $item;
-			$result[] = $values[$key];
-		}
-		unset($key, $item);
-		
-		return $result;
-		
-	}
-
-	static public function select($array, $n, $offset = null) {
-		
-		/*
-		*  НОВАЯ Функция которая выбирает каждое n-ное значение массива со смещением
-		*/
-		
-		$result = [];
-		$i = 0;
-		foreach ($array as $key => $item) {
-			if (($i + $offset) % $n === 0) {
-				$result[$key] = $item;
-			}
-			$i++;
-		}
-		unset($key, $item, $i);
-		
-		return $result;
-		
-	}
-
-	static public function flip($array) {
-		
-		/*
-		*  НОВАЯ Функция которая меняет значения и ключи массива местами
-		*/
-		
-		return array_flip($array);
-		
-	}
-
-	static public function array_simple($item) {
-		
-		/*
-		*  Функция очищает массив от пустых элементов
-		*/
-		
-		if (!System::typeOf($item, 'iterable')) {
-			return $item;
-		}
-		
-		
-		self::eachOf($item, null, function($i) {
-			if (System::typeOf($i, 'iterable')) {
-				if (count($i) === 1) {
-					$i = reset($i);
-				}
-			}
-			return $i;
-		});
-		
-		return $item;
-		
-	}
-
 }
+
+/*
+Objects        | Strings
+associate      | -
+numeric        | -
+convert        | -
+keys           | -
+values         | -
+match
+find
+get
+cut
+before
+after
+add
+reverse
+first
+last
+refirst
+relast
+unfirst
+unlast
+len
+split
+join
+combine
+combineByIndex | combineMask
+merge          | except
+each           | replace
+eachOf         | -
+clear
+unique
+sort
+random
+difference
+pairs
+pairsByIndex
+flip           | -
+inject         | -
+extract        | -
+reset          | -
+*/
 
 ?>

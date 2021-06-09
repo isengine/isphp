@@ -134,15 +134,7 @@ class Match {
 		// функция задействует сравнение, приводя данные к строке
 		// сравнение идет по массиву needle
 		
-		foreach ($needle as $item) {
-			$result = self::equal($haystack, $item);
-			if ( ($and && !$result) || (!$and && $result) ) {
-				break;
-			}
-		}
-		unset($item);
-		
-		return $result;
+		return self::equalIn($needle, $haystack, $and = true);
 		
 	}
 
@@ -151,15 +143,7 @@ class Match {
 		// функция проверяет наличие строки
 		// сравнение идет по массиву needle
 		
-		foreach ($needle as $item) {
-			$result = self::string($haystack, $item);
-			if ( ($and && !$result) || (!$and && $result) ) {
-				break;
-			}
-		}
-		unset($item);
-		
-		return $result;
+		return self::stringIn($needle, $haystack, $and = true);
 		
 	}
 
@@ -220,13 +204,6 @@ class Match {
 		// функция преобразования маски в регулярное выражение
 		
 		return $mask = '^' . str_replace(['\*', '\?'], ['.*', '.'], preg_quote($mask)) . '$';
-		
-	}
-
-	static public function common($name, $data) {
-		
-		// ФУНКЦИЯ ТОЛЬКО ДЛЯ ТЕСТИРОВАНИЯ, ПОДЛЕЖИТ УДАЛЕНИЮ
-		return call_user_func_array('self::' . $name, $data);
 		
 	}
 

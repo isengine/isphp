@@ -52,7 +52,8 @@ class Filter extends Data {
 			$array = Parser::fromString($name);
 			$item['name'] = Objects::first($array, 'value');
 			if ($item['name'] === 'data') {
-				$item['name'] = Objects::n($array, 1, 'value');
+				//$item['name'] = Objects::n($array, 1, 'value');
+				$item['name'] = Objects::first(Objects::get($array, 1, 1), 'value');
 				$item['data'] = true;
 			}
 			unset($array);

@@ -109,7 +109,7 @@ class Uri extends Globals {
 		if (System::typeOf($data, 'scalar')) {
 			$this -> query['string'] = $data;
 		}
-		//$this -> query['array'] = $this -> query['string'] ? Objects::pairs( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
+		//$this -> query['array'] = $this -> query['string'] ? Objects::split( Strings::split(Strings::unfirst($this -> query['string']), '=&') ) : [];
 		$this -> query['array'] = $_GET;
 	}
 	
@@ -162,11 +162,12 @@ class Uri extends Globals {
 	}
 	
 	public function getPathArray($id = null) {
-		return !System::set($id) ? $this -> path['array'] : Objects::n($this -> path['array'], $id, 'value');
+		//return !System::set($id) ? $this -> path['array'] : Objects::n($this -> path['array'], $id, 'value');
+		return !System::set($id) ? $this -> path['array'] : Objects::first(Objects::get($this -> path['array'], $id, 1), 'value');
 	}
 	
 	public function unPathArray($id = null) {
-		$this -> path['array'] = !$id ? Objects::reset( Objects::unfirst($this -> path['array']) ) : Objects::reset( Objects::unn($this -> path['array'], $id) );
+		$this -> path['array'] = !$id ? Objects::reset( Objects::unfirst($this -> path['array']) ) : Objects::reset( Objects::cut($this -> path['array'], $id, 1) );
 	}
 	
 	public function setRoute() {
@@ -195,7 +196,7 @@ class Uri extends Globals {
 		} elseif ($id === 'last') {
 			$this -> route = Objects::unlast($this -> route);
 		} else {
-			$this -> route = Objects::unn($this -> route, $id);
+			$this -> route = Objects::cut($this -> route, $id, 1);
 		}
 	}
 	

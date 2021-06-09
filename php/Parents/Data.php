@@ -145,11 +145,11 @@ class Data {
 		
 	}
 	
-	public function eachData(&$parameters = null, $callback) {
+	public function eachData($callback) {
 		
 		// Итератор данных
 		
-		return Objects::eachOf($this -> data, $parameters, $callback);
+		return Objects::each($this -> data, $callback);
 		
 	}
 	

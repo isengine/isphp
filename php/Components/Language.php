@@ -86,7 +86,7 @@ class Language extends Globals {
 			System::set($array) &&
 			System::typeOf($array, 'iterable')
 		) {
-			$this -> list = Objects::merge($this -> list, Objects::fill($array, $key));
+			$this -> list = Objects::merge($this -> list, Objects::join($array, $key));
 		} else {
 			$this -> list[$key] = $key;
 		}

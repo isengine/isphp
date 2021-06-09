@@ -196,13 +196,20 @@ class Strings {
 		
 	}
 
-	static public function add($haystack, $needle, $reverse = null) {
+	static public function add($string, $len, $values = ' ', $reverse = null) {
 		
 		/*
-		*  Функция добавления значений в начало или в конец строки
+		*  НОВАЯ Функция дополнения строки string на указанное число символов $len
+		*  символами или подстрокой values
+		*  последний аргумент reverse заставляет дополнять строку в начало
 		*/
 		
-		return $reverse ? $needle . $haystack : $haystack . $needle;
+		return str_pad(
+			$string,
+			self::len($string) + $len,
+			$values,
+			$reverse ? STR_PAD_LEFT : STR_PAD_RIGHT
+		);
 		
 	}
 
@@ -235,6 +242,32 @@ class Strings {
 		*/
 		
 		return mb_substr($item, -1);
+		
+	}
+
+	static public function refirst(&$item, $data) {
+		
+		/*
+		*  Функция замены первого символа строки
+		*/
+		
+		if (!$item) { return; }
+		
+		$item = $data . self::unfirst($item);
+		return $item;
+		
+	}
+
+	static public function relast(&$item, $data) {
+		
+		/*
+		*  Функция замены последнего символа строки
+		*/
+		
+		if (!$item) { return; }
+		
+		$item = self::unlast($item) . $data;
+		return $item;
 		
 	}
 
@@ -440,6 +473,18 @@ class Strings {
 		
 	}
 
+	static public function random($haystack) {
+		
+		/*
+		*  Функция сортировки строки в случайном порядке
+		*/
+		
+		$haystack = preg_split('//u', $haystack);
+		shuffle($haystack);
+		return self::join($haystack, null);
+		
+	}
+
 	static public function difference($haystack, $needle) {
 		
 		/*
@@ -497,32 +542,6 @@ class Strings {
 			self::get($string, 0, $index + $before),
 			self::get($string, $index + $after)
 		];
-		
-	}
-
-	static public function fill($string, $len, $values = ' ', $reverse = null) {
-		
-		/*
-		*  НОВАЯ Функция дополнения строки string до указанной длины len
-		*  символами или подстрокой values
-		*  последний аргумент reverse заставляет дополнять строку в начало
-		*/
-		
-		return str_pad($string, $len, $values, $reverse ? STR_PAD_LEFT : STR_PAD_RIGHT);
-		
-	}
-
-	static public function fillup($string, $len, $values = ' ', $reverse = null) {
-		
-		/*
-		*  НОВАЯ Функция дополнения строки string на указанное число символов $len
-		*  символами или подстрокой values
-		*  последний аргумент reverse заставляет дополнять строку в начало
-		*  отличие от fill в том, что здесь указывается
-		*  на какое еще число символов нужно увеличить строку
-		*/
-		
-		return self::fill($string, self::len($string) + $len, $values, $reverse);
 		
 	}
 
