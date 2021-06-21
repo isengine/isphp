@@ -55,9 +55,11 @@ class Local {
 		
 		$scan = scandir($path);
 		
-		if (empty($scan)) {
+		if (!System::typeIterable($scan)) {
 			return false;
 		}
+		
+		$scan = Objects::sort($scan);
 		
 		// настраиваем параметры
 		
