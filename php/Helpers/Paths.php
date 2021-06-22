@@ -92,7 +92,7 @@ class Paths {
 		// корректно преобразует заданный абсолютный путь в относительный
 		// относительно базовой директории хоста
 		
-		$host = System::server('root');
+		$host = DI;
 		if (Strings::find($path, $host) === 0) {
 			return Strings::get($path, Strings::len($host) - 1);
 		}
