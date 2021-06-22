@@ -525,7 +525,11 @@ class Objects {
 			if (System::typeIterable($i)) {
 				$i = self::combine($i);
 			}
-			$result = self::add($result, $i);
+			if (System::typeIterable($i)) {
+				$result = array_merge($result, $i);
+			} else {
+				$result[] = $i;
+			}
 		}
 		unset($i);
 		
