@@ -3,6 +3,106 @@ namespace is\Helpers;
 
 class Local {
 
+	static public function map($path, $parameters = [], $basepath = null) {
+		
+		/*
+		*  Новая функция, которая строит карту файлов и папок, как в структуре
+		*  на входе нужно указать путь к папке $path и массив параметров
+		*  по своим параметрам и действиям копирует search, но дает другой результат
+		*/
+		
+		if (!file_exists($path) || !is_dir($path)) {
+			return false;
+		}
+		
+		$path = str_replace(['/', '\\'], DS, $path);
+		if (substr($path, -1) !== DS) { $path .= DS; }
+		
+		$scan = scandir($path);
+		
+		if (!System::typeIterable($scan)) {
+			return false;
+		}
+		
+		$scan = Objects::sort($scan);
+		
+		// настраиваем параметры
+		
+		$parameters['extension'] = Parser::fromString($parameters['extension']);
+		$parameters['skip'] = Parser::fromString($parameters['skip']);
+		
+		// разбираем список
+		
+		$map = [];
+		
+		foreach ($scan as $item) {
+			
+			// здесь мы определяем, пропускать файл или нет
+			// раньше еше была строка
+			// $disable = $parameters['nodisable'] ? null : Strings::first($item) === '!';
+			// и условия if ... !$disable ...
+			// но зачем эти сложности?
+			
+			if (
+				$item === '.' ||
+				$item === '..' ||
+				( !$parameters['nodisable'] && Strings::first($item) === '!' )
+			) {
+				continue;
+			}
+			
+			// задаем базовый путь
+			$pathto = $path . $item;
+			// определяем, папка это или файл
+			$isdir = is_dir($pathto);
+			
+			// еще одни параметры пропуска
+			if (
+				( $isdir && $parameters['return'] === 'files' ) ||
+				( !$isdir && $parameters['return'] === 'folders' )
+			) {
+				continue;
+			}
+			
+			$info = pathinfo($pathto);
+			
+			// задаем базовый ресурс
+			$i = [
+				'fullpath' => $pathto . ($isdir ? DS : null),
+				'file' => $isdir ? null : $info['filename'],
+				'extension' => $isdir ? null : $info['extension']
+			];
+			
+			// и снова параметры пропуска
+			// по расширению
+			if (
+				System::typeIterable($parameters['extension']) &&
+				$i['extension'] &&
+				!Objects::match($parameters['extension'], $i['extension'])
+			) {
+				continue;
+			}
+			
+			$key = $isdir ? $item : $i['file'];
+			
+			if (
+				$parameters['subfolders'] &&
+				$isdir
+			) {
+				$result = self::map($i['fullpath'], $parameters);
+			} elseif (!$map[$key]) {
+				$result = true;
+			}
+			
+			$map[$key] = $result;
+			
+		}
+		unset($scan, $item);
+		
+		return $map;
+		
+	}
+
 	static public function search($path, $parameters = [], $basepath = null) {
 		
 		// now dirconnect and fileconnect is localList
