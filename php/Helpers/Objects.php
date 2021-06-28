@@ -461,6 +461,9 @@ class Objects {
 			if ($i % 2 === 0) {
 				$key = $item;
 			} else {
+				if (is_float($key)) {
+					$key = (string) $key;
+				}
 				$result[$key] = $item;
 			}
 			$i++;

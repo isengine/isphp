@@ -3,6 +3,44 @@ namespace is\Helpers;
 
 class Datetimes {
 
+	static public function amount($item) {
+		
+		$constants = [
+			'min' => 60,
+			'minute' => 60,
+			'hour' => 3600,
+			'day' => 86400,
+			'week' => 604800,
+			'month' => 2628000,
+			'year' => 31556926
+		];
+		
+		if (!Strings::match($item, ':')) {
+			return (float) $item;
+		}
+		
+		$item = Parser::fromString($item);
+		$item = Objects::split($item);
+		
+		$sum = null;
+		
+		Objects::each($item, function ($val, $key) use (&$sum, $constants) {
+			
+			if (System::type($key, 'string')) {
+				$key = $constants[$key];
+			}
+			if (System::type($val, 'string')) {
+				$val = $constants[$val];
+			}
+			
+			$sum += $key * $val;
+			
+		});
+		
+		return $sum;
+		
+	}
+	
 	static public function format($item) {
 		
 		$formats = [
