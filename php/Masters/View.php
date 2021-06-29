@@ -28,11 +28,11 @@ class View extends Singleton {
 		$this -> data[$name] = $object;
 	}
 	
-	public function get($type = null, $null = null) {
+	public function get($type = null, $parameters = null) {
 		if (!System::set($type)) { return null; }
 		if (Strings::match($type, '|')) {
 			$array = Strings::pairs($type, '|');
-			return $this -> data[$array[0]] -> get($array[1]);
+			return $this -> data[$array[0]] -> get($array[1], $parameters);
 		}
 		return $this -> data[$type];
 	}
