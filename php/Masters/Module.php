@@ -40,7 +40,7 @@ class Module extends Singleton {
 		
 		$settings = $this -> settings($vendor, $name, $instance, $settings);
 		$path = $this -> path . $vendor . DS . $name . DS;
-		$custom = $this -> custom . $vendor . DS . $name . DS;
+		$custom = $this -> custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS;
 		$cache = $this -> cache . $vendor . DS . $name . DS;
 		
 		// сюда же можно добавить кэш
@@ -85,7 +85,7 @@ class Module extends Singleton {
 		
 		// read from custom path
 		
-		$path = $this -> custom . $vendor . DS . $name . DS . 'data' . DS . $instance . '.ini';
+		$path = $this -> custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS . 'data' . DS . $instance . '.ini';
 		$path = Local::readFile($path);
 		$data = $path ? Parser::fromJson($path) : null;
 		unset($path);

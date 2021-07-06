@@ -325,7 +325,7 @@ class Prepare {
 		
 		// правило, переводящую строку в верхний регистр
 		
-		return mb_convert_case($data, MB_CASE_TITLE);
+		return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
 		
 	}
 	
@@ -333,7 +333,7 @@ class Prepare {
 		
 		// правило, переводящую строку в верхний регистр
 		
-		return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
+		return mb_convert_case($data, MB_CASE_TITLE);
 		
 	}
 	

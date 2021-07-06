@@ -213,6 +213,30 @@ class Strings {
 		
 	}
 
+	static public function multiply($string, $count) {
+		
+		/*
+		*  НОВАЯ Функция повторяет строку string указанное число раз
+		*/
+		
+		$result = null;
+		
+		if (
+			!System::set($string) ||
+			!System::type($count, 'numeric')
+		) {
+			return $string;
+		}
+		
+		while ((int) $count > 0) {
+			$result .= $string;
+			$count--;
+		}
+		
+		return $result;
+		
+	}
+
 	static public function reverse($item) {
 		
 		/*
