@@ -153,6 +153,30 @@ class Data {
 		
 	}
 	
+	public function randomData() {
+		
+		// Сортирует данные в случайном порядке
+		
+		$this -> data = Objects::random($this -> data);
+		
+	}
+	
+	public function reverseData() {
+		
+		// Разворачивает данные в обратном порядке
+		
+		$this -> data = Objects::reverse($this -> data);
+		
+	}
+	
+	public function reduceData($offset = null, $len = null) {
+		
+		// Уменьшает массив согласно указанным первому значению и длине
+		
+		$this -> data = Objects::get($this -> data, $offset, $len);
+		
+	}
+	
 }
 
 ?>

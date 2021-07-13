@@ -194,7 +194,7 @@ class Prepare {
 	}
 	static public function phone($data, $locale = null) {
 		
-		$data = preg_replace('/[^0-9]/u', '', $data);
+		$data = preg_replace('/[^0-9*#]/u', '', $data);
 		//$original = !empty($special) ? $data : null;
 		
 		if ($locale === 'ru') {
@@ -209,6 +209,9 @@ class Prepare {
 		
 		return '+' . $data;
 		
+	}
+	static public function codephone($data) {
+		return preg_replace('/[^0-9+*#]/u', '', $data);
 	}
 	static public function login($data) {
 		return self::email($data);

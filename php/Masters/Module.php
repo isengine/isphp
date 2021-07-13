@@ -43,6 +43,12 @@ class Module extends Singleton {
 		$custom = $this -> custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS;
 		$cache = $this -> cache . $vendor . DS . $name . DS;
 		
+		// проверка манифеста, для защиты модулей от других классов и библиотек
+		
+		if (!Local::matchFile($path . 'manifest.ini')) {
+			return;
+		}
+		
 		// сюда же можно добавить кэш
 		
 		$ns = __NAMESPACE__ . '\\Modules\\' . Prepare::upperFirst($vendor) . '\\' . Prepare::upperFirst($name);
