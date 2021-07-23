@@ -947,13 +947,13 @@ class Objects {
 		foreach($map as $i) {
 			
 			if (
-				System::type($haystack, 'array') &&
-				System::set($haystack[$i])
+				System::type($haystack, 'array')
+				//&& System::set($haystack[$i])
 			) {
 				$haystack = $haystack[$i];
 			} elseif (
-				System::type($haystack, 'object') &&
-				System::set($haystack -> $i)
+				System::type($haystack, 'object')
+				//&& System::set($haystack -> $i)
 			) {
 				$haystack = $haystack -> $i;
 			} else {
