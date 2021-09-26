@@ -582,7 +582,7 @@ class Objects {
 		
 	}
 
-	static public function each(&$item, $callback) {
+	static public function each(&$item, $callback, $ignore = null) {
 		
 		/*
 		*  это ПЕРЕДЕЛАННАЯ ФУНКЦИЯ, старая теперь называется eachOf
@@ -604,10 +604,13 @@ class Objects {
 		*    }
 		*    unset($key, $item);
 		*  }
+		*  
+		*  теперь добавлен последний аргумент, который позволяет
+		*  обрабатывать пустые массивы
 		*/
 
 		
-		if (!System::typeIterable($item)) {
+		if (!$ignore && !System::typeIterable($item)) {
 			return;
 		}
 		
