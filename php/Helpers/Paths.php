@@ -53,7 +53,15 @@ class Paths {
 			];
 		}
 		
-		$result['exists'] = file_exists($url);
+		// данный параметр позволяет обнаружить файл в системе
+		// однако она вызывает предупреждение, если права на доступ ограничены,
+		// например когда система ищет файл в корневой директории
+		// к тому же этот параметр нигде не используется,
+		// он был сделан про запас, и потому принято решение его отключить
+		// -
+		//if (!$get || $get === 'exists') {
+		//	$result['exists'] = file_exists($url);
+		//}
 		
 		unset($parse);
 		
@@ -69,7 +77,10 @@ class Paths {
 		// узнаем, файл это или папка
 		// и определяем, содержит ли путь фрагмент
 		
-		$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#') || Strings::match($path, '?');
+		// здесь мы задаем поиск только в пределах папки System::server('root'),
+		// так как все url должны находиться именно там
+		$nofolder = self::parseFile(realpath(System::server('root') . $path), 'file') || Strings::match($path, '#') || Strings::match($path, '?');
+		//$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#') || Strings::match($path, '?');
 		
 		// определяем, абсолютный путь или нет (относительный) по :\ и :/ в строке
 		// в unix-системах пути будут относительными

@@ -8,9 +8,13 @@ class System {
 		// once влияет не на первое включение, а только на повторные
 		
 		$item = str_replace(['..','.','\/','\\',':'], ['','',DS,DS,DS], $item);
-		$path = realpath($base) . DS . $item . '.php';
+		$path = realpath($base . DS . $item . '.php');
 		
-		if (file_exists($path)) {
+		// здесь realpath был расширен на весь путь, а не только на base,
+		// так как он возвращает false, когда base не существует
+		// и путь получается некорректным
+		
+		if ($path && file_exists($path)) {
 			if ($once) {
 				require_once $path;
 			} else {
