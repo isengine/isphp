@@ -318,6 +318,87 @@ class System {
 		
 	}
 
+	static public function loop($num, $callback) {
+		
+		// НОВАЯ ФУНКЦИЯ, делает цикл в заданном количестве итераций
+		// с использованием пользовательской функции,
+		// куда передается текущая позиция цикла, начиная с 0
+		// вторым аргументом пользовательская функция может принять
+		// переменную или объект, с которым будет работать
+		
+		// простой пример использования
+		// System::loop(5, function($c) {
+		//   echo $c;
+		// });
+		
+		// пример использования без аргументов
+		// System::loop(5, function() {
+		//   echo '<p><br></p>';
+		// });
+		
+		// пример создания массива
+		// $a = [];
+		// $result = System::loop(5, function($c, $a) {
+		//   $a[] = $c;
+		//   return $a;
+		// });
+		
+		// другой пример создания массива
+		// $i = [];
+		// System::loop(5, function($c) use (&$i) {
+		//   $i[] = $c;
+		// });
+		
+		// пример создания массива с использованием другого массива
+		// $a = [];
+		// $i = ['a', 'b', 'c', 'd', 'e'];
+		// $result = System::loop(5, function($c, $a) use ($i) {
+		//   $a[] = $i[$c];
+		//   return $a;
+		// });
+		
+		// пример использования цикла для работы с другим массивом
+		// $i = ['a', 'b', 'c', 'd', 'e'];
+		// System::loop(5, function($c) use (&$i) {
+		//   $i[$c] .= $c;
+		// });
+		
+		// пример создания массива из строки
+		// $i = 'abcde';
+		// $result = System::loop(5, function($c, $result) use ($i) {
+		//   $result[] = Strings::get($i, $c, 1);
+		//   return $result;
+		// });
+			
+		// пример создания строки из массива
+		// $i = ['a', 'b', 'c', 'd', 'e'];
+		// $result = System::loop(5, function($c, $result) use ($i) {
+		//   $result .= $i[$c];
+		//   return $result;
+		// });
+		
+		// пример создания строки
+		// $a = null;
+		// $result = System::loop(5, function($c, $a) {
+		//   $a .= $c;
+		//   return $a;
+		// });
+		
+		if ($num < 1) {
+			return;
+		}
+		
+		$count = 0;
+		
+		while ($count < $num) {
+			$item = call_user_func($callback, $count, $item);
+			$count++;
+		}
+		
+		return $item;
+		
+	}
+
 	static public function debug(...$item) {
 		
 		// НОВАЯ ФУНКЦИЯ, вспомогательная, для отладки - выводит строку для проверки
