@@ -445,14 +445,26 @@ class Prepare {
 		
 	}
 	
-	static public function toObject($data) {
+	static public function toObject($data, $num = null) {
 		
 		/*
 		*  Функция которая преобразует строку в объект
 		*  Является синонимом Objects::convert
+		*  Теперь в нее добавлен второй аргумент,
+		*  позволяющий ограничить число элементов в массиве
+		*  положительное значение - от начала,
+		*  отрицательное значение - от конца
 		*/
 		
-		return Objects::convert($data);
+		$data = Objects::convert($data);
+		
+		if ($num > 0) {
+			$data = Objects::get($data, 0, $num);
+		} elseif ($num < 0) {
+			$data = Objects::get($data, 0 - $num, 0, true);
+		}
+		
+		return $data;
 		
 	}
 	
