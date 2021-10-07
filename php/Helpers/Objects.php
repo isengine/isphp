@@ -54,7 +54,7 @@ class Objects {
 			$item = Parser::fromString($item, ['key' => null, 'clear' => null, 'simple' => true]);
 		} elseif ($type === 'json') {
 			$item = Parser::fromJson($item);
-		} elseif (!$type && $item) {
+		} elseif (!$type && System::set($item)) {
 			$item = is_object($item) ? json_decode(json_encode($item), true) : [$item];
 		}
 		
@@ -296,6 +296,37 @@ class Objects {
 		$needle = self::convert($needle);
 		
 		return $recursive ? array_merge_recursive($haystack, $needle) : array_merge($haystack, $needle);
+		
+	}
+
+	static public function remove($haystack, $needle) {
+		
+		/*
+		*  Функция удаления заданных значений из массива
+		*/
+		
+		$haystack = self::convert($haystack);
+		$needle = self::convert($needle);
+		
+		return array_diff($haystack, $needle);
+		
+	}
+
+	static public function removeByIndex($haystack, $needle) {
+		
+		/*
+		*  Функция удаления заданных ключей из массива
+		*/
+		
+		$haystack = self::convert($haystack);
+		$needle = self::convert($needle);
+		
+		foreach ($needle as $item) {
+			unset($haystack[$item]);
+		}
+		unset($item);
+		
+		return $haystack;
 		
 	}
 

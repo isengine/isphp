@@ -268,8 +268,13 @@ abstract class Master extends Data {
 			) {
 				foreach ($entry['data'] as $key => $item) {
 					if (
-						$allow && !Match::maskOf($key, $rights['allow']) ||
-						$deny && Match::maskOf($key, $rights['deny'])
+						// здесь может быть ошибка, т.к. Match::maskOf использовался
+						// по-умолчанию с последним аргументом and, выставленным в true
+						// теперь он null, но сюда мы true добавили, чтобы сохранить исходный
+						// результат, однако возможно этого делать не стоило
+						// и результат изначально был неверный и предполагал or вместо and
+						$allow && !Match::maskOf($key, $rights['allow'], true) ||
+						$deny && Match::maskOf($key, $rights['deny'], true)
 					) {
 						unset($entry['data'][$key]);
 					}
@@ -439,6 +444,100 @@ abstract class Master extends Data {
 		}
 		
 		return $count;
+		
+	}
+
+	public function cols(&$entry, $fill = null) {
+		
+		// создание новых колонок и обработка текущих
+		// 
+		// правила задаются в разделе настроек 'cols'
+		// в виде ассоциированного массива
+		// ключ обозначает название колонки
+		// внутри могут содержаться параметры:
+		// from - имя колонки, откуда берется значение
+		// default - значение по-умолчанию, если значение ячейки оказалось пустым
+		// prepare - настройки обработки
+		// 
+		// имя колонки, откуда берется значение,
+		// может быть одной из стандартных (is, name, parents...),
+		// либо из массива data (data:title, data:custom...)
+		// специальное значение 'fill' позволяет брать значение
+		// из переданного в метод аругмента fill
+		// если по итогу from и default значение оказалось было пустым
+		// 
+		// да, много чего нет, например преобразование даты/времени из формата unix
+		// но это, очевидно, и не нужно, т.к. его будет разумнее сделать во view
+		// во-первых, это может зависеть от языковых настроек,
+		// которые здесь не поддерживаются и не должны по правилам
+		// распределения обязанностей фреймворка и хелперов в частности,
+		// а во-вторых, для этого есть отдельные решения, например текстовые переменные
+		// 
+		// примеры:
+		// "cols" : {
+		//   "name" : {
+		//     "from" : "data:title",
+		//     "prepare" : "trim:spaces",
+		//     "prepare" : "trim|spaces:_"
+		//   },
+		//   "parents" : {
+		//     "from" : "data:group",
+		//     "prepare" : "len:2:3|trim",
+		//     "prepare" : [
+		//       ["len", 2, 3],
+		//       ["trim"]
+		//     ]
+		//   },
+		//   "data:another" : {
+		//     "from" : "fill",
+		//     "prepare" : "toObject"
+		//   },
+		//   "data:tags" : {
+		//     "from" : "parents",
+		//     "default" : "value",
+		//     "prepare" : "toObject"
+		//   }
+		// }
+		
+		$cols = $this -> settings['cols'];
+		
+		if (System::typeIterable($cols)) {
+			foreach ($cols as $k => $i) {
+				
+				if ($i['from'] === 'fill') {
+					$col = System::set($entry[$k]) ? $entry[$k] : $fill;
+				} else {
+					$col = $entry[ $i['from'] ? $i['from'] : $k ];
+				}
+				
+				if (System::set($col) && $i['prepare']) {
+					$prepare = Objects::convert($i['prepare']);
+					foreach ($prepare as $pi) {
+						if (is_array($pi)) {
+							$pn = 'is\Helpers\Prepare::' . Objects::first($pi, 'value');
+							Objects::refirst($pi, $col);
+							$col = call_user_func_array($pn, $pi);
+						} else {
+							$col = Prepare::$pi($col);
+						}
+					}
+					unset($pi);
+				}
+				
+				if (
+					!System::set($col) &&
+					$i['default']
+				) {
+					$col = $i['default'];
+				}
+				
+				//System::debug($col, '!q');
+				$entry[$k] = $col;
+				unset($col);
+				
+			}
+			unset($k, $i);
+		}
 		
 	}
 

@@ -85,6 +85,9 @@ class LocalDB extends Master {
 		foreach ($files as $key => $item) {
 			$entry = $this -> createInfoFromFile($item, $key);
 			
+			// создание новых колонок и обработка текущих
+			$this -> cols($entry);
+			
 			// проверка по имени
 			if (!$this -> verifyName($entry['name'])) {
 				$entry = null;

@@ -213,6 +213,28 @@ class Strings {
 		
 	}
 
+	static public function remove($haystack, $needle) {
+		
+		/*
+		*  Функция удаления символов из строки по их номерам
+		*/
+		
+		if (System::typeOf($haystack, 'iterable')) {
+			return null;
+		}
+		
+		$needle = Objects::convert($needle);
+		$needle = Objects::sort($needle, true);
+		
+		foreach ($needle as $item) {
+			$haystack = substr_replace($haystack, '', $item, 1);
+		}
+		unset($item);
+		
+		return $haystack;
+		
+	}
+
 	static public function multiply($string, $count) {
 		
 		/*

@@ -51,7 +51,7 @@ class Match {
 		
 	}
 
-	static public function equalIn($haystack, $needle, $and = true) {
+	static public function equalIn($haystack, $needle, $and = null) {
 		
 		// функция задействует сравнение, приводя данные к строке
 		// сравнение идет с массивом haystack
@@ -68,7 +68,7 @@ class Match {
 		
 	}
 
-	static public function stringIn($haystack, $needle, $and = true) {
+	static public function stringIn($haystack, $needle, $and = null) {
 		
 		// функция проверяет наличие строки
 		// сравнение идет с массивом haystack
@@ -85,7 +85,7 @@ class Match {
 		
 	}
 
-	static public function regexpIn($haystack, $regexp, $and = true) {
+	static public function regexpIn($haystack, $regexp, $and = null) {
 		
 		// функция проверяет наличие строки по регулярному выражению
 		// сравнение идет с массивом haystack
@@ -102,7 +102,7 @@ class Match {
 		
 	}
 
-	static public function maskIn($haystack, $mask, $and = true) {
+	static public function maskIn($haystack, $mask, $and = null) {
 		
 		// функция проверяет наличие строки по маске
 		// сравнение идет с массивом haystack
@@ -111,7 +111,7 @@ class Match {
 		
 	}
 
-	static public function numericIn($haystack, $min = null, $max = null, $and = true) {
+	static public function numericIn($haystack, $min = null, $max = null, $and = null) {
 		
 		// функция сравнивает число в диапазоне от мин до макс включительно
 		// если мин/макс не заданы, то считаются минус/плюс бесконечностью
@@ -129,25 +129,25 @@ class Match {
 		
 	}
 
-	static public function equalOf($haystack, $needle, $and = true) {
+	static public function equalOf($haystack, $needle, $and = null) {
 		
 		// функция задействует сравнение, приводя данные к строке
 		// сравнение идет по массиву needle
 		
-		return self::equalIn($needle, $haystack, $and = true);
+		return self::equalIn($needle, $haystack, $and);
 		
 	}
 
-	static public function stringOf($haystack, $needle, $and = true) {
+	static public function stringOf($haystack, $needle, $and = null) {
 		
 		// функция проверяет наличие строки
 		// сравнение идет по массиву needle
 		
-		return self::stringIn($needle, $haystack, $and = true);
+		return self::stringIn($needle, $haystack, $and);
 		
 	}
 
-	static public function regexpOf($haystack, $regexp, $and = true) {
+	static public function regexpOf($haystack, $regexp, $and = null) {
 		
 		// функция проверяет наличие строки по регулярному выражению
 		// сравнение идет по массиву регулярных выражений regexp
@@ -164,7 +164,7 @@ class Match {
 		
 	}
 
-	static public function maskOf($haystack, $mask, $and = true) {
+	static public function maskOf($haystack, $mask, $and = null) {
 		
 		// функция проверяет наличие строки по маске
 		// сравнение идет по массиву масок mask
@@ -181,7 +181,7 @@ class Match {
 		
 	}
 
-	static public function numericOf($haystack, $minmax, $and = true) {
+	static public function numericOf($haystack, $minmax, $and = null) {
 		
 		// функция сравнивает число в диапазоне от мин до макс включительно
 		// если мин/макс не заданы, то считаются минус/плюс бесконечностью

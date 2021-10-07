@@ -169,11 +169,11 @@ class Filter extends Data {
 				//if ($i['type'] === 'noempty') {
 				//	$pass = System::set($data);
 				//} elseif ($i['type'] === 'equal') {
-				//	$pass = is_array($data) ? Match::equalIn($data, $i['name'], null) : Match::equal($data, $i['name']);
+				//	$pass = is_array($data) ? Match::equalIn($data, $i['name']) : Match::equal($data, $i['name']);
 				//} elseif ($i['type'] === 'string') {
-				//	$pass = is_array($data) ? Match::stringIn($data, $i['name'], null) : Match::string($data, $i['name']);
+				//	$pass = is_array($data) ? Match::stringIn($data, $i['name']) : Match::string($data, $i['name']);
 				//} elseif ($i['type'] === 'numeric') {
-				//	$pass = is_array($data) ? Match::numericIn($data, $i['name'][0], $i['name'][1], null) : Match::numeric($data, $i['name']);
+				//	$pass = is_array($data) ? Match::numericIn($data, $i['name'][0], $i['name'][1]) : Match::numeric($data, $i['name']);
 				//}
 				
 				if ($i['type'] === 'noempty') {
@@ -181,9 +181,9 @@ class Filter extends Data {
 				} else {
 					$func = $i['type'] . (is_array($data) ? 'In' : null);
 					if ($i['type'] === 'numeric') {
-						$pass = Match::$func($data, $i['name'][0], $i['name'][1], null);
+						$pass = Match::$func($data, $i['name'][0], $i['name'][1]);
 					} else {
-						$pass = Match::$func($data, $i['name'], null);
+						$pass = Match::$func($data, $i['name']);
 					}
 					unset($func);
 				}

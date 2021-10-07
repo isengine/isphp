@@ -445,6 +445,39 @@ class Prepare {
 		
 	}
 	
+	static public function toObject($data) {
+		
+		/*
+		*  Функция которая преобразует строку в объект
+		*  Является синонимом Objects::convert
+		*/
+		
+		return Objects::convert($data);
+		
+	}
+	
+	static public function toString($data) {
+		
+		/*
+		*  Функция которая преобразует объект в строку
+		*  Является синонимом Strings::join
+		*/
+		
+		return Strings::join($data, ':');
+		
+	}
+	
+	static public function toJson($data) {
+		
+		/*
+		*  Функция которая преобразует объект в json
+		*  Является синонимом Parser::toJson
+		*/
+		
+		return Parser::toJson($data);
+		
+	}
+	
 }
 
 ?>

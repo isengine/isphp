@@ -144,6 +144,9 @@ class TableDB extends Master {
 			$entry = Objects::join($keys, $row);
 			//$entry = Objects::combine($row, $keys);
 			
+			// создание новых колонок и обработка текущих
+			$this -> cols($entry);
+			
 			// проверка по имени
 			if (!$this -> verifyName($entry['name'])) {
 				$entry = null;
