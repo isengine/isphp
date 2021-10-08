@@ -178,8 +178,11 @@ class Prepare {
 		$data = preg_replace('/^[\w\d\s\-\'\"\.\,\!\?\(\)\:\№\*«»…—‒–]+$/u', '', $data);
 		return $data;
 	}
-	static public function alphanumeric($data) {
-		$data = preg_replace('/[^a-zA-Z0-9_\- ]/u', '', $data);
+	static public function alphanumeric($data, $replace = null, $compact = true) {
+		$data = preg_replace('/[^a-zA-Z0-9_\- ]/u', $replace, $data);
+		if ($compact) {
+			$data = preg_replace('/\\' . $replace . '{2,}/u', $replace, $data);
+		}
 		return $data;
 	}
 	static public function numeric($data) {
@@ -487,6 +490,21 @@ class Prepare {
 		*/
 		
 		return Parser::toJson($data);
+		
+	}
+	
+	static public function replace($data, $search, $replace = null) {
+		
+		/*
+		*  Функция которая делает замену в строке
+		*  Является синонимом Strings::replace
+		*/
+		
+		if (!System::typeOf($data, 'scalar')) {
+			return null;
+		}
+		
+		return Strings::replace($data, $search, $replace);
 		
 	}
 	

@@ -158,8 +158,8 @@ abstract class Master extends Data {
 		$this -> settings[$key] = $item;
 	}
 	
-	public function fields($key, $item) {
-		$this -> fields[$key] = $item;
+	public function field($key, $item) {
+		$this -> settings['fields'][$key] = $item;
 	}
 	
 	public function format($item) {
@@ -291,108 +291,6 @@ abstract class Master extends Data {
 		
 	}
 	
-	public function verifyFields(&$entry) {
-		
-		if (!$entry || !$this -> fields) {
-			return null;
-		}
-		
-		$keys_needed = Objects::keys($this -> fields);
-		$keys_data = Objects::keys($entry['data']);
-		
-		//echo print_r($keys_needed, 1) . '<br>';
-		//echo print_r($keys_data, 1) . '<br>';
-		
-		$keys = array_diff($keys_needed, $keys_data);
-		//echo print_r($keys, 1) . '<br>';
-		
-		if ($keys) {
-			$entry['data'] = Objects::add(
-				$entry['data'],
-				Objects::join($keys, null)
-				//Objects::combine([], $keys, null)
-			);
-		}
-		
-		if ($entry['data']) {
-			foreach ($entry['data'] as $key => &$item) {
-				
-				$field = $this -> fields[$key];
-				
-				if (!$field) {
-					continue;
-				}
-				
-				if ($field['default'] && !System::set($item)) {
-					$item = $field['default'];
-				}
-				
-				if ($field['exclude']) {
-					$item = null;
-					unset($entry['data'][$key]);
-				}
-				
-				if ($item) {
-					
-					if ($field['convert'] === 'array') {
-						$item = Objects::convert($item);
-					} elseif ($field['convert'] === 'json') {
-						$item = Parser::toJson($item);
-					} elseif ($field['convert'] === 'string') {
-						$item = Strings::join($item);
-					} elseif ($field['convert'] === 'first') {
-						$item = Objects::first($item);
-					} elseif ($field['convert'] === 'last') {
-						$item = Objects::last($item);
-					}
-					
-					if ($field['prepare']) {
-						foreach ($field['prepare'] as $i) {
-							$item = Prepare::$i($item);
-						}
-						unset($i);
-					}
-					
-					if ($field['match'] && $field['match']['type']) {
-						
-						if ($field['match']['type'] === 'string') {
-							if (!Match::string($item, $field['match']['data'])) {
-								$item = null;
-							}
-						} elseif ($field['match']['type'] === 'numeric') {
-							$field['match']['data'] = Objects::convert($field['match']['data']);
-							if (!Match::numeric($item, $field['match']['data'][0], $field['match']['data'][1])) {
-								if ($field['match']['data'][2]) {
-									// т.к. совпадения нет, значит item уже или меньше или больше допустимых пределов
-									$item = $item > $field['match']['data'][1] ? $item = $field['match']['data'][1] : $field['match']['data'][0];
-								} else {
-									$item = null;
-								}
-							}
-						} elseif ($field['match']['type'] === 'len') {
-							$field['match']['data'] = Objects::convert($field['match']['data']);
-							$n = Prepare::len($item, $field['match']['data'][0], $field['match']['data'][1]);
-							if ($item !== $n) {
-								if ($field['match']['data'][2]) {
-									$item = $n;
-								} else {
-									$item = null;
-								}
-							}
-						}
-						
-					}
-					
-				}
-					
-					
-				//echo '[' . $field . ']<br>';
-			}
-			unset($key, $item);
-		}
-		
-	}
-
 	public function verifyName($name) {
 		
 		return !$name || !$this -> settings['all'] && Strings::first($name) === '!' ? null : true;
@@ -427,9 +325,6 @@ abstract class Master extends Data {
 			$entry = null;
 		}
 		
-		// проверка и подготовка полей
-		$this -> verifyFields($entry);
-		
 		// еще раз проверка по имени - контрольная
 		if (!$this -> verifyName($entry['name'])) {
 			$entry = null;
@@ -447,11 +342,11 @@ abstract class Master extends Data {
 		
 	}
 
-	public function cols(&$entry, $fill = null) {
+	public function fields(&$entry, $fill = null) {
 		
 		// создание новых колонок и обработка текущих
 		// 
-		// правила задаются в разделе настроек 'cols'
+		// правила задаются в разделе настроек 'fields'
 		// в виде ассоциированного массива
 		// ключ обозначает название колонки
 		// внутри могут содержаться параметры:
@@ -474,7 +369,7 @@ abstract class Master extends Data {
 		// а во-вторых, для этого есть отдельные решения, например текстовые переменные
 		// 
 		// примеры:
-		// "cols" : {
+		// "fields" : {
 		//   "name" : {
 		//     "from" : "data:title",
 		//     "prepare" : "trim:spaces",
@@ -499,10 +394,10 @@ abstract class Master extends Data {
 		//   }
 		// }
 		
-		$cols = $this -> settings['cols'];
+		$fields = $this -> settings['fields'];
 		
-		if (System::typeIterable($cols)) {
-			foreach ($cols as $k => $i) {
+		if (System::typeIterable($fields)) {
+			foreach ($fields as $k => $i) {
 				
 				if ($i['from'] === 'fill') {
 					$col = System::set($entry[$k]) ? $entry[$k] : $fill;
