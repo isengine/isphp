@@ -11,6 +11,7 @@ class Collection extends Data {
 	
 	protected $names = [];
 	protected $indexes = [];
+	protected $map = [];
 	protected $count;
 	
 	public function __construct() {
@@ -40,6 +41,10 @@ class Collection extends Data {
 		//return $result['data'];
 		//return $result -> getEntryData();
 		return $result ? $result -> getEntryData() : null;
+	}
+	
+	public function getMap() {
+		return $this -> map;
 	}
 	
 	public function getNames() {
@@ -89,6 +94,16 @@ class Collection extends Data {
 		return $result -> getEntryData();
 	}
 	
+	public function getMapById($id) {
+		$name = $this -> getName($id);
+		return $this -> getMapByName($name);
+	}
+	
+	public function getMapByName($name) {
+		$array = Strings::split($name, ':');
+		return Objects::extract($this -> map, $array);
+	}
+	
 	public function add($data, $replace = true) {
 		
 		$id = $this -> getLastId();
@@ -98,7 +113,8 @@ class Collection extends Data {
 		
 		$new -> setEntryKey('id', System::type($id, 'numeric') ? $id + 1 : 0);
 		$new_id = $new -> getEntryKey('id');
-		$new_name = $new -> getEntryKey('name');
+		$new_parents = $new -> getEntryKey('parents');
+		$new_name = (System::typeIterable($new_parents) ? Strings::join($new_parents, ':') . ':' : null) . $new -> getEntryKey('name');
 		
 		if (Objects::match($this -> names, $new_name)) {
 			if ($replace) {
@@ -112,6 +128,8 @@ class Collection extends Data {
 		$this -> names[] = $new_name;
 		$this -> indexes[$new_name] = $new_id;
 		$this -> count++;
+		
+		$this -> map = Objects::inject($this -> map, Strings::split($new_name, ':'));
 		
 		//$new = new Entry;
 		//$new = Objects::merge( (array) $new, $data);
@@ -161,6 +179,9 @@ class Collection extends Data {
 		unset($this -> indexes[$name]);
 		
 		$this -> count--;
+		
+		$parents = Strings::split($name);
+		$this -> map = Objects::delete($this -> map, $parents);
 		
 	}
 	
@@ -234,10 +255,11 @@ class Collection extends Data {
 		$this -> names = [];
 		foreach ($this -> data as $item) {
 			if (System::typeClass($item, 'entry')) {
-				$name = $item -> getEntryKey('name');
+				$parents = $item -> getEntryKey('parents');
+				$name = (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) . $item -> getEntryKey('name');
 				$val = $item -> getEntryKey($value);
 				$this -> names[$name] = System::typeOf($val, 'scalar') ? $val : '';
-				unset($name, $val);
+				unset($parents, $name, $val);
 			}
 		}
 		unset($item);
@@ -249,10 +271,11 @@ class Collection extends Data {
 		$this -> names = [];
 		foreach ($this -> data as $item) {
 			if (System::typeClass($item, 'entry')) {
-				$name = $item -> getEntryKey('name');
+				$parents = $item -> getEntryKey('parents');
+				$name = (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) . $item -> getEntryKey('name');
 				$val = $item -> getEntryData($value);
 				$this -> names[$name] = System::typeOf($val, 'scalar') ? $val : '';
-				unset($name, $val);
+				unset($parents, $name, $val);
 			}
 		}
 		unset($item);
@@ -287,6 +310,7 @@ class Collection extends Data {
 		$this -> names = [];
 		$this -> indexes = [];
 		$this -> count = 0;
+		$this -> map = [];
 	}
 	
 	public function iterate($callback, $limit = null) {

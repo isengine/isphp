@@ -938,6 +938,8 @@ class Objects {
 			return null;
 		}
 		
+		self::reset(self::clear($map));
+		
 		$map = array_reverse($map);
 		$c = count($map);
 		$item = $value;
@@ -978,6 +980,8 @@ class Objects {
 		*  на выходе отдает готовый массив $haystack
 		*/
 		
+		self::reset(self::clear($map));
+		
 		foreach($map as $i) {
 			
 			if (
@@ -995,6 +999,46 @@ class Objects {
 				break;
 			}
 		}
+		
+		return $haystack;
+		
+	}
+
+	static public function delete(&$haystack, $map) {
+
+		/*
+		*  Функция которая удаляет ключ и значение по заданной карте в многомерных массивах или объектах
+		*  на входе нужно указать:
+		*    целевой массив или объект, в котором будем удалять ключ - $haystack
+		*    и массив или объект, который содержит ключи, по которым будем искать путь - $map
+		*  
+		*  Например, если указать:
+		*  delete(['a' => ['b' => ['c' => 'value']]], ['a', 'b', 'c']);
+		*  то на выходе получим такой массив:
+		*  ['a' => ['b' => []]];
+		*  
+		*/
+		
+		if (!is_array($haystack) || !is_array($map)) {
+			return null;
+		}
+		
+		self::reset(self::clear($map));
+		
+		$c = count($map) - 1;
+		$current = &$haystack;
+		
+		foreach ($map as $key => $item) {
+			if (!is_array($current)) {
+				break;
+			}
+			if ($key === $c) {
+				unset($current[$item]);
+			} else {
+				$current = &$current[$item];
+			}
+		}
+		unset($key, $item);
 		
 		return $haystack;
 		
