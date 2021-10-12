@@ -13,6 +13,7 @@ use is\Helpers\Paths;
 use is\Helpers\Prepare;
 use is\Parents\Singleton;
 use is\Masters\Database;
+use is\Components\Cache;
 
 class Module extends Singleton {
 	
@@ -20,15 +21,17 @@ class Module extends Singleton {
 	
 	public $path; // путь до папки модуля
 	public $custom; // путь до кастомной папки модуля
-	public $cache; // путь до кэша
+	public $cache_path; // путь до кэша
+	public $caching; // разрешение кэширования по-умолчанию
 	
-	public function init($path, $custom, $cache) {
+	public function init($path, $custom, $cache_path, $caching = false) {
 		$this -> path = $path;
 		$this -> custom = $custom;
-		$this -> cache = $cache;
+		$this -> cache_path = $cache_path;
+		$this -> caching = $caching;
 	}
 	
-	public function launch($names, $data = null, $settings = null, $caching = null) {
+	public function launch($names, $data = null, $settings = null, $caching = 'default') {
 		
 		$names = Parser::fromString($names);
 		$data = Parser::fromString($data);
@@ -38,10 +41,9 @@ class Module extends Singleton {
 		$instance = $data[0] ? $data[0] : 'default';
 		$template = $data[1] ? $data[1] : $instance;
 		
-		$settings = $this -> settings($vendor, $name, $instance, $settings);
 		$path = $this -> path . $vendor . DS . $name . DS;
 		$custom = $this -> custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS;
-		$cache = $this -> cache . $vendor . DS . $name . DS;
+		$cache_path = $this -> cache_path . $vendor . DS . $name . DS;
 		
 		// проверка манифеста, для защиты модулей от других классов и библиотек
 		
@@ -51,28 +53,43 @@ class Module extends Singleton {
 		
 		// сюда же можно добавить кэш
 		
-		$ns = __NAMESPACE__ . '\\Modules\\' . Prepare::upperFirst($vendor) . '\\' . Prepare::upperFirst($name);
+		$cache = new Cache($cache_path);
+		$cache -> caching($caching === 'default' ? $this -> caching : $caching);
+		$cache -> init($name, $vendor, $instance, $template, $settings);
 		
-		$module = new $ns(
-			$instance,
-			$template,
-			$settings,
-			$path,
-			$custom,
-			$cache
-		);
+		$data = $cache -> start();
 		
-		$module -> launch();
-		
-		// require template path in apps and next path template in vendor
-		
-		if ( !System::includes($template, $custom . 'templates', null, $module) ) {
-			if ( !System::includes($template, $path . 'templates', null, $module) ) {
-				if ( !System::includes('default', $custom . 'templates', null, $module) ) {
-					System::includes('default', $path . 'templates', null, $module);
+		if (!$data) {
+			
+			// запуск модуля
+			
+			$settings = $this -> settings($vendor, $name, $instance, $settings);
+			
+			$ns = __NAMESPACE__ . '\\Modules\\' . Prepare::upperFirst($vendor) . '\\' . Prepare::upperFirst($name);
+			
+			$module = new $ns(
+				$instance,
+				$template,
+				$settings,
+				$path,
+				$custom
+			);
+			
+			$module -> launch();
+			
+			// require template path in apps and next path template in vendor
+			
+			if ( !System::includes($template, $custom . 'templates', null, $module) ) {
+				if ( !System::includes($template, $path . 'templates', null, $module) ) {
+					if ( !System::includes('default', $custom . 'templates', null, $module) ) {
+						System::includes('default', $path . 'templates', null, $module);
+					}
 				}
 			}
+			
 		}
+		
+		$cache -> stop();
 		
 		// и еще не хватает чтения манифестов с проверкой на загруженные в системе необходимые библиотеки
 		// не хватает процессинга view в конфиге, не знаю, как его сделать,

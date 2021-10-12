@@ -19,7 +19,6 @@ abstract class Master extends Data {
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom; // путь до кастомной папки модуля в app
-	public $cache; // путь до папки кэша модуля в общей папке кэша
 	public $hash; // хэш экземпляра, нужен для проверки и записи/чтения кэша модуля
 	
 	public $elements; // группа элементов модуля
@@ -29,15 +28,13 @@ abstract class Master extends Data {
 		$template,
 		$settings,
 		$path,
-		$custom,
-		$cache
+		$custom
 	) {
 
 		$this -> instance = $instance;
 		$this -> template = $template;
 		$this -> path = $path;
 		$this -> custom = $custom;
-		$this -> cache = $cache;
 		
 		$this -> settings = $settings;
 		//$this -> settings = new Data;

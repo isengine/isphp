@@ -129,6 +129,7 @@ class Collection extends Data {
 		$this -> indexes[$new_name] = $new_id;
 		$this -> count++;
 		
+		//System::debug(Strings::split($new_name, ':'), '!q');
 		$this -> map = Objects::inject($this -> map, Strings::split($new_name, ':'));
 		
 		//$new = new Entry;

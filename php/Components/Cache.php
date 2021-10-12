@@ -48,14 +48,12 @@ class Cache extends Data {
 	
 	// использование для страниц
 	// $cache = new Cache($path);
-	// $cache -> format(null);
 	// $cache -> init($name, $settings);
-	// $data = $cache -> read();
+	// $data = $cache -> start();
 	// if (!$data) {
 	//   ...
 	// }
-	// $cache -> write($data);
-	// echo $data;
+	// $cache -> end();
 	// unset($data);
 	
 	public $path; // путь к папке кэша
@@ -64,6 +62,9 @@ class Cache extends Data {
 	public $cached; // показатель, было выполнено кэширование или нет
 	public $caching; // триггер разрешения кэширования
 	public $format; // триггер разрешения форматирования
+	public $reset; // триггер перезапуска кэширования, устанавливается через compare
+	
+	public $self; // просто так
 	
 	public function __construct($path) {
 		
@@ -129,10 +130,54 @@ class Cache extends Data {
 		
 	}
 	
+	public function start() {
+		$this -> format = null;
+		$data = $this -> reset ? null : $this -> read();
+		$this -> reset = null;
+		if (!$data) {
+			if ($this -> cached !== 'start') {
+				$this -> cached = 'start';
+				ob_start();
+			}
+		} else {
+			echo $data;
+			return true;
+		}
+	}
+	
+	public function stop() {
+		if ($this -> cached === 'start') {
+			$data = ob_get_contents();
+			ob_end_clean();
+			echo $data;
+			$this -> cached = null;
+		}
+		if ($this -> format) {
+			return;
+		}
+		$this -> write($data);
+	}
+	
+	public function compare($original) {
+		
+		// проверяет mtime
+		// время последнего изменения оригинального файла
+		// и сравнивает с кэшем
+		// если mtime больше, чем время кэша,
+		// это значит, что файл подвергался изменениям
+		// и кэш надо обновить
+		
+		$mtime_original = realpath($original) ? filemtime($original) : 0;
+		$mtime_cache = realpath($this -> name) ? filemtime($this -> name) : 0;
+		$this -> reset = $mtime_original > $mtime_cache;
+		
+	}
+	
 	public function read() {
 		
 		if (
 			!$this -> caching ||
+			!$this -> name ||
 			!file_exists($this -> name)
 		) {
 			return;
@@ -158,8 +203,9 @@ class Cache extends Data {
 	public function write($data) {
 		
 		if (
+			$this -> cached ||
 			!$this -> caching ||
-			$this -> cached
+			!$this -> name
 		) {
 			return;
 		}
