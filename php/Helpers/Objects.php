@@ -485,6 +485,10 @@ class Objects {
 			$item = self::convert($item);
 		}
 		
+		if (!$item) {
+			return;
+		}
+		
 		if (!$recursive) {
 			return count($item);
 		}
@@ -667,7 +671,7 @@ class Objects {
 		*/
 
 		
-		if (!$ignore && !System::typeIterable($item)) {
+		if (!is_array($item) || (!$ignore && !System::typeIterable($item))) {
 			return;
 		}
 		
