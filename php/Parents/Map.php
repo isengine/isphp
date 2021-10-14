@@ -10,20 +10,68 @@ use is\Helpers\Match;
 class Map extends Data {
 	
 	public $count;
+	public $total;
 	
-	public function count($list) {
+	public function count($list, $tags = null) {
+		
+		// tags предполагает, что родительские группы
+		// являются не вложениями, а тегами
+		// соответственно, подсчет идет по-разному
+		
+		// пример
+		//   a:item
+		//   b:item
+		//   a:b:item
+		//  tags = null (по-умолчанию), результат: 
+		//   a = 1
+		//   b = 1
+		//   a:b = 1
+		//   total = 3
+		//  tags = true, результат: 
+		//   a = 2
+		//   b = 2
+		//   total = 3
+		
 		$this -> count = [];
+		$this -> total = null;
+		
 		foreach ($list as $item) {
+			
+			$o = $item;
 			$item = $this -> convert($item);
 			$item = Objects::unlast($item);
 			
-			$count = Objects::extract($this -> count, $item);
-			$count++;
+			if (!$item) {
+				$this -> total++;
+				continue;
+			}
 			
-			$this -> count = Objects::inject($this -> count, $item, $count);
+			$k = null;
+			foreach ($item as $i) {
+				if (!$tags) {
+					if ($k) {
+						$k .= ':';
+					} else {
+						$this -> total++;
+					}
+					$k .= $i;
+				}
+				$this -> count[$tags ? $i : $k]++;
+			}
+			if ($tags) {
+				$this -> total++;
+			}
+			unset($i);
+			
 		}
 		unset($item);
+		
 		return $this -> count;
+		
+	}
+	
+	public function total() {
+		return $this -> total;
 	}
 	
 	public function build($list, $value = null) {

@@ -55,8 +55,8 @@ class Collection extends Parents\Collection {
 		$this -> map -> getMap();
 	}
 	
-	public function countMap() {
-		return $this -> map -> count($this -> names);
+	public function countMap($tags = null) {
+		return $this -> map -> count($this -> names, $tags);
 	}
 	
 	public function getMapById($id) {
