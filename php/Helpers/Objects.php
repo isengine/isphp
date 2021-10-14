@@ -346,6 +346,8 @@ class Objects {
 		*  Функция возврата первого значения массива
 		*/
 		
+		if (!is_array($item)) { return; }
+		
 		$key = null;
 		$val = null;
 		
@@ -387,6 +389,8 @@ class Objects {
 		/*
 		*  Функция возврата последнего значения массива
 		*/
+		
+		if (!is_array($item)) { return; }
 		
 		$key = null;
 		$val = null;
@@ -468,13 +472,35 @@ class Objects {
 		
 	}
 
-	static public function len($item) {
+	static public function len($item, $recursive = null) {
 		
 		/*
 		*  Функция возврата длины массива
+		*  Добавлен второй аргумент, позволяющий считать длину многомерного массива
+		*  Обычно считаются элементы, являющиеся вложенными массивами,
+		*  но в режиме рекурсии они не подсчитываются
 		*/
 		
-		return System::typeData($item, 'object') ? count($item) : count(self::convert($item));
+		if (!System::typeData($item, 'object')) {
+			$item = self::convert($item);
+		}
+		
+		if (!$recursive) {
+			return count($item);
+		}
+		
+		$c = 0;
+		
+		foreach ($item as $i) {
+			if (is_array($i)) {
+				$c += self::len($i, true);
+			} else {
+				$c++;
+			}
+		}
+		unset($i);
+		
+		return $c;
 		
 	}
 

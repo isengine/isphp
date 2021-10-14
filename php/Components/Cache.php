@@ -49,6 +49,7 @@ class Cache extends Data {
 	// использование для страниц
 	// $cache = new Cache($path);
 	// $cache -> init($name, $settings);
+	// $cache -> compare($path-to-original-file);
 	// $data = $cache -> start();
 	// if (!$data) {
 	//   ...
