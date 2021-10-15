@@ -75,14 +75,25 @@ class Module extends Singleton {
 				$custom
 			);
 			
-			$module -> launch();
+			$return = $module -> launch();
+			
+			// мы добавили, на первый взгляд, ненужную переменную
+			// т.к. обычно модуль ничего не возвращает
+			// но благодаря этой переменной, мы можем заставить модуль
+			// отменить загрузку шаблона
+			// это может оказаться полезным в ряде случаев,
+			// например в модуле контента, когда мы делаем кеширование контента
+			// средствами самого модуля и хотим загружать готовую страницу,
+			// и в других подобных случаях
 			
 			// require template path in apps and next path template in vendor
 			
-			if ( !System::includes($template, $custom . 'templates', null, $module) ) {
-				if ( !System::includes($template, $path . 'templates', null, $module) ) {
-					if ( !System::includes('default', $custom . 'templates', null, $module) ) {
-						System::includes('default', $path . 'templates', null, $module);
+			if ( !$return ) {
+				if ( !System::includes($template, $custom . 'templates', null, $module) ) {
+					if ( !System::includes($template, $path . 'templates', null, $module) ) {
+						if ( !System::includes('default', $custom . 'templates', null, $module) ) {
+							System::includes('default', $path . 'templates', null, $module);
+						}
 					}
 				}
 			}

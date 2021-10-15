@@ -122,6 +122,26 @@ class Objects {
 		
 	}
 
+	static public function matchByIndex($haystack, $needle) {
+		
+		// Функция проверки наличия строки или символа в ключах заданного массива
+		
+		$haystack = self::keys($haystack);
+		
+		$type = System::type($needle);
+		
+		if ($type === 'numeric') {
+			$result = in_array((float)$needle, $haystack, true) || in_array((string)$needle, $haystack, true);
+		} elseif ($type === 'string') {
+			$result = in_array($needle, $haystack, true);
+		} else {
+			$result = in_array($needle, $haystack);
+		}
+		
+		return !System::set($result) || $result === false ? null : true;
+		
+	}
+
 	static public function find($haystack, $needle, $position = null) {
 		
 		/*

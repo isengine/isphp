@@ -30,11 +30,11 @@ class Collection extends Parents\Collection {
 		$this -> filter -> resetResult();
 	}
 	
-	public function filterByList() {
+	public function filtration() {
 		$list = Objects::flip($this -> getIndexes());
 		$this -> filter -> resetResult();
 		$this -> filter -> filtrationByList($this -> data, $list);
-		return $this -> filter -> getResult();
+		$this -> names = $this -> filter -> getResult();
 	}
 	
 	public function dataMap($from = null) {

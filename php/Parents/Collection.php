@@ -273,6 +273,13 @@ class Collection extends Data {
 		$this -> names = Objects::keys($this -> names);
 	}
 	
+	public function leaveById($id) {
+		$current = $this -> getById($id);
+		$this -> reset();
+		$this -> add($current);
+		unset($current);
+	}
+	
 	public function leaveByName($name) {
 		$current = $this -> getByName($name);
 		$this -> reset();
@@ -280,11 +287,21 @@ class Collection extends Data {
 		unset($current);
 	}
 	
-	public function leaveById($id) {
-		$current = $this -> getById($id);
-		$this -> reset();
-		$this -> add($current);
-		unset($current);
+	public function leaveByList($data, $by) {
+		
+		$list = $this -> indexes;
+		
+		if ($by === 'id') {
+			$list = Objects::values($list);
+		} elseif ($by === 'name') {
+			$list = Objects::keys($list);
+		} else {
+			return;
+		}
+		
+		$diff = array_diff($list, $data);
+		$this -> removeByList($diff, $by);
+		
 	}
 	
 	public function reverse() {

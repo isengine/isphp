@@ -18,18 +18,12 @@ class TableDB extends Master {
 	public function connect() {
 		
 		$this -> path = preg_replace('/[\\/]+/ui', DS, DR . str_replace(':', DS, $this -> settings['name']) . DS);
+		$this -> parent = Objects::convert($this -> settings['parents']);
 		
 	}
 	
 	public function close() {
 		
-	}
-	
-	public function parents($parent) {
-		if (!System::set($parent) && !System::typeIterable($parent)) {
-			return;
-		}
-		$this -> parent = System::typeIterable($parent) ? $parent : Strings::split($parent, ':');
 	}
 	
 	public function launch() {
@@ -39,7 +33,7 @@ class TableDB extends Master {
 		protected $settings;
 		
 		public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
-		public $collection; // раздел базы данных
+		public $collection; // раздел базы данных, здесь - имя файла с расширением
 		
 		public $id; // имя или имена записей в базе данных
 		public $name; // имя или имена записей в базе данных
@@ -76,13 +70,13 @@ class TableDB extends Master {
 	
 	public function hash() {
 		$json = json_encode($this -> filter) . json_encode($this -> fields) . json_encode($this -> rights);
-		$path = $this -> path . $this -> collection . ($this -> parent ? DS . Strings::join($this -> parent, DS) : null) . '.csv';
+		$path = $this -> path . $this -> collection;
 		$this -> hash = (Local::matchFile($path) ? md5_file($path) : null) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
 	}
 	
 	public function prepare() {
 		
-		$path = $this -> path . $this -> collection . ($this -> parent ? DS . Strings::join($this -> parent, DS) : null) . '.csv';
+		$path = $this -> path . $this -> collection;
 		
 		if (!Local::matchFile($path)) {
 			return;
@@ -114,13 +108,17 @@ class TableDB extends Master {
 		
 		$rowskip = $this -> settings['rowskip'] ? (is_array($this -> settings['rowskip']) ? $this -> settings['rowskip'] : Objects::convert($this -> settings['rowskip'])) : [];
 		
-		$index = 0;
-		while ($row = fgetcsv($handle, null, $delimiter, $enclosure)) {
-			if ($index === $rowkeys) {
-				$keys = $row;
-				break;
+		if (System::typeOf($rowkeys, 'iterable')) {
+			$keys = $rowkeys;
+		} else {
+			$index = 0;
+			while ($row = fgetcsv($handle, null, $delimiter, $enclosure)) {
+				if ($index === $rowkeys) {
+					$keys = $row;
+					break;
+				}
+				$index++;
 			}
-			$index++;
 		}
 		
 		// Построчная обработка
@@ -133,10 +131,7 @@ class TableDB extends Master {
 		
 		while ($row = fgetcsv($handle, null, $delimiter, $enclosure)) {
 			
-			if (
-				$index === $rowkeys ||
-				Match::equalIn($rowskip, $index)
-			) {
+			if (Match::equalIn($rowskip, $index)) {
 				$index++;
 				continue;
 			}
@@ -193,8 +188,11 @@ class TableDB extends Master {
 				unset($k, $i);
 				
 				// несколько обязательных полей
-				if (!$entry['parents']) {
-					$entry['parents'] = $this -> parent;
+				//if (!$entry['parents']) {
+				//	$entry['parents'] = $this -> parent;
+				//}
+				if (System::typeIterable($this -> parent)) {
+					$entry['parents'] = Objects::add($this -> parent, $entry['parents']);
 				}
 				if (!$entry['ctime']) {
 					$entry['ctime'] = $stat['ctime'];
