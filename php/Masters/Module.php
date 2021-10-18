@@ -14,6 +14,7 @@ use is\Helpers\Prepare;
 use is\Parents\Singleton;
 use is\Masters\Database;
 use is\Components\Cache;
+use is\Components\Language;
 
 class Module extends Singleton {
 	
@@ -115,7 +116,6 @@ class Module extends Singleton {
 		
 		// сюда же можно добавить кэш
 		// нужно добавить в настройки текстовые переменные
-		// нужно добавить в настройки преобразование языков "val" : {"ru" : "..."} -> "val" : "..."
 		
 		// read from custom path
 		
@@ -144,7 +144,13 @@ class Module extends Singleton {
 			$settings = Parser::fromJson($settings);
 		}
 		
-		return Objects::merge($data, $settings, true);
+		$return = Objects::merge($data, $settings, true);
+		
+		// нужно добавить в настройки преобразование языков "val" : {"ru" : "..."} -> "val" : "..."
+		$lang = Language::getInstance();
+		$return = Parser::prepare($return, $lang -> lang);
+		
+		return $return;
 		
 	}
 	

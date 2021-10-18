@@ -96,9 +96,13 @@ class Datetimes {
 			'days' => 't', // число дней в месяце: 28-31
 			'zone' => 'P', // временная зона, двоеточие между часами и минутами: +02:00
 			
-			'abs' => 'U' // абсолютное время, число секунд с эпохи unix
+			'abs' => 'U', // абсолютное время, число секунд с эпохи unix
+			'absolute' => 'U', // абсолютное время, число секунд с эпохи unix
 			
 		];
+		
+		// также поддерживаются все актуальные константы php, если их указывать через 'date_'
+		// например, 'date_atom', регистр при этом неважен
 		
 		return $formats[$item];
 		
@@ -115,8 +119,8 @@ class Datetimes {
 				return self::format($item);
 			}, $format);
 			
-		} else {
-			$format = constant('\DateTimeInterface::' . Prepare::upper($format));
+		} elseif (Strings::find(Prepare::upper($format), 'DATE_', 0)) {
+			$format = constant('\DateTimeInterface::' . Prepare::upper(Strings::get($format, 5)));
 		}
 		
 		return $format;

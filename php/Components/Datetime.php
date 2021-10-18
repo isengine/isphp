@@ -28,6 +28,8 @@ RFC3339_EXTENDED = "Y-m-d\TH:i:s.vP"
 RSS = "D, d M Y H:i:s O"
 W3C = "Y-m-d\TH:i:sP"
 
+!NOW as DATE_... for example: DATE_ATOM
+
 //$dt = Datetime::getInstance();
 //$dt -> setFormat('{yy}.{nn}.{dd} {hour}.{min}.{sec}');
 //echo $dt -> getFormat() . '<br>';

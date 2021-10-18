@@ -332,10 +332,11 @@ class Objects {
 		
 	}
 
-	static public function removeByIndex($haystack, $needle) {
+	static public function removeByIndex($haystack, $needle, $recursive = null) {
 		
 		/*
 		*  Функция удаления заданных ключей из массива
+		*  теперь может работать рекурсивано
 		*/
 		
 		$haystack = self::convert($haystack);
@@ -345,6 +346,15 @@ class Objects {
 			unset($haystack[$item]);
 		}
 		unset($item);
+		
+		if ($recursive) {
+			foreach ($haystack as &$item) {
+				if (is_array($item)) {
+					$item = self::removeByIndex($item, $needle, $recursive);
+				}
+			}
+			unset($item);
+		}
 		
 		return $haystack;
 		
