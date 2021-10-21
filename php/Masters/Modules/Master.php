@@ -7,6 +7,7 @@ use is\Helpers\Objects;
 use is\Helpers\Strings;
 use is\Helpers\Local;
 use is\Helpers\Prepare;
+use is\Helpers\Paths;
 
 use is\Components\Dom;
 
@@ -18,7 +19,7 @@ abstract class Master extends Data {
 	public $template; // имя экземпляра модуля
 	public $settings; // настройки
 	public $path; // путь до папки модуля
-	public $custom; // путь до кастомной папки модуля в app
+	public $custom_path; // путь до кастомной папки модуля в app
 	public $hash; // хэш экземпляра, нужен для проверки и записи/чтения кэша модуля
 	
 	public $elements; // группа элементов модуля
@@ -34,7 +35,7 @@ abstract class Master extends Data {
 		$this -> instance = $instance;
 		$this -> template = $template;
 		$this -> path = $path;
-		$this -> custom = $custom;
+		$this -> custom_path = $custom;
 		
 		$this -> settings = $settings;
 		//$this -> settings = new Data;
@@ -50,11 +51,45 @@ abstract class Master extends Data {
 	
 	abstract public function launch();
 	
-	public function blocks($name, $object = null) {
+	public function block($name, $item = null) {
 		
-		if ( !System::includes($name, $this -> custom . 'blocks', null, $object ? $object : $this) ) {
-			System::includes($name, $this -> path . 'blocks', null, $object ? $object : $this);
+		$path = [
+			$this -> custom_path,
+			$this -> path
+		];
+		
+		foreach ($path as $i) {
+			$i = Paths::toReal($i . DS . 'blocks' . DS . $name . '.php');
+			if (Local::matchFile($i)) {
+				require($i);
+				break;
+			}
 		}
+		unset($i);
+		
+		//if ( !System::includes($name, $this -> custom . 'blocks', null, $object ? $object : $this) ) {
+		//	System::includes($name, $this -> path . 'blocks', null, $object ? $object : $this);
+		//}
+		
+	}
+	
+	public function template() {
+		
+		$path = [
+			$this -> custom_path . 'templates' . DS . $this -> template,
+			$this -> path . 'templates' . DS . $this -> template,
+			$this -> custom_path . 'templates' . DS . 'default',
+			$this -> path . 'templates' . DS . 'default'
+		];
+		
+		foreach ($path as $i) {
+			$i = Paths::toReal($i . '.php');
+			if (Local::matchFile($i)) {
+				require($i);
+				break;
+			}
+		}
+		unset($i);
 		
 	}
 	

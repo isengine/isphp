@@ -90,13 +90,14 @@ class Module extends Singleton {
 			// require template path in apps and next path template in vendor
 			
 			if ( !$return ) {
-				if ( !System::includes($template, $custom . 'templates', null, $module) ) {
-					if ( !System::includes($template, $path . 'templates', null, $module) ) {
-						if ( !System::includes('default', $custom . 'templates', null, $module) ) {
-							System::includes('default', $path . 'templates', null, $module);
-						}
-					}
-				}
+				$module -> template();
+				//if ( !System::includes($template, $custom . 'templates', null, $module) ) {
+				//	if ( !System::includes($template, $path . 'templates', null, $module) ) {
+				//		if ( !System::includes('default', $custom . 'templates', null, $module) ) {
+				//			System::includes('default', $path . 'templates', null, $module);
+				//		}
+				//	}
+				//}
 			}
 			
 		}
