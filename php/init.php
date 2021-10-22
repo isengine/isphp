@@ -19,18 +19,11 @@ spl_autoload_register(function($class) {
 	$array = explode('\\', $class);
 	array_shift($array);
 	
-	$result = [
-		__DIR__ . DS,
-		realpath(__DIR__ . DS . DP . DP . 'core' . DS . 'model') . DS
-	];
-	
-	foreach ($result as $item) {
-		$item .= implode(DS, $array) . '.php';
-		if (file_exists($item)) {
-			require $item;
-		}
-		unset($item);
+	$path .= __DIR__ . DS . implode(DS, $array) . '.php';
+	if (file_exists($path)) {
+		require $path;
 	}
+	unset($path);
 	
 });
 

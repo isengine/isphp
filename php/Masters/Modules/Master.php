@@ -16,7 +16,7 @@ use is\Parents\Data;
 abstract class Master extends Data {
 	
 	public $instance; // имя экземпляра модуля
-	public $template; // имя экземпляра модуля
+	public $template; // шаблон экземпляра модуля
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom_path; // путь до кастомной папки модуля в app
@@ -31,7 +31,7 @@ abstract class Master extends Data {
 		$path,
 		$custom
 	) {
-
+		
 		$this -> instance = $instance;
 		$this -> template = $template;
 		$this -> path = $path;

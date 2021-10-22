@@ -49,7 +49,9 @@ class Module extends Singleton {
 		// проверка манифеста, для защиты модулей от других классов и библиотек
 		
 		if (!Local::matchFile($path . 'manifest.ini')) {
-			return;
+			if (!Local::matchFile($custom . 'manifest.ini')) {
+				return;
+			}
 		}
 		
 		// сюда же можно добавить кэш
@@ -69,7 +71,7 @@ class Module extends Singleton {
 			$ns = __NAMESPACE__ . '\\Modules\\' . Prepare::upperFirst($vendor) . '\\' . Prepare::upperFirst($name);
 			
 			$module = new $ns(
-				$instance,
+				$vendor . ':' . $name . ':' . $instance,
 				$template,
 				$settings,
 				$path,
