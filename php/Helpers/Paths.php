@@ -82,11 +82,7 @@ class Paths {
 		$nofolder = self::parseFile(realpath(System::server('root') . $path), 'file') || Strings::match($path, '#') || Strings::match($path, '?');
 		//$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#') || Strings::match($path, '?');
 		
-		// определяем, абсолютный путь или нет (относительный) по :\ и :/ в строке
-		// в unix-системах пути будут относительными
-		
-		//$absolute = preg_match('/\:(\/|\\\\)/u', $path) || preg_match('/^(\/|\\\\){2}/u', $path);
-		$absolute = preg_match('/^(\/|\\\\){2}|\:(\/|\\\\)/u', $path);
+		$absolute = self::absolute($path);
 		
 		$path = self::clearSlashes(self::toUrl($path));
 		
@@ -162,8 +158,27 @@ class Paths {
 		return preg_replace('/([\\\\\/]){2,}/ui', '$1', $path);
 	}
 	
+	static public function absolute($path) {
+		
+		// определяем, абсолютный путь или нет (относительный) по :\ и :// в начале строки
+		// в unix-системах пути всегда относительные:
+		// localhost/path
+		// /var/server/path
+		// абсолютные url без протокола не проходят проверку,
+		// поэтому они должны начинаться с протокола, адреса диска или с двойного слеша
+		// однако это требование равносильно и для браузеров,
+		// иначе адрес будет распознан неверно
+		// пример:
+		// other.com (false) -> site.com/other.com
+		// //other.com (true) -> other.com
+		// http://other.com (true) -> other.com
+		
+		return preg_match('/^(\/|\\\\){2}|\:(\/|\\\\)/u', Strings::get($path, 0, 8));
+		
+	}
+	
 	// перенести сюда другие функции из path
-
+	
 }
 
 ?>

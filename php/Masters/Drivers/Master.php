@@ -402,7 +402,7 @@ abstract class Master extends Data {
 				if ($i['from'] === 'fill') {
 					$col = System::set($entry[$k]) ? $entry[$k] : $fill;
 				} else {
-					$col = $entry[ $i['from'] ? $i['from'] : $k ];
+					$col = System::set($entry[$k]) ? $entry[$k] : $entry[ $i['from'] ? $i['from'] : $k ];
 				}
 				
 				if (System::set($col) && $i['prepare']) {

@@ -370,6 +370,78 @@ class Local {
 		
 	}
 
+	static public function matchUrl($target, $type = null, $external = null) {
+		
+		/*
+		* Новая функция, которая проверяет
+		* существование файла в файловой системе по url
+		* Сначала она преобразует url в абсолютный путь
+		* затем проверяет наличие файла
+		* второй аргумент устанавливает проверку по типу:
+		* файл, папка или что угодно (по-умолчанию)
+		* третий аргумент проверяет наличие файла по внешнему url
+		* через проверку ответа 200
+		*/
+		
+		$int = null;
+		
+		$info = Paths::parseUrl($target);
+		$host = System::server('host');
+		
+		if ($info['host'] && $info['host'] === $host) {
+			$path = $info['path'];
+			$int = true;
+		} else {
+			$path = $target;
+		}
+		
+		if (Strings::find($path, $host, 0)) {
+			$len = Strings::len($host);
+			$path = Strings::get($path, $len);
+			$int = true;
+		} elseif (!$int) {
+			$int = !Paths::absolute($target);
+		}
+		
+		if (!$int && !$external) {
+			return;
+		}
+		
+		if ($int) {
+			
+			$path = realpath(DI . Paths::toReal($path));
+			
+			if (!$path) {
+				return;
+			}
+			
+			$is_file = self::matchFile($path);
+			$is_dir = self::matchFolder($path);
+			
+			return (
+				$type === 'file' && !$is_file ||
+				$type === 'folder' && !$is_dir ||
+				!$is_file && !$is_dir
+			) ? null : true;
+			
+		}
+		
+		if ($external && Strings::get($path, 0, 4) === 'http') {
+			
+			// this for !int and http/https requests
+			
+			$headers = get_headers($path);
+			$result = null;
+			Objects::each($headers, function($item) use (&$result){
+				if ($item === 'HTTP/1.1 200 OK') {
+					$result = true;
+				}
+			});
+			return $result;
+		}
+		
+	}
+
 	static public function readFile($target) {
 		
 		/*
