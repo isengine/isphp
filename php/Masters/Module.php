@@ -25,6 +25,8 @@ class Module extends Singleton {
 	public $cache_path; // путь до кэша
 	public $caching; // разрешение кэширования по-умолчанию
 	
+	public $settings; // настройки модуля
+	
 	public function init($path, $custom, $cache_path, $caching = false) {
 		$this -> path = $path;
 		$this -> custom = $custom;
@@ -54,11 +56,23 @@ class Module extends Singleton {
 			}
 		}
 		
+		// запись данных
+		
+		$this -> setData([
+			'name' => $name,
+			'vendor' => $vendor,
+			'instance' => $instance,
+			'template' => $template,
+			'settings' => $settings,
+			'path' => $path,
+			'custom' => $custom
+		]);
+		
 		// сюда же можно добавить кэш
 		
 		$cache = new Cache($cache_path);
 		$cache -> caching($caching === 'default' ? $this -> caching : $caching);
-		$cache -> init($name, $vendor, $instance, $template, $settings);
+		$cache -> init($this -> getData());
 		
 		$data = $cache -> start();
 		
@@ -66,14 +80,16 @@ class Module extends Singleton {
 			
 			// запуск модуля
 			
-			$settings = $this -> settings($vendor, $name, $instance, $settings);
+			//$settings = $this -> settings($vendor, $name, $instance, $settings);
+			//$this -> settings($vendor, $name, $instance, $settings);
+			$this -> settings();
 			
 			$ns = __NAMESPACE__ . '\\Modules\\' . Prepare::upperFirst($vendor) . '\\' . Prepare::upperFirst($name);
 			
 			$module = new $ns(
 				$vendor . ':' . $name . ':' . $instance,
 				$template,
-				$settings,
+				$this -> settings,
 				$path,
 				$custom
 			);
@@ -102,9 +118,16 @@ class Module extends Singleton {
 				//}
 			}
 			
+			unset($module);
+			
 		}
 		
 		$cache -> stop();
+		
+		$this -> assets();
+		
+		$this -> settings = null;
+		$this -> resetData();
 		
 		// и еще не хватает чтения манифестов с проверкой на загруженные в системе необходимые библиотеки
 		// не хватает процессинга view в конфиге, не знаю, как его сделать,
@@ -115,7 +138,38 @@ class Module extends Singleton {
 		
 	}
 	
-	public function settings($vendor, $name, $instance, $settings = null) {
+	public function assets() {
+		
+		// метод проверки и вызова ассетов
+		// ассеты в данном случае - это дополнения к модулям,
+		// которые будут делать что-либо уже после кэширования и вывода шаблона
+		
+		$custom = $this -> getData('custom');
+		$path = $this -> getData('path');
+		$template = $this -> getData('template');
+		
+		$path = [$custom, $path];
+		
+		foreach ($path as $i) {
+			$i = Paths::toReal($i . 'assets' . DS . $template . '.php');
+			if (Local::matchFile($i)) {
+				if (!$this -> settings) {
+					$this -> settings();
+				}
+				require($i);
+				break;
+			}
+		}
+		unset($i);
+		
+	}
+	
+	public function settings() {
+		
+		$vendor = $this -> getData('vendor');
+		$name = $this -> getData('name');
+		$instance = $this -> getData('instance');
+		$settings = $this -> getData('settings');
 		
 		// сюда же можно добавить кэш
 		// нужно добавить в настройки текстовые переменные
@@ -130,7 +184,7 @@ class Module extends Singleton {
 		// read from database
 		
 		if (!$data) {
-			$data = $this -> dbread($vendor, $name, $instance);
+			$data = $this -> dbread();
 		}
 		
 		// read from original path
@@ -147,23 +201,21 @@ class Module extends Singleton {
 			$settings = Parser::fromJson($settings);
 		}
 		
-		$return = Objects::merge($data, $settings, true);
+		$this -> settings = Objects::merge($data, $settings, true);
 		
 		// нужно добавить в настройки преобразование языков "val" : {"ru" : "..."} -> "val" : "..."
 		$lang = Language::getInstance();
-		$return = Parser::prepare($return, $lang -> lang);
-		
-		return $return;
+		$this -> settings = Parser::prepare($this -> settings, $lang -> lang);
 		
 	}
 	
-	public function dbread($vendor, $name, $instance) {
+	public function dbread() {
 		
 		$db = Database::getInstance();
 		
 		$db -> collection('modules');
-		$db -> driver -> filter -> addFilter('name', '+' . $instance);
-		$db -> driver -> filter -> addFilter('parents', '+' . $vendor . ':+' . $name);
+		$db -> driver -> filter -> addFilter('name', '+' . $this -> getData('instance'));
+		$db -> driver -> filter -> addFilter('parents', '+' . $this -> getData('vendor') . ':+' . $this -> getData('name'));
 		$db -> launch();
 		$result = $db -> data -> getFirstData();
 		$db -> clear();

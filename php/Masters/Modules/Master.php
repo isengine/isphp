@@ -20,7 +20,6 @@ abstract class Master extends Data {
 	public $settings; // настройки
 	public $path; // путь до папки модуля
 	public $custom_path; // путь до кастомной папки модуля в app
-	public $hash; // хэш экземпляра, нужен для проверки и записи/чтения кэша модуля
 	
 	public $elements; // группа элементов модуля
 	
@@ -43,7 +42,6 @@ abstract class Master extends Data {
 		
 		$this -> elements();
 		$this -> classes();
-		$this -> hash();
 		
 		//$this -> launch();
 		
@@ -127,10 +125,6 @@ abstract class Master extends Data {
 		}
 		unset($key, $item);
 		
-	}
-	
-	public function hash() {
-		$this -> hash = Prepare::hash($this -> instance . $this -> settings);
 	}
 	
 	public function eget($element) {

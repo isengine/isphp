@@ -383,6 +383,10 @@ class Local {
 		* через проверку ответа 200
 		*/
 		
+		if (!$target) {
+			return;
+		}
+		
 		$int = null;
 		
 		$info = Paths::parseUrl($target);
@@ -422,7 +426,7 @@ class Local {
 				$type === 'file' && !$is_file ||
 				$type === 'folder' && !$is_dir ||
 				!$is_file && !$is_dir
-			) ? null : true;
+			) ? null : filemtime($path);
 			
 		}
 		

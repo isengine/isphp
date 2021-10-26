@@ -167,6 +167,9 @@ class Cache extends Data {
 		// если mtime больше, чем время кэша,
 		// это значит, что файл подвергался изменениям
 		// и кэш надо обновить
+		// работает только для кэша страниц, через start/stop
+		// и не имеет значения для кэша данных через read/write
+		// потому что источники данных разные и сложно определить mtime
 		
 		$mtime_original = realpath($original) ? filemtime($original) : 0;
 		$mtime_cache = realpath($this -> name) ? filemtime($this -> name) : 0;
