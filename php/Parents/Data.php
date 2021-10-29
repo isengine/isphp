@@ -139,9 +139,17 @@ class Data {
 	
 	public function mergeData($data, $recursion = null) {
 		
-		// Заменяет текущие данные новыми, переданными в массиве 'merge'
+		// Заменяет текущие данные новыми, переданными в массиве 'data'
 		
 		$this -> data = Objects::merge($this -> data, $data, $recursion);
+		
+	}
+	
+	public function mergeDataKey($key, $data, $recursion = null) {
+		
+		// Заменяет данные по ключау
+		
+		$this -> data[$key] = Objects::merge($this -> data[$key], $data, $recursion);
 		
 	}
 	

@@ -14,7 +14,7 @@ if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP . DP) . 
 
 // Подключение элементов
 
-function isJsSearch($path) {
+function jsSearch($path, &$time) {
 	
 	if (!file_exists($path) || !is_dir($path)) {
 		return false;
@@ -29,9 +29,8 @@ function isJsSearch($path) {
 		return false;
 	}
 	
-	//$scan = Objects::sort($scan);
-	
 	$list = [];
+	$dir = [];
 	
 	foreach ($scan as $item) {
 		if ($item === '.' || $item === '..') {
@@ -39,40 +38,51 @@ function isJsSearch($path) {
 		}
 		$item = $path . $item;
 		if (is_dir($item)) {
-			$sub = isJsSearch($item . DS);
-			if (is_array($sub)) {
-				$list = array_merge($list, $sub);
-			}
+			$dir[] = $item;
+			//$sub = \is\jsSearch($item . DS, $time);
+			//if (is_array($sub)) {
+			//	$list = array_merge($list, $sub);
+			//}
 		} else {
-			$info = pathinfo($item);
-			if (is_array($info) && $info['extension'] === 'js') {
-				$list[] = [$item, filemtime($item)];
+			if (mb_substr($item, -3) === '.js') {
+				$list[] = $item;
+				$mtime = filemtime($item);
+				if ($time < $mtime) {
+					$time = $mtime;
+				}
 			}
 		}
 	}
+	unset($item);
+	
+	foreach ($dir as $item) {
+		$sub = \is\jsSearch($item . DS, $time);
+		if (is_array($sub)) {
+			$list = array_merge($list, $sub);
+		}
+	}
+	unset($item);
 	
 	return $list;
 	
 }
 
+$time = null;
 $path = __DIR__ . DS;
-$list = isJsSearch($path);
-rsort($list);
+$list = \is\jsSearch($path, $time);
 
-$file = 'is.' . md5(json_encode($list)) . '.js';
+$file = 'is.js';
+$mtime = file_exists(DI . $file) ? filemtime(DI . $file) : null;
 
-if (!file_exists(DI . $file)) {
+if ($mtime <= $time) {
 	$content = null;
 	foreach ($list as $item) {
-		$content .= file_get_contents($item[0]) . "\n";
+		$content .= file_get_contents($item) . "\n";
 	}
 	unset($item);
 	file_put_contents(DI . $file, $content);
+	$mtime = filemtime(DI . $file);
 }
 
-//echo '<pre>' . print_r($file, 1) . '</pre>';
-//echo '<pre>' . print_r($list, 1) . '</pre>';
-
 ?>
-
-<script src="<?= '//' . $_SERVER['HTTP_HOST'] . '/' . $file; ?>"></script>
+<script src="<?= '//' . $_SERVER['HTTP_HOST'] . '/' . $file . '?' . $mtime; ?>"></script>
