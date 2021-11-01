@@ -10,7 +10,7 @@ if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
 if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
 if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
 if (!defined('DI')) { define('DI', realpath($_SERVER['DOCUMENT_ROOT']) . DS); }
-if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP . DP) . DS); }
+if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); }
 
 // Подключение классов
 

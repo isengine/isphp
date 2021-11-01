@@ -1,2 +1,0 @@
-var is = {};
-is.Helpers = {};
