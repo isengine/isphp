@@ -281,11 +281,11 @@ class Parser {
 		}
 		
 		// clear comments [//...]
-		$data = preg_replace('/([^\:\"\'])\s*?\/\/.*?([$\r\n])/u', '$1$2', $data);
+		$data = preg_replace('/([^\:\"\'])\s*?\/\/.*?($|[\r\n])/u', '$1$2', $data);
 		// clear line breaks
 		$data = preg_replace('/\r\n\s*|\r\s*|\n\s*/u', '', $data);
 		// clear comments [/*...*/]
-		$data = preg_replace('/\/\*.*?\*\//u', '$1', $data);
+		$data = preg_replace('/\/\*.*?\*\//u', '', $data);
 		// clear empty arrays
 		$data = preg_replace('/\[\s*\]/u', '[]', $data);
 		$data = preg_replace('/\[\"\s*\"\]/u', '[]', $data);
