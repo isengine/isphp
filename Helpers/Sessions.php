@@ -27,7 +27,7 @@ class Sessions {
 		return !$name ? $_COOKIE : (!empty($_COOKIE[$name]) ? $_COOKIE[$name] : null);
 		
 	}
-	
+
 	static public function unCookie($name){
 		
 		/*
@@ -45,6 +45,49 @@ class Sessions {
 		} else {
 			setcookie($name, '', time() - 3600, '/');
 			unset($_COOKIE[$name]);
+		}
+		
+	}
+
+	static public function setSession($name, $set){
+		
+		/*
+		*  Функция регистрации записи в сессионном хранилище
+		*  на входе нужно указать имя записи
+		*  второе значение - присвоить это значение записи
+		*/
+		
+		$_SESSION[$name] = $set;
+		
+	}
+
+	static public function getSession($name = null){
+		
+		/*
+		*  Функция проверки записи в сессионном хранилище
+		*  если задано то возвращает значение, если не задано, возвращает null
+		*  если ключ пустой, то возвращает весь массив записей
+		*/
+		
+		return !$name ? $_SESSION : (!empty($_SESSION[$name]) ? $_SESSION[$name] : null);
+		
+	}
+
+	static public function unSession($name){
+		
+		/*
+		*  Функция удаления записи в сессионном хранилище
+		*  на входе нужно указать имя записи
+		*  если вместо имени передан массив, будут удалены все указанные в нем записи
+		*/
+		
+		if (is_array($name)) {
+			foreach ($name as $item) {
+				unset($_SESSION[$item]);
+			}
+			unset($item);
+		} else {
+			unset($_SESSION[$name]);
 		}
 		
 	}
