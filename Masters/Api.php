@@ -36,11 +36,30 @@ class Api extends Singleton {
 		
 	}
 	
+	public function error() {
+		Sessions::setHeaderCode(404);
+		exit;
+	}
+	
 	public function launch() {
 		
+		if (!$this -> class || !$this -> method) {
+			$this -> error();
+		}
+		
 		$class_name = __NAMESPACE__ . '\\Methods\\' . $this -> class;
+		
+		if (!class_exists($class_name)) {
+			$this -> error();
+		}
+		
 		$class = new $class_name($this -> getData());
 		$method = $this -> method;
+		
+		if (!method_exists($class, $method)) {
+			$this -> error();
+		}
+		
 		$class -> $method();
 		
 	}

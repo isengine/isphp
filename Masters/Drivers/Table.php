@@ -10,7 +10,7 @@ use is\Helpers\Local;
 use is\Helpers\System;
 use is\Helpers\Match;
 
-class TableDB extends Master {
+class Table extends Master {
 	
 	protected $path;
 	protected $parent;

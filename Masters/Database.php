@@ -57,7 +57,8 @@ class Database extends Singleton {
 	
 	public function init($settings) {
 		
-		$driver = __NAMESPACE__ . '\\Drivers\\' . $settings['driver'];
+		$driver = __NAMESPACE__ . '\\Drivers\\' . Prepare::upperFirst($settings['driver']);
+		
 		unset($settings['driver']);
 		
 		$this -> driver = new $driver ($settings);

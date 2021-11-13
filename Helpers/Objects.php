@@ -1104,6 +1104,31 @@ class Objects {
 		
 	}
 
+	static public function remap(&$item, $name) {
+		
+		/*
+		*  НОВАЯ Функция для вложенных массивов
+		*  переназначает ключи главного массива
+		*  по значению указанного поля внутреннего массива
+		*/
+		
+		foreach ($item as $k => $i) {
+			if (!is_array($i)) {
+				continue;
+			}
+			$key = $i[$name];
+			if (!System::set($key)) {
+				continue;
+			}
+			$item[$key] = $i;
+			unset($item[$k]);
+		}
+		unset($k, $i);
+		
+		return $item;
+		
+	}
+
 	static public function reset(&$item) {
 		
 		/*
