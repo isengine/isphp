@@ -28,7 +28,7 @@ class Generator extends Singleton {
 		if ($this -> realfile) {
 			$this -> exists = true;
 		} elseif (System::set($this -> info)) {
-			$ns = __NAMESPACE__ . '\\Files\\' . Prepare::upperFirst($this -> info['extension']) . '\\' . Prepare::upperFirst($this -> info['name']);
+			$ns = __NAMESPACE__ . '\\Files\\' . Prepare::upperFirst($this -> info['extension']) . '\\' . Prepare::upperFirst(Strings::replace($this -> info['name'], '.', '_'));
 			if (class_exists($ns)) {
 				$this -> file = new $ns;
 				$this -> exists = true;

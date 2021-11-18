@@ -106,7 +106,6 @@ class Module extends Singleton {
 			// и в других подобных случаях
 			
 			// require template path in apps and next path template in vendor
-			
 			if ( !$return ) {
 				$module -> template();
 				//if ( !System::includes($template, $custom . 'templates', null, $module) ) {

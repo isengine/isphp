@@ -799,6 +799,22 @@ class Objects {
 		
 	}
 
+	static public function recurse(&$item, $callback, $ignore = null) {
+		
+		/*
+		*  это ФУНКЦИЯ, аналогичная each, но с рекурсией
+		*/
+		
+		if (!is_array($item) || (!$ignore && !System::typeIterable($item))) {
+			return;
+		}
+		
+		array_walk_recursive($item, function(&$value, $key) use ($callback){
+			$value = call_user_func($callback, $value, $key);
+		});
+		
+	}
+
 	static public function clear(&$item, $unique = null) {
 		
 		/*

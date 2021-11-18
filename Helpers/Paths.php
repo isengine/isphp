@@ -177,6 +177,45 @@ class Paths {
 		
 	}
 	
+	static public function querySplit($string) {
+		// парсит строку get-запроса в массив данных
+		$query = [];
+		$string = Strings::after(Prepare::urldecode($string), '?');
+		Objects::each(Strings::split($string, '&'), function($i) use (&$query){
+			$a = Strings::split($i, '=');
+			$k = Strings::replace($a[0], ['[', ']'], [':', null]);
+			$map = Strings::split($k, ':');
+			$query = Objects::inject($query, $map, $a[1]);
+		});
+		return $query;
+	}
+	
+	static public function queryJoin($array) {
+		// составляет строку get-запроса из массива данных
+		if (is_array($array)) {
+			Objects::recurse($array, function($i){
+				return Prepare::urlencode($i);
+			});
+			return '?' . http_build_query($array);
+		}
+		return;
+	}
+	
+	static public function restJoin($array) {
+		// составляет rest строку из массива данных
+		if (is_array($array)) {
+			Objects::recurse($array, function($i){
+				return Prepare::urlencode($i);
+			});
+			return Strings::replace(
+				http_build_query($array),
+				['%5B', '%5D', '&', '='],
+				[':', null, '/', '/']
+			) . '/';
+		}
+		return;
+	}
+	
 	// перенести сюда другие функции из path
 	
 }

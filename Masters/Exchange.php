@@ -57,6 +57,10 @@ class Exchange extends Data {
 		$this -> channel = new $ns($this -> getData());
 	}
 	
+	public function init($settings) {
+		$this -> channel -> set($settings);
+	}
+	
 	// синтаксический сахар для более простого вызова
 	// стандартных методов дочернего класса
 	// например, вместо

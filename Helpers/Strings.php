@@ -166,9 +166,7 @@ class Strings {
 		$pos = self::find($haystack, $needle, $reverse ? 'r' : null);
 		
 		if (!System::set($pos)) {
-			return $haystack;
-		} elseif (!$pos) {
-			return null;
+			return !$pos ? null : $haystack;
 		}
 		
 		return self::get($haystack, 0, $include ? $pos + 1 : $pos);
@@ -187,9 +185,7 @@ class Strings {
 		$pos = self::find($haystack, $needle, $reverse ? 'r' : null);
 		
 		if (!System::set($pos)) {
-			return $haystack;
-		} elseif (!$pos) {
-			return null;
+			return !$pos ? null : $haystack;
 		}
 		
 		return self::get($haystack, $include ? $pos : $pos + 1);
