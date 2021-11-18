@@ -44,8 +44,23 @@ class Parser {
 			
 			$type = $data[0][0];
 			$params = $data[1];
+			$prepare = $data[2];
 			
-			return $function($type, $params);
+			$result = $function($type, $params);
+			
+			Objects::each($prepare, function($item) use (&$result){
+				if ($item) {
+					if (Strings::match($item, '.')) {
+						$second = Strings::after($item, '.');
+						$item = Strings::before($item, '.');
+						$result = Prepare::$item($result, $second);
+					} else {
+						$result = Prepare::$item($result);
+					}
+				}
+			});
+			
+			return $result;
 			
 		}, $string);
 		
