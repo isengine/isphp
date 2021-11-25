@@ -350,11 +350,21 @@ class Prepare {
 		*  на входе нужно указать исходную строку
 		*  на выходе отдает готовую строку
 		*  кодирование происходит в формат base64
+		*  
+		*  Теперь функция кодирует и данные в формате json
 		*/
 		
-		if (!System::typeOf($str, 'scalar')) {
+		$type = System::typeOf($str);
+		
+		if ($type === 'iterable') {
+			$str = Parser::toJson($str);
+		} elseif ($type !== 'scalar') {
 			return null;
 		}
+		
+		//if (!System::typeOf($str, 'scalar')) {
+		//	return null;
+		//}
 		
 		$len = Strings::len($str) % 3;
 		if ($len) {
@@ -372,13 +382,21 @@ class Prepare {
 		*  на входе нужно указать исходную строку
 		*  на выходе отдает готовую строку
 		*  декодирование происходит из формата base64
+		*  
+		*  Теперь функция декодирует и данные в формате json
 		*/
 		
 		if (!System::typeOf($str, 'scalar')) {
 			return null;
 		}
 		
-		return base64_decode($str);
+		$result = base64_decode($str);
+		
+		if (System::typeOf($result, 'iterable')) {
+			$result = Parser::fromJson($result);
+		}
+		
+		return $result;
 		
 	}
 	

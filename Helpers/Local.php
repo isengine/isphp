@@ -273,6 +273,12 @@ class Local {
 		
 	}
 
+	static public function renameFile($from, $to) {
+		
+		return rename($from, $to);
+		
+	}
+
 	static public function createFile($target) {
 		
 		/*
@@ -567,7 +573,10 @@ class Local {
 			if (!$mode) {
 				return false;
 			} elseif ($mode === 'replace') {
-				self::deleteFile($target);
+				//self::deleteFile($target);
+				// erase вместо delete выбран по той причине, что delete изменяет ctime файла
+				// а этого по условиям действия функции не нужно
+				self::eraseFile($target);
 			}
 		}
 		

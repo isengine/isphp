@@ -22,7 +22,7 @@ class User extends Globals {
 	}
 	
 	public function setSettings($settings) {
-		$this -> settings = $settings;
+		$this -> settings = json_decode(json_encode($settings), true);
 	}
 	
 	public function setRights($rights) {

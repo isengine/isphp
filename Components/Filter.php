@@ -155,7 +155,8 @@ class Filter extends Data {
 		foreach ($this -> data as $key => $item) {
 			
 			if ($item['data']) {
-				$data = $entry['data'][$item['name']];
+				$data = System::type($entry, 'object') ? $entry -> data : $entry['data'];
+				$data = $data[$item['name']];
 			} else {
 				$i = $item['name'];
 				$data = System::type($entry, 'object') ? $entry -> $i : $entry[$i];

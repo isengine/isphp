@@ -2,13 +2,12 @@
 
 namespace is\Masters\Drivers;
 
-use is\Helpers\Sessions;
-use is\Helpers\Parser;
-use is\Helpers\Objects;
-use is\Helpers\Strings;
-use is\Helpers\Local;
 use is\Helpers\System;
-use is\Helpers\Match;
+use is\Helpers\Strings;
+use is\Helpers\Objects;
+
+use is\Helpers\Parser;
+use is\Helpers\Local;
 
 class Localdb extends Master {
 	
@@ -24,54 +23,12 @@ class Localdb extends Master {
 		
 	}
 	
-	public function launch() {
-		
-		/*
-		protected $prepare;
-		protected $settings;
-		
-		public $query; // тип запроса в базу данных - чтение, запись, добавление, удаление
-		public $collection; // раздел базы данных
-		
-		public $id; // имя или имена записей в базе данных
-		public $name; // имя или имена записей в базе данных
-		public $type; // тип или типы записей в базе данных
-		public $parents; // родитель или родители записей в базе данных
-		public $owner; // владелец или владельцы записей в базе данных
-		
-		public $ctime; // дата и время (в формате unix) создания записи в базе данных
-		public $mtime; // дата и время (в формате unix) последнего изменения записи в базе данных
-		public $dtime; // дата и время (в формате unix) удаления записи в базе данных
-		
-		public $limit; // установить возвращаемое количество записей в базе данных
-		*/
-		
-		if (!$this -> collection) {
-			return;
-		}
-		
-		if ($this -> query === 'read') {
-			$this -> read();
-		}
-		
-		// ЕЩЕ НУЖНО СДЕЛАТЬ ФИЛЬТРАЦИЮ И ОТБОР ПО УКАЗАННЫМ QUERY ДАННЫМ
-		// ЕЩЕ НУЖНО createFileFromInfo
-		// ДЛЯ ПОДГОТОВКИ ФАЙЛА К ЗАПИСИ
-		
-		//echo $name . '<br>';
-		//echo print_r($query, 1) . '<br>';
-		//echo '<pre>';
-		//echo print_r($prepared, 1) . '<br>';
-		//echo '</pre>';
-		
-	}
-	
 	public function hash() {
 		$json = json_encode($this -> filter) . json_encode($this -> fields) . json_encode($this -> rights);
 		$this -> hash = md5(filemtime($this -> path . $this -> collection)) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this -> settings['all'] . '.' . $this -> settings['limit'];
 	}
 	
-	public function prepare() {
+	public function read() {
 		
 		$path = $this -> path . $this -> collection . DS;
 		
@@ -103,7 +60,9 @@ class Localdb extends Master {
 			}
 			
 			// контрольная проверка
-			$count = $this -> verify($entry, $count);
+			$entry = $this -> verify($entry);
+			
+			$count = $this -> result($entry, $count);
 			if (!System::set($count)) {
 				break;
 			}
@@ -115,9 +74,84 @@ class Localdb extends Master {
 		
 	}
 	
+	public function write($item) {
+		
+		if (!is_array($item) || !$item['name'] || !$item['data']) {
+			return;
+		}
+		
+		// сначала создаем правильное содержимое записи
+		// переводим нужные поля в пути
+		// затем ищем подходящие файлы в заданном пути
+		
+		$item = $this -> createInfoForFile($item);
+		$files = Local::search($item['path'], ['return' => 'files', 'extension' => 'ini', 'subfolders' => null, 'merge' => true]);
+		$first = true;
+		$result = null;
+		
+		foreach ($files as $i) {
+			
+			// перебираем все файлы и ищем те, которые подходят под нашу запись
+			
+			$id = Strings::match($i['name'], '.' . $item['name'] . '.');
+			$noid = Strings::find($i['name'], $item['name'] . '.', 0);
+			
+			if (!$id && !$noid) {
+				continue;
+			}
+			
+			$data = Parser::fromJson( Local::readFile($i['fullpath']) );
+			
+			if ($first) {
+				
+				// первое совпадене берем в работу, остальные - удаляем
+				// переименовываем файл, используя полный путь, включая id, type и др.
+				// затем записываем туда данные в формате json
+				
+				$path = $item['path'] . ($id ? $item['id'] . '.' : null) . $item['file'];
+				
+				if ($i['fullpath'] !== $path) {
+					Local::renameFile($i['fullpath'], $path);
+				}
+				
+				$result = $this -> writeDataToFile(
+					$path,
+					Objects::merge(
+						$data ? $data : [],
+						$item['data'],
+						true
+					)
+				);
+				
+				$first = null;
+				
+			} else {
+				Local::deleteFile($i['fullpath']);
+			}
+			
+		}
+		unset($files, $i, $id, $noid, $data, $path, $first);
+		
+		return $result;
+		
+	}
+	
 	private function readDataFromFile($path) {
-		$file = Local::readFile($path);
-		return Parser::fromJson($file, $this -> format ? $this -> format : true);
+		return Parser::fromJson(
+			Local::readFile($path),
+			$this -> format ? $this -> format : true
+		);
+	}
+	
+	private function writeDataToFile($path, $data) {
+		return Local::writeFile(
+			$path,
+			Parser::toJson(
+				$data,
+				$this -> format ? $this -> format : true
+			),
+			'replace'
+		);
 	}
 	
 	private function createInfoFromFile($item, $key) {
@@ -162,6 +196,36 @@ class Localdb extends Master {
 			'ctime' => $stat['ctime'],
 			'mtime' => $stat['mtime'],
 			'dtime' => $parse['dtime'],
+		];
+		
+	}
+	
+	private function createInfoForFile($item) {
+		
+		$path = $this -> path . $this -> collection . DS . ($item['parents'] ? Strings::join($item['parents'], DS) . DS : null);
+		
+		$item['name'] = Strings::replace($item['name'], '.', '--');
+		$item['type'] = Strings::replace(Strings::join($item['type'], ' '), '.', '--');
+		$item['owner'] = Strings::replace(Strings::join($item['owner'], ' '), '.', '--');
+		
+		$file = $item['name'] . '.';
+		if (System::set($item['type'])) {
+			$file .= $item['type'] . '.';
+		}
+		if (System::set($item['owner'])) {
+			$file .= $item['owner'] . '.';
+		}
+		if ($item['dtime'] && System::type($item['dtime'], 'numeric')) {
+			$file .= $item['dtime'] . '.';
+		}
+		$file .= 'ini';
+		
+		return [
+			'path' => $path,
+			'file' => $file,
+			'id' => $item['id'],
+			'name' => $item['name'],
+			'data' => $item['data']
 		];
 		
 	}
