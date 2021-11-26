@@ -14,19 +14,18 @@ class User extends Globals {
 	
 	public $settings;
 	public $special;
-	public $rights;
 	
 	public function init() {
 		unset($this -> data);
 		$this -> data = new Entry;
 	}
 	
-	public function setSettings($settings) {
-		$this -> settings = json_decode(json_encode($settings), true);
+	public function isset() {
+		return System::set($this -> data);
 	}
 	
-	public function setRights($rights) {
-		$this -> rights = $rights;
+	public function setSettings($settings) {
+		$this -> settings = json_decode(json_encode($settings), true);
 	}
 	
 	public function setSpecial() {

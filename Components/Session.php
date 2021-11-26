@@ -67,7 +67,9 @@ class Session extends Globals {
 		session_regenerate_id(true);
 		$_SESSION['token'] = null;
 		$this -> init();
-		Sessions::setCookie('session', $token);
+		Sessions::setCookie('session', $this -> token);
+		//Sessions::setCookie('session', $_SESSION['token']);
+		//Sessions::setCookie('session', $session -> getSession('token'));
 	}
 	
 	public function open() {

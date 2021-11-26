@@ -59,12 +59,17 @@ class Database extends Singleton {
 		
 		$driver = __NAMESPACE__ . '\\Drivers\\' . Prepare::upperFirst($settings['driver']);
 		
-		unset($settings['driver']);
+		$rights = $settings['rights'];
+		unset($settings['driver'], $settings['rights']);
 		
 		$this -> driver = new $driver ($settings);
 		
 		$this -> data = new Collection;
 		$this -> driver -> connect();
+		
+		if ($rights) {
+			$this -> driver -> rights($rights);
+		}
 		
 	}
 	

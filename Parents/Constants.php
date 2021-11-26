@@ -44,11 +44,12 @@ class Constants extends Singleton {
 	
 	public function getArray($prefix, $convert = null) {
 		$result = [];
-		$prefix = mb_strtoupper($prefix);
+		$prefix = Strings::replace(mb_strtoupper($prefix), ':', '_');
+		$len = Strings::len($prefix) + 1;
 		foreach ($this -> constants as $key => $item) {
 			if (Strings::find($key, $prefix, 0)) {
 				if ($convert) {
-					$key = mb_strtolower(Strings::get($key, 3));
+					$key = mb_strtolower(Strings::get($key, $len));
 				}
 				$result[$key] = $item;
 			}
