@@ -2,11 +2,14 @@
 
 namespace is\Masters;
 
-use is\Helpers\Sessions;
+use is\Helpers\System;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
+
 use is\Helpers\Parser;
 use is\Helpers\Prepare;
+use is\Helpers\Sessions;
+
 use is\Parents\Singleton;
 use is\Components\Collection;
 
@@ -87,7 +90,11 @@ class Database extends Singleton {
 	
 	public function launch() {
 		$this -> driver -> launch();
-		$this -> data -> addByList($this -> driver -> data); // new
+		if (System::typeOf($this -> driver -> data, 'iterable')) {
+			$this -> data -> addByList($this -> driver -> data);
+		} else {
+			$this -> data -> reset();
+		}
 		$this -> driver -> resetData();
 		$this -> driver -> cached = null;
 	}

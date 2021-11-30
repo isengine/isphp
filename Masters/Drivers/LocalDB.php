@@ -12,6 +12,7 @@ use is\Helpers\Local;
 class Localdb extends Master {
 	
 	protected $path;
+	public $matched;
 	
 	public function connect() {
 		
@@ -74,65 +75,110 @@ class Localdb extends Master {
 		
 	}
 	
-	public function write($item) {
+	public function write() {
 		
-		if (!is_array($item) || !$item['name'] || !$item['data']) {
+		if (!$this -> data['data']) {
 			return;
 		}
 		
-		// сначала создаем правильное содержимое записи
-		// переводим нужные поля в пути
-		// затем ищем подходящие файлы в заданном пути
+		$item = $this -> createInfoForFile($this -> data);
 		
-		$item = $this -> createInfoForFile($item);
+		// в matched мы сохраняем состояния проверки
+		// проверка идет на наличие записей, поэтому
+		// в данном случае там находится путь к файлу
+		
+		// объединяем данные
+		
+		$data = Parser::fromJson( Local::readFile($this -> matched) );
+		if ($data) {
+			$item['data'] = Objects::merge($data, $item['data'], true);
+		}
+		
+		// затем записываем туда данные в формате json
+		
+		$result = $this -> writeDataToFile(
+			$this -> matched,
+			$item['data']
+		);
+		
+		return $result;
+		
+	}
+	
+	public function create() {
+		
+		$item = $this -> createInfoForFile($this -> data);
+		
+		// смотрим, есть ли нужная директория и если нет, то создаем ее
+		
+		if (!Local::matchFolder($item['path'])) {
+			Local::createFolder($item['path']);
+		}
+		
+		return $this -> writeDataToFile(
+			$item['path'] . $item['file'],
+			$item['data']
+		);
+		
+	}
+	
+	public function delete() {
+		
+		// в matched мы сохраняем состояния проверки
+		// проверка идет на наличие записей, поэтому
+		// в данном случае там находится путь к файлу
+		
+		return Local::deleteFile($this -> matched);
+		
+	}
+	
+	public function match() {
+		
+		// нам нужна проверка существования записи
+		// тогда и только тогда мы сможем вынести эту проверку за пределы
+		// методов create, write и т.д.
+		// и сможем поместить ее в мастер-класс, родительский
+		// чтобы переходить к непосредственно выполнению заданий
+		// только после проверок
+		// тогда не нужно будет реализовывать эти проверки в каждом задании,
+		// и можно будет сосредоточиться на правильном выполнении самого задания
+		
+		// сбрасываем прежние результаты
+		
+		$this -> matched = null;
+		
+		// делаем обработку данных
+		
+		$item = $this -> createInfoForFile($this -> data);
+		
+		// ищем, есть ли хотя бы один подходящий файл в заданном пути
+		
 		$files = Local::search($item['path'], ['return' => 'files', 'extension' => 'ini', 'subfolders' => null, 'merge' => true]);
-		$first = true;
-		$result = null;
+		
+		// проверяем, найдены ли вообще файлы
+		
+		if (!$files || !is_array($files)) {
+			return;
+		}
+		
+		// перебираем все файлы и ищем те, которые подходят под нашу запись
 		
 		foreach ($files as $i) {
-			
-			// перебираем все файлы и ищем те, которые подходят под нашу запись
 			
 			$id = Strings::match($i['name'], '.' . $item['name'] . '.');
 			$noid = Strings::find($i['name'], $item['name'] . '.', 0);
 			
-			if (!$id && !$noid) {
-				continue;
-			}
-			
-			$data = Parser::fromJson( Local::readFile($i['fullpath']) );
-			
-			if ($first) {
-				
-				// первое совпадене берем в работу, остальные - удаляем
-				// переименовываем файл, используя полный путь, включая id, type и др.
-				// затем записываем туда данные в формате json
-				
-				$path = $item['path'] . ($id ? $item['id'] . '.' : null) . $item['file'];
-				
-				if ($i['fullpath'] !== $path) {
-					Local::renameFile($i['fullpath'], $path);
-				}
-				
-				$result = $this -> writeDataToFile(
-					$path,
-					Objects::merge(
-						$data ? $data : [],
-						$item['data'],
-						true
-					)
-				);
-				
-				$first = null;
-				
-			} else {
-				Local::deleteFile($i['fullpath']);
+			if ($id || $noid) {
+				// это совпадение, значит файл существует
+				// записываем это состояние
+				// возвращаем его данные
+				$this -> matched = $i['fullpath'];
+				return true;
 			}
 			
 		}
-		unset($files, $i, $id, $noid, $data, $path, $first);
 		
-		return $result;
+		return;
 		
 	}
 	
@@ -178,13 +224,6 @@ class Localdb extends Master {
 		}
 		
 		$parse = Objects::join(['id', 'name', 'type', 'owner', 'dtime'], $parse);
-		//$parse = Objects::combine($parse, [
-		//	'id',
-		//	'name',
-		//	'type',
-		//	'owner',
-		//	'dtime',
-		//]);
 		
 		return [
 			'path' => $item['fullpath'],
@@ -202,6 +241,9 @@ class Localdb extends Master {
 	
 	private function createInfoForFile($item) {
 		
+		// сначала создаем правильное содержимое записи
+		// переводим нужные поля в пути
+		
 		$path = $this -> path . $this -> collection . DS . ($item['parents'] ? Strings::join($item['parents'], DS) . DS : null);
 		
 		$item['name'] = Strings::replace($item['name'], '.', '--');
@@ -213,9 +255,24 @@ class Localdb extends Master {
 			$file .= $item['type'] . '.';
 		}
 		if (System::set($item['owner'])) {
+			if (
+				!System::set($item['type'])
+			) {
+				$file .= '.';
+			}
 			$file .= $item['owner'] . '.';
 		}
 		if ($item['dtime'] && System::type($item['dtime'], 'numeric')) {
+			if (
+				!System::set($item['type']) &&
+				!System::set($item['owner'])
+			) {
+				$file .= '..';
+			} elseif (
+				!System::set($item['owner'])
+			) {
+				$file .= '.';
+			}
 			$file .= $item['dtime'] . '.';
 		}
 		$file .= 'ini';

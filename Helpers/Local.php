@@ -327,7 +327,7 @@ class Local {
 		
 		self::eraseFolder($target);
 		chmod($target, 0755);
-		rmdir($target);
+		return rmdir($target);
 		
 	}
 
@@ -667,8 +667,7 @@ class Local {
 		}
 		
 		chmod($target, 0644);
-		unlink($target);
-		
+		return unlink($target);
 	}
 
 	static public function eraseFile($target) {

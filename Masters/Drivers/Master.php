@@ -6,9 +6,9 @@ use is\Helpers\System;
 use is\Helpers\Strings;
 use is\Helpers\Objects;
 
-use is\Masters\Drivers\Master\Verify;
+use is\Masters\Drivers\Master\Errors;
 
-abstract class Master extends Verify {
+abstract class Master extends Errors {
 	
 	/*
 	это фактически интерфейс драйвера
@@ -87,18 +87,26 @@ abstract class Master extends Verify {
 			$this -> prepareWrite();
 			// данные для записи берутся из массива $this -> data
 			// где каждое значение - одна запись, но не объект entry, а массив
+			// не создает новую запись, а изменяет существующую
+			// не работает без данных
 			//$this -> write();
 		}
 		
-		//if ($this -> query === 'create') {
-		//	$this -> prepareCreate();
-		//	//$this -> create();
-		//}
+		if ($this -> query === 'create') {
+			$this -> prepareCreate();
+			// данные для записи берутся из массива $this -> data
+			// где каждое значение - одна запись, но не объект entry, а массив
+			// создает новую запись, существующие не трогает
+			// работает как с данными, так и без данных
+			//$this -> create();
+		}
 		
-		//if ($this -> query === 'delete') {
-		//	$this -> prepareDelete();
-		//	//$this -> delete();
-		//}
+		if ($this -> query === 'delete') {
+			$this -> prepareDelete();
+			// удаляет существующие записи
+			// работает только без данных
+			//$this -> delete();
+		}
 		
 		// ЕЩЕ НУЖНО СДЕЛАТЬ ФИЛЬТРАЦИЮ И ОТБОР ПО УКАЗАННЫМ QUERY ДАННЫМ
 		// ЕЩЕ НУЖНО createFileFromInfo
@@ -136,26 +144,87 @@ abstract class Master extends Verify {
 	
 	public function prepareWrite() {
 		
-		if (!System::typeIterable($this -> data)) {
+		$this -> prepareItem();
+		
+		if (
+			!$this -> data ||
+			!$this -> match()
+		) {
 			return;
 		}
 		
-		foreach ($this -> data as $key => $item) {
-			
-			if (System::type($item, 'object')) {
-				$item = json_decode(json_encode($item), true);
-			}
-			
-			$item = $this -> verify($item);
-			
-			if ($this -> write($item)) {
-				unset($this -> data[$key]);
-			} else {
-				// logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this -> collection . ']');
-			}
-			
+		if ($this -> write()) {
+			$this -> data = null;
+		} else {
+			$this -> setError($this -> data['name']);
+			// logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this -> collection . ']');
 		}
-		unset($key, $item);
+		
+	}
+	
+	public function prepareCreate() {
+		
+		$this -> prepareItem();
+		
+		if (
+			!$this -> data ||
+			$this -> match()
+		) {
+			return;
+		}
+		
+		if ($this -> create()) {
+			$this -> data = null;
+		} else {
+			$this -> setError($this -> data['name']);
+			// logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this -> collection . ']');
+		}
+		
+	}
+	
+	public function prepareDelete() {
+		
+		$this -> prepareItem();
+		
+		if (
+			!$this -> data ||
+			!$this -> match()
+		) {
+			return;
+		}
+		
+		if ($this -> delete()) {
+			$this -> data = null;
+		} else {
+			$this -> setError($this -> data['name']);
+			// logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this -> collection . ']');
+		}
+		
+	}
+	
+	public function prepareItem() {
+		
+		$item = $this -> data;
+		$this -> data = null;
+		
+		if (!System::typeIterable($item)) {
+			return;
+		}
+		
+		if (System::type($item, 'object')) {
+			$item = json_decode(json_encode($item), true);
+		}
+		
+		// если нет имени, то мы ничего не сможем сделать с этой записью
+		
+		if (!$item['name']) {
+			return;
+		}
+		
+		// проверка прав
+		// и результат
+		
+		$this -> data = $this -> verify($item);
 		
 	}
 	

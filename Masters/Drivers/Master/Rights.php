@@ -108,12 +108,12 @@ class Rights extends Cache {
 			$data = System::typeIterable($entry['data']);
 			
 			if ($deny && $data) {
-				$entry['data'] = removeByIndex($entry['data'], $rights['deny']);
+				$entry['data'] = Objects::removeByIndex($entry['data'], $rights['deny']);
 			}
 			if ($allow && $data) {
 				$keys = Objects::keys($entry['data']);
-				$keys = remove($keys, $rights['allow']);
-				$entry['data'] = removeByIndex($entry['data'], $keys);
+				$keys = Objects::remove($keys, $rights['allow']);
+				$entry['data'] = Objects::removeByIndex($entry['data'], $keys);
 				unset($keys);
 			}
 			

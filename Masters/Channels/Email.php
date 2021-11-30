@@ -123,8 +123,8 @@ class Email extends Master {
 			$this -> header
 		);
 		
-		System::debug($result);
-		echo '<hr>*******************************<hr>';
+		//System::debug($result);
+		//echo '<hr>*******************************<hr>';
 		
 	}
 	

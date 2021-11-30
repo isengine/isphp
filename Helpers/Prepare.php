@@ -186,9 +186,11 @@ class Prepare {
 		return $data;
 	}
 	static public function numeric($data) {
-		$data = preg_replace('/^[^\d]+?(\d)/', '$1', $data);
 		$data = str_replace(',', '.', $data);
-		$data = (float) $data;
+		$data = preg_replace('/[^\d]/ui', '', $data);
+		//$data = preg_replace('/^[^\d]+?(\d)/', '$1', $data);
+		//$data = str_replace(',', '.', $data);
+		//$data = (float) $data;
 		return $data;
 	}
 	static public function datetime($data) {
@@ -212,9 +214,6 @@ class Prepare {
 		
 		return '+' . $data;
 		
-	}
-	static public function codephone($data) {
-		return preg_replace('/[^0-9+*#]/u', '', $data);
 	}
 	static public function login($data) {
 		return self::email($data);
