@@ -174,13 +174,10 @@ class Prepare {
 		$data = preg_replace('/[^\w ]|\d/u', '', $data);
 		return $data;
 	}
-	static public function text($data) {
-		$data = preg_replace('/^[\w\d\s\-\'\"\.\,\!\?\(\)\:\№\*«»…—‒–]+$/u', '', $data);
-		return $data;
-	}
 	static public function alphanumeric($data, $replace = null, $compact = true) {
-		$data = preg_replace('/[^a-zA-Z0-9_\- ]/u', $replace, $data);
-		if ($compact) {
+		$data = preg_replace('/[^0-9_\w\-\.\, ]/u', $replace, $data);
+		//$data = preg_replace('/[^a-zA-Z0-9_\- ]/u', $replace, $data);
+		if ($compact && $replace) {
 			$data = preg_replace('/\\' . $replace . '{2,}/u', $replace, $data);
 		}
 		return $data;

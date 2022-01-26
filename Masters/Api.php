@@ -47,7 +47,7 @@ class Api extends Singleton {
 			$this -> error();
 		}
 		
-		$class_name = __NAMESPACE__ . '\\Methods\\' . $this -> class;
+		$class_name = __NAMESPACE__ . '\\Methods\\' . Prepare::upperFirst($this -> class);
 		
 		if (!class_exists($class_name)) {
 			$this -> error();
