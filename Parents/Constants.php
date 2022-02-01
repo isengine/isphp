@@ -51,6 +51,10 @@ class Constants extends Singleton {
 				if ($convert) {
 					$key = mb_strtolower(Strings::get($key, $len));
 				}
+				if (Strings::find($key, '_')) {
+					$key = Strings::before($key, '_');
+					$item = $this -> getArray($prefix . '_' . $key, $convert);
+				}
 				$result[$key] = $item;
 			}
 		}
