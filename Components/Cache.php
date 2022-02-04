@@ -85,7 +85,7 @@ class Cache extends Data {
 		
 		// включение/выключение кэширования
 		
-		$this -> caching = $caching ? true : null;
+		$this -> caching = $caching ? (System::type($caching, 'numeric') ? $caching : true) : null;
 		
 	}
 	
@@ -183,6 +183,21 @@ class Cache extends Data {
 			!$this -> caching ||
 			!$this -> name ||
 			!file_exists($this -> name)
+		) {
+			return;
+		}
+		
+		// сюда мы добавляем кэширование по времени
+		//        cache_time  current_time
+		// .......*...........*........
+		//        |______|__________|
+		// 	           set_time
+		// current_time > cache_time + set_time = кэшируем заново
+		// current_time <= cache_time + set_time = читаем кэш
+		
+		if (
+			System::type($this -> caching, 'numeric') &&
+			time() > (filemtime($this -> name) + $this -> caching)
 		) {
 			return;
 		}
