@@ -37,12 +37,23 @@ class Module extends Singleton {
 	public function launch($names, $data = null, $settings = null, $caching = 'default') {
 		
 		$names = Parser::fromString($names);
-		$data = Parser::fromString($data);
+		$data = Parser::fromString($data, ['simple' => null]);
 		
 		$name = $names[0];
 		$vendor = $names[1] ? $names[1] : 'isengine';
 		$instance = $data[0] ? $data[0] : 'default';
 		$template = $data[1] ? $data[1] : $instance;
+		$assets = $data[2] ? $data[2] : $template;
+		
+		if (System::typeOf($instance, 'iterable')) {
+			$instance = Strings::join($instance, ':');
+		}
+		if (System::typeOf($template, 'iterable')) {
+			$template = Strings::join($template, ':');
+		}
+		if (System::typeOf($assets, 'iterable')) {
+			$assets = Strings::join($assets, ':');
+		}
 		
 		$path = $this -> path . $vendor . DS . $name . DS;
 		$custom = $this -> custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS;
@@ -63,6 +74,7 @@ class Module extends Singleton {
 			'vendor' => $vendor,
 			'instance' => $instance,
 			'template' => $template,
+			'assets' => $assets,
 			'settings' => $settings,
 			'path' => $path,
 			'custom' => $custom
@@ -143,14 +155,18 @@ class Module extends Singleton {
 		// ассеты в данном случае - это дополнения к модулям,
 		// которые будут делать что-либо уже после кэширования и вывода шаблона
 		
+		// раньше ассеты назначались по имени шаблона,
+		// теперь ассеты будут указываться третьим аргументом,
+		// наследуемым от шаблона, если шаблон не укзан
+		
 		$custom = $this -> getData('custom');
 		$path = $this -> getData('path');
-		$template = $this -> getData('template');
+		$assets = Strings::replace($this -> getData('assets'), ':', DS);
 		
 		$path = [$custom, $path];
 		
 		foreach ($path as $i) {
-			$i = Paths::toReal($i . 'assets' . DS . $template . '.php');
+			$i = Paths::toReal($i . 'assets' . DS . $assets . '.php');
 			if (Local::matchFile($i)) {
 				if (!$this -> settings) {
 					$this -> settings();
@@ -167,7 +183,7 @@ class Module extends Singleton {
 		
 		$vendor = $this -> getData('vendor');
 		$name = $this -> getData('name');
-		$instance = $this -> getData('instance');
+		$instance = Strings::replace($this -> getData('instance'), ':', DS);
 		$settings = $this -> getData('settings');
 		
 		// сюда же можно добавить кэш
@@ -210,11 +226,23 @@ class Module extends Singleton {
 	
 	public function dbread() {
 		
+		$instance = $this -> getData('instance');
+		$name = $instance;
+		$parents = '+' . $this -> getData('vendor') . ':+' . $this -> getData('name');
+		
+		if (Strings::match($instance, ':')) {
+			$instance = Strings::split($instance, ':');
+			$name = Objects::last($instance, 'value');
+			$parents .= ':+' . Strings::join(Objects::cut($instance, -1), ':+');
+		}
+		
+		unset($instance);
+		
 		$db = Database::getInstance();
 		
 		$db -> collection('modules');
 		$db -> driver -> filter -> addFilter('name', '+' . $this -> getData('instance'));
-		$db -> driver -> filter -> addFilter('parents', '+' . $this -> getData('vendor') . ':+' . $this -> getData('name'));
+		$db -> driver -> filter -> addFilter('parents', $parents);
 		$db -> launch();
 		$result = $db -> data -> getFirstData();
 		$db -> clear();

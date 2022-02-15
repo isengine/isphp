@@ -73,9 +73,11 @@ abstract class Master extends Data {
 	
 	public function template() {
 		
+		$template = Strings::replace($this -> template, ':', DS);
+		
 		$path = [
-			$this -> custom_path . 'templates' . DS . $this -> template,
-			$this -> path . 'templates' . DS . $this -> template,
+			$this -> custom_path . 'templates' . DS . $template,
+			$this -> path . 'templates' . DS . $template,
 			$this -> custom_path . 'templates' . DS . 'default',
 			$this -> path . 'templates' . DS . 'default'
 		];

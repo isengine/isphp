@@ -38,7 +38,7 @@ class Block extends Data {
 	// $view -> get('layout') -> init('blocks', $path, $cache); // переключить на true
 	// запуск
 	// $view -> get('module') -> launch('data', 'eshop-toasts');
-	// $view -> get('layout') -> launch('blocks', 'header:top-nav');
+	// $view -> get('layout') -> launch('blocks', 'header|top-nav');
 	// $view -> get('block') -> launch('block-name-with-path', 'template-if-need');
 	
 	public function launch($name, $template = null, $caching = 'default') {

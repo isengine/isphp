@@ -25,6 +25,8 @@ abstract class Master extends Data {
 		}
 	}
 	
+	abstract public function launch();
+	
 }
 
 ?>
