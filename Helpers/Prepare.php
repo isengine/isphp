@@ -485,14 +485,14 @@ class Prepare {
 		
 	}
 	
-	static public function toString($data) {
+	static public function toString($data, $replace = ':') {
 		
 		/*
 		*  Функция которая преобразует объект в строку
 		*  Является синонимом Strings::join
 		*/
 		
-		return Strings::join($data, ':');
+		return Strings::join($data, $replace);
 		
 	}
 	
