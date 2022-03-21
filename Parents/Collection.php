@@ -212,9 +212,9 @@ class Collection extends Data {
 		
 	}
 	
-	public function removeByCut($skip, $len) {
+	public function removeByCut($skip = 0, $len = null) {
 		
-		$names = Objects::cut($this -> names, $skip ? $skip : 0, $len ? $len : null);
+		$names = Objects::cut($this -> names, $skip, $len);
 		
 		foreach ($names as $item) {
 			$this -> remove(null, $item);
@@ -253,7 +253,7 @@ class Collection extends Data {
 			}
 		}
 		unset($item);
-		$this -> names = Objects::sort($this -> names);
+		$this -> names = Objects::sort($this -> names, null, true);
 		$this -> names = Objects::keys($this -> names);
 	}
 	

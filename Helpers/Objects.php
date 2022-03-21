@@ -853,16 +853,16 @@ class Objects {
 		
 	}
 
-	static public function sort($haystack, $reverse = false, $keys = false) {
+	static public function sort($haystack, $keys = false, $associate = 'default') {
 		
 		/*
 		*  Функция сортировки массива
 		*  всегда используется NATCASESORT без учета регистра
-		*  вторым аргументом можно задать сортировку в обратном порядке
-		*  третьим аргументом можно задать сортировку по ключам
+		*  вторым аргументом можно задать сортировку по ключам
+		*  третьим аргументом можно принудительно задать тип массива
 		*/
 		
-		$associate = self::associate($haystack);
+		$associate = $associate === 'default' ? self::associate($haystack) : $associate;
 		
 		$numeric = $keys ? !$associate : self::numeric($haystack);
 		
@@ -872,19 +872,16 @@ class Objects {
 			asort($haystack, $numeric ? SORT_NUMERIC : SORT_NATURAL | SORT_FLAG_CASE);
 		}
 		
-		if ($reverse) {
-			$haystack = self::reverse($haystack);
-		}
-		
 		if ($associate) {
 			return $haystack;
 		} else {
-			$result = [];
-			foreach ($haystack as $i) {
-				$result[] = $i;
-			}
-			unset($i);
-			return $result;
+			//$result = [];
+			//foreach ($haystack as $i) {
+			//	$result[] = $i;
+			//}
+			//unset($i);
+			//return $result;
+			return self::values($haystack);
 		}
 		
 	}

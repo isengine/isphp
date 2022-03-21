@@ -39,6 +39,9 @@ class Uri extends Globals {
 	public $reload;
 	public $original;
 	
+	public $rest;
+	public $keys;
+	
 	public function create() {
 		
 		// получение данных

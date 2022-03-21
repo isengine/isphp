@@ -221,6 +221,7 @@ class Strings {
 		
 		$needle = Objects::convert($needle);
 		$needle = Objects::sort($needle, true);
+		$needle = Objects::reverse($needle);
 		
 		foreach ($needle as $item) {
 			$haystack = substr_replace($haystack, '', $item, 1);
@@ -488,21 +489,16 @@ class Strings {
 		
 	}
 
-	static public function sort($haystack, $reverse = false, $register = true) {
+	static public function sort($haystack, $register = true) {
 		
 		/*
 		*  Функция сортировки строки по символам
-		*  вторым аргументом можно задать сортировку в обратном порядке
 		*  вторым аргументом можно выключить сортировку с учетом регистра
 		*/
 		
 		$haystack = preg_split('//u', $haystack);
 
 		sort($haystack, $register ? SORT_NATURAL : SORT_NATURAL | SORT_FLAG_CASE);
-		
-		if ($reverse) {
-			$haystack = Objects::reverse($haystack);
-		}
 		
 		$str = implode('', $haystack);
 		
