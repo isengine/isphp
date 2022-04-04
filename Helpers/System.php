@@ -274,13 +274,17 @@ class System {
 		// НОВАЯ ФУНКЦИЯ - ВОЗРАЩАЕТ РАЗНЫЕ ДАННЫЕ СЕРВЕРА
 		
 		if ($name === 'root') {
+			// \domains\isengine.org\public\
 			$name = realpath($_SERVER['DOCUMENT_ROOT']) . DS;
 		} elseif ($name === 'host') {
+			// isengine.org
 			$name = $_SERVER['HTTP_HOST'];
 			//$name = $_SERVER['SERVER_NAME'];
 		} elseif ($name === 'fullprotocol') {
+			// HTTP/1.1
 			$name = $_SERVER['SERVER_PROTOCOL'];
 		} elseif ($name === 'protocol') {
+			// http
 			$name = 'http';
 			if (
 				strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, 5)) === 'https' ||
@@ -295,6 +299,7 @@ class System {
 				$name = 'https';
 			}
 		} elseif ($name === 'domain') {
+			// http://0isengine.org
 			$name = self::server('protocol') . '://' . (
 				extension_loaded('intl') ? idn_to_utf8(
 					$_SERVER['HTTP_HOST'],
@@ -303,18 +308,80 @@ class System {
 				) : $_SERVER['HTTP_HOST']
 			);
 		} elseif ($name === 'request') {
+			// ...
 			$name = urldecode($_SERVER['REQUEST_URI']);
 		} elseif ($name === 'method') {
+			// get
 			$name = strtolower($_SERVER['REQUEST_METHOD']);
 		} elseif ($name === 'ip') {
+			// 127.0.0.1
 			$name = $_SERVER['REMOTE_ADDR'];
 		} elseif ($name === 'agent') {
+			// Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/xxx.xx (KHTML, like Gecko) Chrome/xx.x.xxxx.xx Safari/xxx.xx
 			$name = $_SERVER['HTTP_USER_AGENT'];
 		} else {
 			$name = null;
 		}
 		
 		return $name;
+		
+	}
+
+	static public function typeTo($item = null, $type = null) {
+		
+		/*
+		Приведение к типу:
+			scalar   скаляный (строковый) тип - строка или число
+			iterable итерируемый (объектный) тип - массив
+			object   Объект/именованный не пустой массив
+			array    Простой, неименованный не пустой массив
+			numeric  число, в том числе строка записанная числом
+			string   Строка
+			true     Триггер/булев
+			null     Пустой элемент, false, null, undefined, пустая строка или пустой объект/массив, но не ноль
+		данная функция возвращает значение переменной, приведенное к нужному типу
+		можно также использовать для сброса значений или очистки переменной
+		*/
+		
+		if ($type === 'true') {
+			$item = (bool) $item;
+		} elseif ($type === 'string') {
+			if (System::typeOf($item, 'iterable')) {
+				$item = json_encode($item);
+			} else {
+				$item = (string) $item;
+			}
+		} elseif ($type === 'scalar') {
+			if (System::typeOf($item, 'iterable')) {
+				$item = json_encode($item);
+			} elseif (System::type($item, 'numeric')) {
+				$item = preg_replace('/\s/u', null, $item);
+				$item = (float) $item;
+			} else {
+				$item = (string) $item;
+			}
+		} elseif ($type === 'numeric') {
+			$item = preg_replace('/\s/u', null, $item);
+			$item = (float) $item;
+		} elseif (
+			$type === 'array' ||
+			$type === 'iterable'
+		) {
+			$item = $item ? (array) $item : [];
+		} elseif ($type === 'object') {
+			$item = $item ? (object) $item : (object) [];
+		} else {
+			$item = null;
+		}
+		
+		//var_dump($item);
+		//System::debug(
+		//	'item : ' . print_r($item, 1),
+		//	'to__ : ' . $type,
+		//	'type : ' . System::type($item)
+		//);
+		
+		return $item;
 		
 	}
 

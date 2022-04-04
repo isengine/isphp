@@ -10,6 +10,7 @@ use is\Helpers\Match;
 class Map extends Data {
 	
 	public $count;
+	public $parents;
 	public $total;
 	
 	public function count($list, $tags = null) {
@@ -78,6 +79,7 @@ class Map extends Data {
 		$this -> reset();
 		foreach ($list as $item) {
 			$this -> addMap($item, $value);
+			$this -> addParents($item, $value);
 		}
 		unset($item);
 	}
@@ -91,9 +93,18 @@ class Map extends Data {
 	}
 	
 	public function removeMap($name) {
-		$this -> map = Objects::delete($this -> map, $this -> convert($name));
+		$this -> data = Objects::delete($this -> data, $this -> convert($name));
 	}
 	
+	public function addParents($name, $value = null) {
+		//$this -> parents = Objects::inject($this -> parents, $this -> convert( Strings::before($name, ':', null, true) ), $value);
+		//$this -> parents = Objects::inject($this -> parents, $this -> convert($name), $value);
+		$this -> parents = Objects::inject($this -> parents ? $this -> parents : [], $this -> convert( Strings::before($name, ':', null, true) ), $value);
+	}
+	
+	public function removeParents($name) {
+		$this -> parents = Objects::delete($this -> parents, $this -> convert($name));
+	}
 	
 	public function convert($name) {
 		return Strings::split($name, ':');

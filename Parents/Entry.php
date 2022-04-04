@@ -57,7 +57,7 @@ class Entry extends Data {
 		}
 		unset($item);
 		
-		$this -> setEntryData($data['data']);
+		$this -> setData($data['data']);
 		
 	}
 	
@@ -65,10 +65,6 @@ class Entry extends Data {
 		if (System::set($key)) {
 			$this -> $key = $data;
 		}
-	}
-	
-	public function setEntryData($first, $second = null) {
-		$this -> setData($first, $second);
 	}
 	
 }

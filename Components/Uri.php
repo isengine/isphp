@@ -147,7 +147,8 @@ class Uri extends Globals {
 	}
 	
 	public function setFile() {
-		$this -> file = Paths::parseFile( Objects::last($this -> path['array'], 'value') );
+		$array = $this -> route ? $this -> route : $this -> path['array'];
+		$this -> file = Paths::parseFile( Objects::last($array, 'value') );
 		if (!$this -> file['extension']) {
 			$this -> file = [];
 		}
@@ -209,6 +210,51 @@ class Uri extends Globals {
 	
 	public function setUrl() {
 		$this -> url = $this -> domain . ($this -> language ? $this -> language . '/' : null) . $this -> path['string'] . $this -> query['string'];
+	}
+	
+	public function setRest($rest, $keys, $query = true) {
+		
+		$this -> rest = $rest;
+		$this -> keys = $keys;
+		
+		$data = [];
+		$array = null;
+		
+		$path_array = $this -> getPathArray();
+		
+		if ( System::type($rest, 'numeric') ) {
+			$array = Objects::get($path_array, $rest - 1);
+			$this -> route = Objects::get($path_array, 0, $rest - 1);
+		} else {
+			$find = Objects::find($path_array, $rest);
+			if (System::set($find)) {
+				$array = Objects::get($path_array, $find + 1);
+				$this -> route = Objects::get($path_array, 0, $find);
+			}
+		}
+		
+		if ($array) {
+			if ($keys) {
+				$data = Objects::split($array);
+			} else {
+				$data = Objects::reset($array);
+			}
+		}
+		
+		if ($query) {
+			$data = Objects::merge($data, $this -> query['array']);
+			if (System::server('method') === 'post') {
+				$data = Objects::merge($data, $_POST);
+			}
+		}
+		
+		$this -> setData($data);
+		
+		unset($data, $array);
+		
+		$this -> setFile();
+		$this -> setFolder();
+		
 	}
 	
 }

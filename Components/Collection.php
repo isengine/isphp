@@ -46,6 +46,7 @@ class Collection extends Parents\Collection {
 				$data = Objects::extract($data, Strings::split($from, ':'));
 			}
 			$this -> map -> addMap($item, $data);
+			$this -> map -> addParents($item, $data);
 			unset($data);
 		}
 		unset($item);
@@ -67,6 +68,7 @@ class Collection extends Parents\Collection {
 	public function add($data, $replace = true) {
 		$name = parent::add($data, $replace);
 		$this -> map -> addMap($name);
+		$this -> map -> addParents($name);
 	}
 	
 	public function remove($id = null, $name = null) {

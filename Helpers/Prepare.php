@@ -230,9 +230,18 @@ class Prepare {
 		$data = htmlspecialchars($data);
 		return $data;
 	}
-	static public function urlencode($data) {
-		$data = rawurlencode($data);
-		return $data;
+	static public function urlencode($data, $except = null) {
+		if (!$except) {
+			return rawurlencode($data);
+		} else {
+			$data = preg_split('//u', $data);
+			$result = null;
+			foreach ($data as $item) {
+				$result .= !$item || Strings::match($except, $item) ? $item : rawurlencode($item);
+			}
+			unset($item);
+			return $result;
+		}
 	}
 	static public function urldecode($data) {
 		$data = rawurldecode($data);
