@@ -352,17 +352,22 @@ class System {
 				$item = (string) $item;
 			}
 		} elseif ($type === 'scalar') {
-			if (System::typeOf($item, 'iterable')) {
-				$item = json_encode($item);
-			} elseif (System::type($item, 'numeric')) {
-				$item = preg_replace('/\s/u', null, $item);
-				$item = (float) $item;
-			} else {
-				$item = (string) $item;
-			}
+			$item = self::typeTo($item, System::type($item, 'numeric') ? 'numeric' : 'string');
+			//if (System::typeOf($item, 'iterable')) {
+			//	$item = json_encode($item);
+			//} elseif (System::type($item, 'numeric')) {
+			//	$item = preg_replace('/\s/u', null, $item);
+			//	$item = (float) $item;
+			//} else {
+			//	$item = (string) $item;
+			//}
 		} elseif ($type === 'numeric') {
 			$item = preg_replace('/\s/u', null, $item);
-			$item = (float) $item;
+			if (mb_strpos($item, '.') === false) {
+				$item = (int) $item;
+			} else {
+				$item = (float) $item;
+			}
 		} elseif (
 			$type === 'array' ||
 			$type === 'iterable'
