@@ -65,6 +65,8 @@ abstract class Master extends Data {
 		}
 		unset($i);
 		
+		return $item;
+		
 		//if ( !System::includes($name, $this -> custom . 'blocks', null, $object ? $object : $this) ) {
 		//	System::includes($name, $this -> path . 'blocks', null, $object ? $object : $this);
 		//}
