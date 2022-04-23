@@ -2,7 +2,7 @@
     "name": "isengine/isphp",
     "type": "project",
     "description": "isEngine framework libraries on PHP",
-    "version": "1.0.0-beta",
+    "version": "1.0.0-rc",
     "keywords": [ "php", "cms", "framework", "isengine" ],
     "license": "MIT",
     "authors": [
