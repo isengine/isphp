@@ -32,7 +32,8 @@ class Paths
         *  path, file, name, extension
         */
 
-        $parse = Objects::merge([
+        $parse = Objects::merge(
+            [
                 'extension' => null,
                 'dirname' => null,
                 'filename' => null,

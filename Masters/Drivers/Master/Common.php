@@ -124,7 +124,6 @@ class Common extends Data
             System::typeIterable($this->settings['fields'])
         ) {
             foreach ($this->settings['fields'] as $k => $i) {
-                
                 $i = Objects::merge(
                     [
                         'from' => null,
@@ -133,9 +132,9 @@ class Common extends Data
                     ],
                     $i
                 );
-                
+
                 $in_entry = isset($entry[$k]) && System::set($entry[$k]);
-                
+
                 if ($i['from'] === 'fill') {
                     $col = $in_entry ? $entry[$k] : $fill;
                 } else {
@@ -145,7 +144,6 @@ class Common extends Data
                         $val = $i['from'] ? $i['from'] : $k;
                         $col = isset($entry[$val]) ? $entry[$val] : null;
                     }
-                    //$col = isset($entry[$k]) && System::set($entry[$k]) ? $entry[$k] : $entry[ $i['from'] ? $i['from'] : $k ];
                 }
 
                 if (System::set($col) && $i['prepare']) {

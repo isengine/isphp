@@ -177,7 +177,7 @@ class Local
             ],
             $parameters
         );
-        
+
         $parameters['extension'] = Parser::fromString($parameters['extension']);
         $parameters['skip'] = Parser::fromString($parameters['skip']);
 
@@ -402,7 +402,7 @@ class Local
             ],
             Paths::parseUrl($target)
         );
-        
+
         $host = System::server('host');
 
         if ($info['host'] && $info['host'] === $host) {

@@ -261,6 +261,7 @@ class System
     {
         // НОВАЯ ФУНКЦИЯ - ВОЗРАЩАЕТ РАЗНЫЕ ДАННЫЕ СЕРВЕРА
         if ($from) {
+            $name = mb_strtoupper($name);
             return isset($_SERVER[$name]) ? $_SERVER[$name] : null;
         }
 

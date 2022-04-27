@@ -97,7 +97,7 @@ class Session extends Globals
         $this -> setValue('csrf-match', $this -> getValue('csrf-token'));
         $token = Prepare::hash(time());
         $this -> setValue('csrf-token', $token);
-        
+
         if (!$this -> getValue('csrf-match')) {
             $this -> setValue('csrf-match', $token);
         }

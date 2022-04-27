@@ -64,7 +64,7 @@ class Database extends Singleton
         //    ],
         //    $settings
         //);
-        
+
         $driver = __NAMESPACE__ . '\\Drivers\\' . Prepare::upperFirst($settings['driver']);
 
         $rights = $settings['rights'];
