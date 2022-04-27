@@ -37,17 +37,17 @@ require_once $path . 'helpers' . DS . 'init.php';
 $array = range(1, 100000, 1);
 
 foreach ($array as &$item) {
-	$item .= '+';
+    $item .= '+';
 }
 unset($item);
 
 //$r = System::foreach($array, null, function($i) {
-//	return $i .= '+';
+//    return $i .= '+';
 //});
 
 //$array = [10,20,30,40];
 //$r = System::foreach($array, [], function($i, $k, &$c) {
-//	$c[$k] = $i++;
+//    $c[$k] = $i++;
 //});
 
 //echo '<pre>' . print_r($r, 1) . '</pre>';
@@ -149,7 +149,6 @@ echo '<pre>+' . print_r(Data::cut($a, 30, -30), 1) . '</pre>';
 echo '<pre>+' . print_r(Data::cut($a, -30, 30), 1) . '</pre>';
 echo '<pre>+' . print_r(Data::cut($a, -30, -30), 1) . '</pre>';
 
-
 //echo '<pre>DATA</pre>';
 //echo '<pre>' . print_r(Data::get($a, 0), 1) . '</pre>';
 //echo '<pre>' . print_r(Data::get($a, 3), 1) . '</pre>';
@@ -212,5 +211,3 @@ echo '<pre>+' . print_r(Data::cut($a, -30, -30), 1) . '</pre>';
 echo '<br>' . (memory_get_usage() - $mu) . ' / ' . (memory_get_peak_usage() - $mpu) . '<br>' . (microtime(true) - $time);
 
 require_once $path . 'js' . DS . 'init.php';
-
-?>

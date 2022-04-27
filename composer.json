@@ -1,10 +1,15 @@
 {
     "name": "isengine/isphp",
     "type": "project",
-    "description": "isEngine framework libraries on PHP",
-    "version": "1.0.0-rc",
+    "description": "Библиотека для isEngine framework на PHP",
+    "version": "1.0.0-beta",
     "keywords": [ "php", "cms", "framework", "isengine" ],
     "license": "MIT",
+    "homepage": "https://isengine.org",
+    "support": {
+        "issues": "https://github.com/isengine/isphp/issues",
+        "source": "https://github.com/isengine/isphp"
+    },
     "authors": [
         {
             "name": "Max Nikonov",

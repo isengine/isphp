@@ -12,9 +12,9 @@ a = {"a" : 10, "b" : 20, "c" : 30, "d" : 40};
 b = is.Helpers.System.each(a, 'filter', function(i, k){
   //return k + '=>' + i;
   if (k === 'a') {
-	return false;
+    return false;
   } else {
-	return k + '=>' + i;
+    return k + '=>' + i;
   }
   //console.log(k + '=>' + i);
 });
@@ -53,9 +53,7 @@ a = {"a" : 10, "b" : 20, "c" : 30, "d" : 40};
 //console.log(a);
 
 b = is.Helpers.Data.each(a, [1], function(i, k, c){
-	
-	c[k + 1] = i + 10;
-	
+    c[k + 1] = i + 10;
 });
 
 a = '0123456789abcdef';
@@ -81,7 +79,6 @@ console.log(is.Helpers.Data.len(a));
 console.log(is.Helpers.Data.first(a));
 console.log(is.Helpers.Data.last(a));
 console.log(is.Helpers.Data.reverse(a));
-
 
 a = 'positionare';
 console.log('REVERSE');
@@ -208,7 +205,6 @@ console.log('+', JSON.stringify(is.Helpers.Data.cut(b, 30, 30)));
 console.log('+', JSON.stringify(is.Helpers.Data.cut(b, 30, -30)));
 console.log('+', JSON.stringify(is.Helpers.Data.cut(b, -30, 30)));
 console.log('+', JSON.stringify(is.Helpers.Data.cut(b, -30, -30)));
-
 
 //console.log('DATA');
 //console.log(is.Helpers.Data.get(a, 0));

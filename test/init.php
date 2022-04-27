@@ -14,20 +14,18 @@ $file = json_decode(file_get_contents($path . 'settings' . DS . 'init.ini'), tru
 <?php
 
 foreach ($file as $key => $item) {
-	
-	$t = $path . 'settings' . DS . $item . DS . $key . '.ini';
-	
-	if (
-		mb_strpos($key, '!') !== 0 &&
-		file_exists($t)
-	) {
-		// загружаем файл тестов
-		$item = json_decode(file_get_contents($t), true);
-		unset($t);
-		$template = $item['template'] ? $item['template'] : 'default';
-		require $path . 'templates' . DS . $template . '.php';
-	}
-	
+    $t = $path . 'settings' . DS . $item . DS . $key . '.ini';
+
+    if (
+        mb_strpos($key, '!') !== 0 &&
+        file_exists($t)
+    ) {
+        // загружаем файл тестов
+        $item = json_decode(file_get_contents($t), true);
+        unset($t);
+        $template = $item['template'] ? $item['template'] : 'default';
+        require $path . 'templates' . DS . $template . '.php';
+    }
 }
 unset($item);
 
@@ -42,5 +40,3 @@ echo '<hr>';
 echo '<p>END OF TESTS<br>' . number_format(memory_get_usage() / 1024, 3, '.', ' ') . ' KB total / ' . number_format(memory_get_peak_usage() / 1024, 3, '.', ' ') . ' KB in peak</p>';
 
 exit;
-
-?>

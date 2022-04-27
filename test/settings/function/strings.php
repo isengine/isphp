@@ -22,17 +22,17 @@ use is\Helpers\Data;
 $array = range(1, 100000, 1);
 
 foreach ($array as &$item) {
-	$item .= '+';
+    $item .= '+';
 }
 unset($item);
 
 //$r = System::foreach($array, null, function($i) {
-//	return $i .= '+';
+//    return $i .= '+';
 //});
 
 //$array = [10,20,30,40];
 //$r = System::foreach($array, [], function($i, $k, &$c) {
-//	$c[$k] = $i++;
+//    $c[$k] = $i++;
 //});
 
 //echo '<pre>' . print_r($r, 1) . '</pre>';
@@ -64,5 +64,3 @@ unset($item);
 //$r = Strings::len($a);
 //}
 //echo '<pre>(' . var_dump($r) . ')</pre>';
-
-?>

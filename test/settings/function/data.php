@@ -32,5 +32,3 @@ echo '<pre>' . print_r(Data::len($a), 1) . '</pre>';
 echo '<pre>' . print_r(Data::first($a), 1) . '</pre>';
 echo '<pre>' . print_r(Data::last($a), 1) . '</pre>';
 echo '<pre>' . print_r(Data::reverse($a), 1) . '</pre>';
-
-?>
