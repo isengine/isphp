@@ -4,6 +4,45 @@ namespace is\Helpers;
 
 class Objects
 {
+    public static function create($structure, $fill = null)
+    {
+        // функция создает массив данных по заданной структуре
+        // с указанным заполнением
+
+        $result = self::convert($structure);
+
+        if ($fill) {
+            $result = self::merge(
+                $result,
+                $fill,
+                true
+            );
+        }
+
+        return $result;
+    }
+
+    public static function createByIndex($structure, $fill = null)
+    {
+        // функция создает массив данных по заданной структуре
+        // но теперь это структура индексов
+        // с указанным заполнением
+
+        $result = self::join(
+            self::convert($structure),
+            null
+        );
+
+        if ($fill) {
+            $result = self::merge(
+                $result,
+                $fill
+            );
+        }
+
+        return $result;
+    }
+
     public static function associate($item)
     {
         // функция проверяет, является ли массив ассоциативным

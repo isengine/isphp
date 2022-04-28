@@ -62,6 +62,10 @@ class Prepare
 
     public static function clear($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = self::script($data);
         $data = self::stripTags($data);
         $data = self::trim($data);
@@ -73,6 +77,9 @@ class Prepare
     public static function script($data)
     {
         // выполняем предварительное очищение - от скриптов, программного кода
+        if (!System::set($data)) {
+            return $data;
+        }
 
         $data = preg_replace('/<\?.+?\?>/u', '', $data);
         $data = preg_replace('/<script.+?\/script>/ui', '', $data);
@@ -83,6 +90,9 @@ class Prepare
     public static function stripTags($data, $tags = null)
     {
         // продолжаем предварительное очищение - от всех тегов, кроме разрешенных
+        if (!System::set($data)) {
+            return $data;
+        }
 
         // задаем разрешенные теги
 
@@ -124,6 +134,9 @@ class Prepare
         // второй параметр задает замену при очищении
         // по-умолчанию, пусто
         // можно указать '$1' для замены на найденное значение
+        if (!System::set($data)) {
+            return $data;
+        }
 
         $data = preg_replace('/^(\s|(&nbsp;))+/ui', $replace, $data);
         $data = preg_replace('/(\s|(&nbsp;))+$/ui', $replace, $data);
@@ -137,6 +150,9 @@ class Prepare
         // второй параметр задает замену при очищении
         // по-умолчанию, '$1' - замена на найденное значение
         // можно указать null для очищения (nospaces) или ' ' для замены на пробел (tospaces)
+        if (!System::set($data)) {
+            return $data;
+        }
 
         $data = preg_replace('/(\s|&nbsp;)+/ui', $replace, $data);
 
@@ -146,6 +162,9 @@ class Prepare
     public static function comments($data)
     {
         // убираем комментарии
+        if (!System::set($data)) {
+            return $data;
+        }
 
         // clear comments [//...] from json parse with frotect of 'href://' string
         $data = preg_replace('/([^\:\"\'])\s*?\/\/.*?([$\r\n])/u', '$1$2', $data);
@@ -159,21 +178,37 @@ class Prepare
 
     public static function format($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^a-zA-Z0-9_\- .,:;]/u', '', $data);
         return $data;
     }
     public static function letters($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^\w]|\d/u', '', $data);
         return $data;
     }
     public static function words($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^\w ]|\d/u', '', $data);
         return $data;
     }
     public static function alphanumeric($data, $replace = '', $compact = true)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^0-9_\w\-\.\, ]/u', $replace, $data);
         //$data = preg_replace('/[^a-zA-Z0-9_\- ]/u', $replace, $data);
         if ($compact && $replace) {
@@ -183,6 +218,10 @@ class Prepare
     }
     public static function numeric($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = str_replace(',', '.', $data);
         $data = preg_replace('/[^\d]/ui', '', $data);
         //$data = preg_replace('/^[^\d]+?(\d)/', '$1', $data);
@@ -192,11 +231,19 @@ class Prepare
     }
     public static function datetime($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^0-9_\-.,:()\\\\\/ ]/u', '', $data);
         return $data;
     }
     public static function phone($data, $locale = null)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^0-9*#]/u', '', $data);
         //$original = !empty($special) ? $data : null;
 
@@ -218,17 +265,29 @@ class Prepare
     }
     public static function email($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^a-zA-Z0-9\-_.@]/u', '', $data);
         return $data;
     }
     public static function url($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[^a-zA-Z0-9\-_.:\/?&\'\"=#+]/u', '', $data);
         $data = rawurlencode($data);
         return $data;
     }
     public static function simpleurl($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = preg_replace('/[?&].*$/u', '', $data);
         $data = preg_replace('/[^a-zA-Z0-9\-_.:\/\w]/u', '', $data);
         $data = htmlspecialchars($data);
@@ -236,6 +295,10 @@ class Prepare
     }
     public static function urlencode($data, $except = null)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         if (!$except) {
             return rawurlencode($data);
         } else {
@@ -250,12 +313,20 @@ class Prepare
     }
     public static function urldecode($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = rawurldecode($data);
         //$data = preg_replace('/[^a-zA-Z0-9\-_.,:\/?&=#+\w ]/u', '', $data);
         return $data;
     }
     public static function onestring($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         // clear line breaks from json prepare: vvv
         // $data = preg_replace('/\r\n\s*|\r\s*|\n\s*/u', '', $data);
         $data = preg_replace('/([^\s]|^)[\s]*(\r?\n){1,}[\s]*([^\s]|$)/u', '$1 $3', $data);
@@ -263,16 +334,28 @@ class Prepare
     }
     public static function code($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5);
         return $data;
     }
     public static function entities($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = htmlentities($data);
         return $data;
     }
     public static function tags($data, $striptags = null)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         $data = htmlspecialchars_decode($data);
         $data = strip_tags($data, $striptags);
         return $data;
@@ -282,6 +365,9 @@ class Prepare
         // второй параметр задает замену при очищении
         // по-умолчанию, null - замена на пустое значение
         // можно указать ' ' для замены на пробел (notagsspaced)
+        if (!System::set($data)) {
+            return $data;
+        }
 
         //$data = preg_replace('/([^\s\t]|^)[\s\t]*(\r?\n){1,}[\s\t]*([^\s\t]|$)/', '$1 $3', $data);
         $data = preg_replace('/(<\/\w+?>)|(<\w+?\s.+?>)|(<\w+?>)/u', $replace, $data);
@@ -290,6 +376,10 @@ class Prepare
     }
     public static function cleartags($data)
     {
+        if (!System::set($data)) {
+            return $data;
+        }
+
         //$data = preg_replace('/([^\s\t]|^)[\s\t]*(\r?\n){1,}[\s\t]*([^\s\t]|$)/', '$1 $3', $data);
         $data = preg_replace('/<(\w+)?\s.+?>/u', '<$1>', $data);
         return $data;
@@ -299,6 +389,9 @@ class Prepare
     {
         // раньше было specail minlen/maxlen
         // сравнение original/minmun/maxnum теперь через класс match
+        if (!System::set($data)) {
+            return $data;
+        }
 
         // правило, задающее минимальную длину строки
 
@@ -328,6 +421,9 @@ class Prepare
     public static function upper($data)
     {
         // правило, переводящую строку в верхний регистр
+        if (!System::set($data)) {
+            return $data;
+        }
 
         return mb_convert_case($data, MB_CASE_UPPER);
     }
@@ -335,6 +431,9 @@ class Prepare
     public static function lower($data)
     {
         // правило, переводящую строку в верхний регистр
+        if (!System::set($data)) {
+            return $data;
+        }
 
         return mb_convert_case($data, MB_CASE_LOWER);
     }
@@ -342,6 +441,9 @@ class Prepare
     public static function upperFirst($data)
     {
         // правило, переводящую строку в верхний регистр
+        if (!System::set($data)) {
+            return $data;
+        }
 
         return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
     }
@@ -349,6 +451,9 @@ class Prepare
     public static function upperEach($data)
     {
         // правило, переводящую строку в верхний регистр
+        if (!System::set($data)) {
+            return $data;
+        }
 
         return mb_convert_case($data, MB_CASE_TITLE);
     }
