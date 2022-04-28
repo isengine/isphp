@@ -231,9 +231,9 @@ class Objects
             }
             return array_slice($haystack, $index, $length, true);
         } elseif ($position) {
-            return array_slice($haystack, (int) $index, $length ? 0 - $length : 0, true);
+            return array_slice($haystack, (int) $index, $length ? 0 - $length : null, true);
         } else {
-            return array_slice($haystack, (int) $index, (int) $length, true);
+            return array_slice($haystack, (int) $index, $length, true);
         }
     }
 
@@ -1001,7 +1001,7 @@ class Objects
             return null;
         }
 
-        self::reset(self::clear($map));
+        $map = self::reset(self::clear($map));
 
         $map = array_reverse($map);
         $c = count($map);
@@ -1044,7 +1044,7 @@ class Objects
         *  на выходе отдает готовый массив $haystack
         */
 
-        self::reset(self::clear($map));
+        $map = self::reset(self::clear($map));
 
         foreach ($map as $i) {
             if (
@@ -1086,7 +1086,7 @@ class Objects
             return null;
         }
 
-        self::reset(self::clear($map));
+        $map = self::reset(self::clear($map));
 
         $c = count($map) - 1;
         $current = &$haystack;
@@ -1130,7 +1130,7 @@ class Objects
         return $item;
     }
 
-    public static function reset(&$item)
+    public static function reset($item)
     {
         /*
         *  НОВАЯ Функция которая сбрасывает ключи массива

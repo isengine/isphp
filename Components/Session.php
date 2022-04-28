@@ -45,7 +45,7 @@ class Session extends Globals
         $this->ip = Ip::real();
 
         if ($this->id) {
-            $t = $this -> getValue('token');
+            $t = $this->getValue('token');
             if ($t) {
                 $this->token = $t;
             } else {
@@ -57,7 +57,7 @@ class Session extends Globals
                 ]));
 
                 $this->token = $token;
-                $this -> setValue('token', $token);
+                $this->setValue('token', $token);
 
                 unset($token);
             }
@@ -67,7 +67,7 @@ class Session extends Globals
     public function reinit()
     {
         session_regenerate_id(true);
-        $this -> setValue('token', null);
+        $this->setValue('token', null);
         $this->init();
         Sessions::setCookie('session', $this->token);
         //Sessions::setCookie('session', $_SESSION['token']);
@@ -94,24 +94,24 @@ class Session extends Globals
 
     public function setCsrf()
     {
-        $this -> setValue('csrf-match', $this -> getValue('csrf-token'));
+        $this->setValue('csrf-match', $this->getValue('csrf-token'));
         $token = Prepare::hash(time());
-        $this -> setValue('csrf-token', $token);
+        $this->setValue('csrf-token', $token);
 
-        if (!$this -> getValue('csrf-match')) {
-            $this -> setValue('csrf-match', $token);
+        if (!$this->getValue('csrf-match')) {
+            $this->setValue('csrf-match', $token);
         }
         Sessions::setHeader(['X-CSRF-Token' => $token]);
     }
 
     public function getCsrf()
     {
-        return $this -> getValue('csrf-token');
+        return $this->getValue('csrf-token');
     }
 
     public function matchCsrf($match)
     {
-        return $match && $this -> getValue('csrf-match') === $match;
+        return $match && $this->getValue('csrf-match') === $match;
     }
 
     public function getSession($name)

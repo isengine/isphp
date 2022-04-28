@@ -12,6 +12,8 @@ use is\Helpers\Matches;
 use is\Helpers\Paths;
 use is\Helpers\Prepare;
 use is\Parents\Singleton;
+use is\Parents\Settings;
+use is\Parents\Data;
 use is\Masters\Database;
 use is\Components\Cache;
 use is\Components\Language;
@@ -26,6 +28,7 @@ class Module extends Singleton
     public $caching; // разрешение кэширования по-умолчанию
 
     public $settings; // настройки модуля
+    public $manifest; // настройки манифеста
 
     public function init($path, $custom, $cache_path, $caching = false)
     {
@@ -37,12 +40,12 @@ class Module extends Singleton
 
     public function launch($names, $data = null, $settings = null, $caching = 'default')
     {
-        $names = Objects::merge(
-            [null, null],
+        $names = Objects::createByIndex(
+            [0, 1],
             Parser::fromString($names)
         );
-        $data = Objects::merge(
-            [null, null, null],
+        $data = Objects::createByIndex(
+            [0, 1, 2],
             Parser::fromString($data, ['simple' => null])
         );
 
@@ -66,14 +69,6 @@ class Module extends Singleton
         $custom = $this->custom . Prepare::upperFirst($vendor) . DS . Prepare::upperFirst($name) . DS;
         $cache_path = $this->cache_path . $vendor . DS . $name . DS;
 
-        // проверка манифеста, для защиты модулей от других классов и библиотек
-
-        if (!Local::matchFile($path . 'manifest.ini')) {
-            if (!Local::matchFile($custom . 'manifest.ini')) {
-                return;
-            }
-        }
-
         // запись данных
 
         $this->setData([
@@ -86,6 +81,12 @@ class Module extends Singleton
             'path' => $path,
             'custom' => $custom
         ]);
+
+        // запуск манифеста
+
+        if (!$this->manifest()) {
+            return;
+        }
 
         // сюда же можно добавить кэш
 
@@ -107,7 +108,7 @@ class Module extends Singleton
             $module = new $ns(
                 $vendor . ':' . $name . ':' . $instance,
                 $template,
-                $this->settings,
+                $this->settings->getData(),
                 $path,
                 $custom
             );
@@ -142,7 +143,7 @@ class Module extends Singleton
 
         $this->assets();
 
-        $this->settings = null;
+        $this->settings->resetSettings();
         $this->resetData();
 
         // и еще не хватает чтения манифестов с проверкой на загруженные в системе необходимые библиотеки
@@ -172,7 +173,7 @@ class Module extends Singleton
         foreach ($path as $i) {
             $i = Paths::toReal($i . 'assets' . DS . $assets . '.php');
             if (Local::matchFile($i)) {
-                if (!$this->settings) {
+                if (!$this->settings->getData()) {
                     $this->settings();
                 }
                 require($i);
@@ -180,6 +181,32 @@ class Module extends Singleton
             }
         }
         unset($i);
+    }
+
+    public function manifest()
+    {
+        $vendor = $this->getData('vendor');
+        $name = $this->getData('name');
+        $path = $this->path . $vendor . DS . $name . DS . 'manifest.ini';
+
+        // проверка наличия манифеста, для защиты модулей от других классов и библиотек
+
+        if (!Local::matchFile($path)) {
+            return;
+        }
+
+        // чтение манифеста
+
+        $path = Local::readFile($path);
+        if ($path) {
+            $this->manifest = new Data();
+            $this->manifest->setData(
+                Parser::fromJson($path)
+            );
+        }
+        unset($path);
+
+        return true;
     }
 
     public function settings()
@@ -191,6 +218,8 @@ class Module extends Singleton
 
         // сюда же можно добавить кэш
         // нужно добавить в настройки текстовые переменные
+
+        $this->settings = new Settings($this->manifest->getData('settings'));
 
         // read from custom path
 
@@ -219,11 +248,15 @@ class Module extends Singleton
             $settings = Parser::fromJson($settings);
         }
 
-        $this->settings = Objects::merge($data, $settings, true);
-
         // нужно добавить в настройки преобразование языков "val" : {"ru" : "..."}->"val" : "..."
         $lang = Language::getInstance();
-        $this->settings = Parser::prepare($this->settings, $lang->lang);
+
+        $this->settings->setSettings(
+            Parser::prepare(
+                Objects::merge($data, $settings, true),
+                $lang->lang
+            )
+        );
     }
 
     public function dbread()

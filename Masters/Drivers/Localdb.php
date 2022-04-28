@@ -26,13 +26,7 @@ class Localdb extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.' . md5($json) . '.' . Strings::len($json);
-        if (isset($this->settings['all'])) {
-            $this->hash .= '.' . (int) $this->settings['all'];
-        }
-        if (isset($this->settings['limit'])) {
-            $this->hash .= '.' . $this->settings['limit'];
-        }
+        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this->settings['all'] . '.' . (int) $this->settings['limit'];
     }
 
     public function read()

@@ -29,7 +29,7 @@ class Table extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash = (Local::matchFile($path) ? md5_file($path) : null) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this->settings['all'] . '.' . $this->settings['limit'];
+        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this->settings['all'] . '.' . (int) $this->settings['limit'];
     }
 
     public function read()

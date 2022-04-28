@@ -119,7 +119,11 @@ abstract class Master extends Data
         }
 
         foreach ($this->settings['classes'] as $key => $item) {
-            if ($item && System::typeClass($this->elements[$key], 'dom')) {
+            if (
+                $item &&
+                isset($this->elements[$key]) &&
+                System::typeClass($this->elements[$key], 'dom')
+            ) {
                 $this->elements[$key]->addClass($item);
             }
         }
@@ -128,12 +132,14 @@ abstract class Master extends Data
 
     public function eget($element)
     {
-        return $this->elements[$element];
+        return isset($this->elements[$element]) ? $this->elements[$element] : null;
     }
 
     public function ecopy($from, $to)
     {
-        $this->elements[$to] = $this->elements[$from]->copy();
+        if (isset($this->elements[$from])) {
+            $this->elements[$to] = $this->elements[$from]->copy();
+        }
     }
 
     public function ecreate($name, $tag)

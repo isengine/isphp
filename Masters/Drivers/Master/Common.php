@@ -22,7 +22,14 @@ class Common extends Data
 
     public function __construct($settings)
     {
-        $this->settings = $settings;
+        $this->settings = Objects::create(
+            [
+                'fields' => null,
+                'limit' => null,
+                'all' => null,
+            ],
+            $settings
+        );
         $this->filter = new Filter();
     }
 
@@ -57,7 +64,6 @@ class Common extends Data
             $this->addData($entry);
             $count++;
             if (
-                isset($this->settings['limit']) &&
                 $this->settings['limit'] &&
                 $this->settings['limit'] <= $count
             ) {
@@ -119,17 +125,10 @@ class Common extends Data
         //   }
         // }
 
-        if (
-            isset($this->settings['fields']) &&
-            System::typeIterable($this->settings['fields'])
-        ) {
+        if (System::typeIterable($this->settings['fields'])) {
             foreach ($this->settings['fields'] as $k => $i) {
-                $i = Objects::merge(
-                    [
-                        'from' => null,
-                        'prepare' => null,
-                        'default' => null
-                    ],
+                $i = Objects::createByIndex(
+                    ['from', 'prepare', 'default'],
                     $i
                 );
 

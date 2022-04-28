@@ -58,17 +58,8 @@ class Uri extends Globals
         // что в дальнейшем приводит к конфликтам
         // при разборе параметов данных, например, в фильтрах
 
-        $urlparse = Objects::merge(
-            [
-                'scheme' => null,
-                'host' => null,
-                'user' => null,
-                'password' => null,
-                'port' => null,
-                'path' => null,
-                'query' => null,
-                'fragment' => null
-            ],
+        $urlparse = Objects::createByIndex(
+            ['scheme', 'host', 'user', 'password', 'port', 'path', 'query', 'fragment'],
             Paths::parseUrl($url)
         );
 
@@ -158,7 +149,7 @@ class Uri extends Globals
             $this->path['array'] = $data;
         }
 
-        $this->path['string'] = !empty($this->path['array']) ? Strings::join($this->path['array'], '/') . (!$this->file ? '/' : '') : '';
+        $this->path['string'] = !empty($this->path['array']) ? Strings::join($this->path['array'], '/') . (!$this->file['name'] ? '/' : '') : '';
         $this->path['string'] = preg_replace('/^\/+/ui', '', $this->path['string']);
         $this->path['string'] = preg_replace('/\/+/ui', '/', $this->path['string']);
     }
@@ -175,7 +166,7 @@ class Uri extends Globals
     public function setFolder()
     {
         $this->folder = Strings::find($this->path['string'], '/', -1);
-        if (!$this->path['array'] && !$this->file) {
+        if (!$this->path['array'] && !$this->file['name']) {
             $this->folder = true;
         }
     }

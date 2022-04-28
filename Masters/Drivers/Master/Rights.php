@@ -60,14 +60,8 @@ class Rights extends Cache
         //$rights = $this->setRights();
         // чтобы не делать права для каждой записи,
         // мы делаем права для запроса
-        $rights = Objects::merge(
-            [
-                'owner' => null,
-                'method' => null,
-                'filters' => null,
-                'allow' => null,
-                'deny' => null
-            ],
+        $rights = Objects::createByIndex(
+            ['filters', 'method', 'owner', 'allow', 'deny'],
             $this->rights_query
         );
 

@@ -10,7 +10,7 @@ class Strings
         *  Функция проверки наличия подстроки или символа в заданной строке
         */
 
-        return mb_strpos($haystack, $needle) === false ? null : true;
+        return !System::set($haystack) || !System::set($needle) || mb_strpos($haystack, $needle) === false ? null : true;
     }
 
     public static function find($haystack, $needle, $position = null)
@@ -265,6 +265,10 @@ class Strings
         *  Функция возврата первого символа строки
         */
 
+        if (!$item) {
+            return;
+        }
+
         return $item[0];
     }
 
@@ -273,6 +277,10 @@ class Strings
         /*
         *  Функция возврата последнего символа строки
         */
+
+        if (!$item) {
+            return;
+        }
 
         return mb_substr($item, -1);
     }
@@ -311,7 +319,7 @@ class Strings
         *  Функция возврата первого символа строки
         */
 
-        return mb_substr($item, 1);
+        return System::set($item) ? mb_substr($item, 1) : '';
     }
 
     public static function unlast($item)

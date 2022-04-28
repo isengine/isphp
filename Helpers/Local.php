@@ -165,16 +165,8 @@ class Local
 
         // настраиваем параметры
 
-        $parameters = Objects::merge(
-            [
-                'return' => null,
-                'extension' => null,
-                'info' => null,
-                'subfolders' => null,
-                'nodisable' => null,
-                'merge' => null,
-                'skip' => null
-            ],
+        $parameters = Objects::createByIndex(
+            ['return', 'extension', 'info', 'subfolders', 'nodisable', 'merge', 'skip'],
             $parameters
         );
 
@@ -395,11 +387,8 @@ class Local
 
         $int = null;
 
-        $info = Objects::merge(
-            [
-                'host' => null,
-                'path' => null
-            ],
+        $info = Objects::createByIndex(
+            ['host', 'path'],
             Paths::parseUrl($target)
         );
 

@@ -57,7 +57,7 @@ class Map extends Data
                     $k .= $i;
                 }
                 $val = $tags ? $i : $k;
-                $this->count[$val] = isset($this->count[$val]) ? $this->count[$val] + 1 : 1;
+                $this->count[$val] = empty($this->count[$val]) ? 1 : $this->count[$val] + 1;
             }
             if ($tags) {
                 $this->total++;

@@ -72,7 +72,7 @@ class Language extends Globals
 
     public function mergeLang($lang)
     {
-        return $lang ? $this->list[$lang] : null;
+        return $lang && isset($this->list[$lang]) ? $this->list[$lang] : null;
     }
 
     public function setSettings($settings)

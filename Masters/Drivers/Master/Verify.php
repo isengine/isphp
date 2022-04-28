@@ -10,14 +10,14 @@ class Verify extends Rights
 {
     public function verifyName($name)
     {
-        $all = isset($this->settings['all']) && System::set($this->settings['all']);
+        $all = System::set($this->settings['all']);
         return !$name || !$all && Strings::first($name) === '!' ? null : true;
     }
 
     public function verifyTime($entry)
     {
         $result = true;
-        $all = isset($this->settings['all']) && System::set($this->settings['all']);
+        $all = System::set($this->settings['all']);
         if (!$all) {
             $time = time();
             if (

@@ -27,7 +27,10 @@ class Dom
 
     public function __construct($data, $display = null)
     {
-        $data = Parser::fromString($data);
+        $data = Objects::createByIndex(
+            [0, 1, 2],
+            Parser::fromString($data)
+        );
 
         $this->tag = $data[0];
 

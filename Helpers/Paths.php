@@ -32,13 +32,8 @@ class Paths
         *  path, file, name, extension
         */
 
-        $parse = Objects::merge(
-            [
-                'extension' => null,
-                'dirname' => null,
-                'filename' => null,
-                'basename' => null
-            ],
+        $parse = Objects::createByIndex(
+            ['extension', 'dirname', 'filename', 'basename'],
             pathinfo($url)
         );
 
