@@ -75,7 +75,14 @@ class Filter extends Data
                     $num = null;
                     if (Strings::match($i, '_')) {
                         $nums = Strings::split($i, '_');
-                        $num = (System::type($nums[0], 'numeric') || !$nums[0]) && (System::type($nums[1], 'numeric') || !$nums[1]);
+                        $num = (
+                            System::type($nums[0], 'numeric') ||
+                            !$nums[0]
+                        ) &&
+                        (
+                            System::type($nums[1], 'numeric') ||
+                            !$nums[1]
+                        );
                     }
 
                     if (
@@ -169,11 +176,17 @@ class Filter extends Data
                 //if ($i['type'] === 'noempty') {
                 //    $pass = System::set($data);
                 //} elseif ($i['type'] === 'equal') {
-                //    $pass = is_array($data) ? Matches::equalIn($data, $i['name']) : Matches::equal($data, $i['name']);
+                //    $pass = is_array($data)
+                //      ? Matches::equalIn($data, $i['name'])
+                //      : Matches::equal($data, $i['name']);
                 //} elseif ($i['type'] === 'string') {
-                //    $pass = is_array($data) ? Matches::stringIn($data, $i['name']) : Matches::string($data, $i['name']);
+                //    $pass = is_array($data)
+                //      ? Matches::stringIn($data, $i['name'])
+                //      : Matches::string($data, $i['name']);
                 //} elseif ($i['type'] === 'numeric') {
-                //    $pass = is_array($data) ? Matches::numericIn($data, $i['name'][0], $i['name'][1]) : Matches::numeric($data, $i['name']);
+                //    $pass = is_array($data)
+                //      ? Matches::numericIn($data, $i['name'][0], $i['name'][1])
+                //      : Matches::numeric($data, $i['name']);
                 //}
 
                 if ($i['type'] === 'noempty') {

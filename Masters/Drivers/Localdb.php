@@ -26,7 +26,12 @@ class Localdb extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this->settings['all'] . '.' . (int) $this->settings['limit'];
+        $this->hash =
+            (Local::matchFile($path) ? md5_file($path) : 0) . '.' .
+            md5($json) . '.' .
+            Strings::len($json) . '.' .
+            (int) $this->settings['all'] . '.' .
+            (int) $this->settings['limit'];
     }
 
     public function read()
@@ -35,7 +40,10 @@ class Localdb extends Master
 
         $files = [];
 
-        $files = Local::search($path, ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]);
+        $files = Local::search(
+            $path,
+            ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]
+        );
         //echo '<pre>' . print_r($files, 1) . '</pre>';
 
         $count = 0;
@@ -148,7 +156,10 @@ class Localdb extends Master
 
         // ищем, есть ли хотя бы один подходящий файл в заданном пути
 
-        $files = Local::search($item['path'], ['return' => 'files', 'extension' => 'ini', 'subfolders' => null, 'merge' => true]);
+        $files = Local::search(
+            $item['path'],
+            ['return' => 'files', 'extension' => 'ini', 'subfolders' => null, 'merge' => true]
+        );
 
         // проверяем, найдены ли вообще файлы
 
@@ -237,7 +248,9 @@ class Localdb extends Master
         // сначала создаем правильное содержимое записи
         // переводим нужные поля в пути
 
-        $path = $this->path . $this->collection . DS . ($item['parents'] ? Strings::join($item['parents'], DS) . DS : null);
+        $path =
+            $this->path . $this->collection . DS .
+            ($item['parents'] ? Strings::join($item['parents'], DS) . DS : null);
 
         $item['name'] = Strings::replace($item['name'], '.', '--');
         $item['type'] = Strings::replace(Strings::join($item['type'], ' '), '.', '--');

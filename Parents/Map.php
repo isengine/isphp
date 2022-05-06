@@ -101,7 +101,11 @@ class Map extends Data
 
     public function addParents($name, $value = null)
     {
-        //$this->parents = Objects::inject($this->parents, $this->convert( Strings::before($name, ':', null, true) ), $value);
+        //$this->parents = Objects::inject(
+        //  $this->parents,
+        //  $this->convert(Strings::before($name, ':', null, true)),
+        //  $value
+        //);
         //$this->parents = Objects::inject($this->parents, $this->convert($name), $value);
         $this->parents = Objects::inject(
             $this->parents ? $this->parents : [],

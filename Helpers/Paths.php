@@ -38,7 +38,9 @@ class Paths
         );
 
         $isfile = $parse['extension'] ? true : null;
-        $dirname = $parse['dirname'] && $parse['dirname'] !== '.' && $parse['dirname'] !== '..' ? $parse['dirname'] . DS : null;
+        $dirname =
+            $parse['dirname'] && $parse['dirname'] !== '.' && $parse['dirname'] !== '..'
+            ? $parse['dirname'] . DS : null;
 
         if ($isfile) {
             $result = [
@@ -81,7 +83,10 @@ class Paths
 
         // здесь мы задаем поиск только в пределах папки System::server('root'),
         // так как все url должны находиться именно там
-        $nofolder = self::parseFile(realpath(System::server('root') . $path), 'file') || Strings::match($path, '#') || Strings::match($path, '?');
+        $nofolder =
+            self::parseFile(realpath(System::server('root') . $path), 'file') ||
+            Strings::match($path, '#') ||
+            Strings::match($path, '?');
         //$nofolder = self::parseFile($path, 'file') || Strings::match($path, '#') || Strings::match($path, '?');
 
         $absolute = self::absolute($path);
@@ -89,7 +94,10 @@ class Paths
         $path = self::clearSlashes(self::toUrl($path));
 
         if ($path) {
-            return ($absolute ? null : ($host ? System::server('domain') : null) . '/') . $path . (!$nofolder ? '/' : null);
+            return
+                ($absolute ? null : ($host ? System::server('domain') : null) . '/') .
+                $path .
+                (!$nofolder ? '/' : null);
         } else {
             return '/';
         }

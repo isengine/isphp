@@ -28,7 +28,10 @@ class Language extends Globals
         ];
 
         if (preg_match_all('/([a-z]{1,8}(?:-[a-z]{1,8})?)(?:;q=([0-9.]+))?/', $list['arr'], $list['arr'])) {
-            $list['langs'] = array_combine($list['arr'][1], $list['arr'][2]);
+            $list['langs'] = array_combine(
+                (array) $list['arr'][1],
+                (array) $list['arr'][2]
+            );
             foreach ($list['langs'] as $key => $item) {
                 $list['langs'][$key] = $item ? $item : 1;
             }

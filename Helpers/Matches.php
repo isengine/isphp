@@ -52,6 +52,8 @@ class Matches
         // функция задействует сравнение, приводя данные к строке
         // сравнение идет с массивом haystack
 
+        $result = null;
+
         foreach ($haystack as $item) {
             $result = self::equal($item, $needle);
             if (
@@ -70,6 +72,8 @@ class Matches
     {
         // функция проверяет наличие строки
         // сравнение идет с массивом haystack
+
+        $result = null;
 
         foreach ($haystack as $item) {
             $result = self::string($item, $needle);
@@ -117,6 +121,8 @@ class Matches
         // функция сравнивает число в диапазоне от мин до макс включительно
         // если мин/макс не заданы, то считаются минус/плюс бесконечностью
         // сравнение идет с массивом haystack
+
+        $result = null;
 
         foreach ($haystack as $item) {
             $result = self::numeric($item, $min, $max);
@@ -191,6 +197,8 @@ class Matches
         // функция сравнивает число в диапазоне от мин до макс включительно
         // если мин/макс не заданы, то считаются минус/плюс бесконечностью
         // сравнение идет по массиву значений minmax
+
+        $result = null;
 
         foreach ($minmax as $item) {
             $result = self::numeric($haystack, Objects::first($item, 'value'), Objects::last($item, 'value'));

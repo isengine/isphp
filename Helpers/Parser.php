@@ -70,7 +70,10 @@ class Parser
         *  Функция парсинга системных данных в системный объект
         */
 
-        //$parameters = array_merge(['key' => null, 'clear' => null, 'simple' => true], is_array($parameters) ? $parameters : [$parameters]);
+        //$parameters = array_merge(
+        //  ['key' => null, 'clear' => null, 'simple' => true],
+        //  is_array($parameters) ? $parameters : [$parameters]
+        //);
         $parameters = Objects::merge(
             [
                 'key' => null,

@@ -29,7 +29,12 @@ class Table extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.' . md5($json) . '.' . Strings::len($json) . '.' . (int) $this->settings['all'] . '.' . (int) $this->settings['limit'];
+        $this->hash =
+            (Local::matchFile($path) ? md5_file($path) : 0) . '.' .
+            md5($json) . '.' .
+            Strings::len($json) . '.' .
+            (int) $this->settings['all'] . '.' .
+            (int) $this->settings['limit'];
     }
 
     public function read()
@@ -58,12 +63,19 @@ class Table extends Master
 
             // Общие настройки
 
-            $delimiter = $this->settings['delimiter'] ? $settings['delimiter'] : ',';
-            $enclosure = $this->settings['enclosure'] ? $settings['enclosure'] : '"';
+            $delimiter = $this->settings['delimiter'] ? $this->settings['delimiter'] : ',';
+            $enclosure = $this->settings['enclosure'] ? $this->settings['enclosure'] : '"';
 
             $rowkeys = $this->settings['rowkeys'] ? $this->settings['rowkeys'] : 0;
 
-            $rowskip = $this->settings['rowskip'] ? (is_array($this->settings['rowskip']) ? $this->settings['rowskip'] : Objects::convert($this->settings['rowskip'])) : [];
+            $rowskip =
+                $this->settings['rowskip']
+                ? (
+                    is_array($this->settings['rowskip'])
+                    ? $this->settings['rowskip']
+                    : Objects::convert($this->settings['rowskip'])
+                )
+                : [];
 
             if (System::typeOf($rowkeys, 'iterable')) {
                 $keys = $rowkeys;

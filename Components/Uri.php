@@ -46,7 +46,10 @@ class Uri extends Globals
     {
         // получение данных
 
-        $url = System::server('domain') . (System::server('port') ? ':' . System::server('port') : null) . rawurldecode(System::server('request'));
+        $url =
+            System::server('domain') .
+            (System::server('port') ? ':' . System::server('port') : null) .
+            rawurldecode(System::server('request'));
 
         // rawurldecode декодирует по стандарту RFC 3986
         // в том числе поддерживается гуглом
@@ -119,7 +122,9 @@ class Uri extends Globals
         if (System::typeOf($data, 'scalar')) {
             $this->query['string'] = $data;
         }
-        //$this->query['array'] = $this->query['string'] ? Objects::split( Strings::split(Strings::unfirst($this->query['string']), '=&') ) : [];
+        //$this->query['array'] = $this->query['string'] ? Objects::split(
+        //  Strings::split(Strings::unfirst($this->query['string']), '=&')
+        //) : [];
         $this->query['array'] = $_GET;
     }
 
@@ -129,7 +134,10 @@ class Uri extends Globals
         if (System::typeIterable($data)) {
             $this->query['array'] = $data;
         }
-        $this->query['string'] = System::typeIterable($this->query['array']) ? Strings::combine($this->query['array'], '&', '=', '?') : null;
+        $this->query['string'] =
+            System::typeIterable($this->query['array'])
+            ? Strings::combine($this->query['array'], '&', '=', '?')
+            : null;
     }
 
     public function setPathArray($data = null)
@@ -137,7 +145,10 @@ class Uri extends Globals
         if (System::typeOf($data, 'scalar')) {
             $this->path['string'] = $data;
         }
-        $this->path['array'] = $this->path['string'] ? Objects::reset(Strings::split(Paths::clearSlashes($this->path['string']), '\/')) : [];
+        $this->path['array'] =
+            $this->path['string']
+            ? Objects::reset(Strings::split(Paths::clearSlashes($this->path['string']), '\/'))
+            : [];
         if (!System::set($this->path['array'])) {
             $this->path['array'] = [];
         }
@@ -149,7 +160,10 @@ class Uri extends Globals
             $this->path['array'] = $data;
         }
 
-        $this->path['string'] = !empty($this->path['array']) ? Strings::join($this->path['array'], '/') . (!$this->file['name'] ? '/' : '') : '';
+        $this->path['string'] =
+            !empty($this->path['array'])
+            ? Strings::join($this->path['array'], '/') . (!$this->file['name'] ? '/' : '')
+            : '';
         $this->path['string'] = preg_replace('/^\/+/ui', '', $this->path['string']);
         $this->path['string'] = preg_replace('/\/+/ui', '/', $this->path['string']);
     }
@@ -179,12 +193,18 @@ class Uri extends Globals
     public function getPathArray($id = null)
     {
         //return !System::set($id) ? $this->path['array'] : Objects::n($this->path['array'], $id, 'value');
-        return !System::set($id) ? $this->path['array'] : Objects::first(Objects::get($this->path['array'], $id, 1), 'value');
+        return
+            !System::set($id)
+            ? $this->path['array']
+            : Objects::first(Objects::get($this->path['array'], $id, 1), 'value');
     }
 
     public function unPathArray($id = null)
     {
-        $this->path['array'] = !$id ? Objects::reset(Objects::unfirst($this->path['array'])) : Objects::reset(Objects::cut($this->path['array'], $id, 1));
+        $this->path['array'] =
+            !$id
+            ? Objects::reset(Objects::unfirst($this->path['array']))
+            : Objects::reset(Objects::cut($this->path['array'], $id, 1));
     }
 
     public function setRoute()
@@ -228,7 +248,11 @@ class Uri extends Globals
 
     public function setUrl()
     {
-        $this->url = $this->domain . ($this->language ? $this->language . '/' : null) . $this->path['string'] . $this->query['string'];
+        $this->url =
+            $this->domain .
+            ($this->language ? $this->language . '/' : null) .
+            $this->path['string'] .
+            $this->query['string'];
     }
 
     public function setRest($rest, $keys, $query = true)

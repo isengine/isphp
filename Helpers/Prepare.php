@@ -10,7 +10,8 @@ class Prepare
     *  на входе нужно указать значение $data и тип преобразования $type
     *
     *  параметры типов (если нужно несколько, можно перечислять через пробел и/или запятую):
-    *    format - оставление в строке только (!) цифр, латинских букв, пробелов, и разрешенных знаков для передачи данных в формате системы
+    *    format - оставление в строке только (!) цифр, латинских букв, пробелов
+    *    и разрешенных знаков для передачи данных в формате системы
     *    alphanumeric - оставление в строке только (!) цифр, латинских букв и пробелов
     *    numeric - оставление в строке только (!) цифр
     *    datetime - оставление в строке только (!) цифр и знаков, встречающихся в формате даты и времени
@@ -445,7 +446,9 @@ class Prepare
             return $data;
         }
 
-        return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
+        return
+            mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) .
+            mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
     }
 
     public static function upperEach($data)

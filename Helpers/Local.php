@@ -2,6 +2,8 @@
 
 namespace is\Helpers;
 
+use ZipArchive;
+
 class Local
 {
     public static function map($path, $parameters = [], $basepath = null)
@@ -108,9 +110,11 @@ class Local
         // now dirconnect and fileconnect is localList
 
         //fileconnect($dir, $ext = false)
-        //localList($path, ['return' => 'files'/*, 'type' => $ext*/]) // $ext - либо массив значений, либо строка '_:_:_'
+        //localList($path, ['return' => 'files'/*, 'type' => $ext*/])
+        // $ext - либо массив значений, либо строка '_:_:_'
         //dirconnect($dir, $ext = false)
-        //localList($path, ['return' => 'folders'/*, 'skip' => $ext*/]) // $ext - либо массив значений, либо строка '_:_:_'
+        //localList($path, ['return' => 'folders'/*, 'skip' => $ext*/])
+        // $ext - либо массив значений, либо строка '_:_:_'
 
         /*
         *  Функция получения списка файлов или папок с определенным расширением
@@ -141,7 +145,8 @@ class Local
         *    set - строка совпадения
         *    in - ключ info, где будет использована
         *
-        *  третий параметр используется только для служебных целей, т.к. функция рекурсивная при вызове параметра 'subfolders'
+        *  третий параметр используется только для служебных целей,
+        *  т.к. функция рекурсивная при вызове параметра 'subfolders'
         *
         *  функция возвращает готовый массив
         */
@@ -193,7 +198,12 @@ class Local
                     'fullpath' => $pathto . ($isdir ? DS : null),
                     'name' => $item,
                     'type' => ($isdir ? 'folder' : 'file'),
-                    'path' => $basepath ? Strings::get($pathto, Strings::len($basepath), Strings::len($item), true) : null,
+                    'path' => $basepath ? Strings::get(
+                        $pathto,
+                        Strings::len($basepath),
+                        Strings::len($item),
+                        true
+                    ) : null,
                     'file' => null,
                     'extension' => null
                 ];
@@ -211,7 +221,11 @@ class Local
 
                     if (
                         !$parameters['extension'] ||
-                        $parameters['extension'] && $i['extension'] && Objects::match($parameters['extension'], $i['extension'])
+                        (
+                            $parameters['extension'] &&
+                            $i['extension'] &&
+                            Objects::match($parameters['extension'], $i['extension'])
+                        )
                     ) {
                         $list['files'][] = $parameters['info'] ? $i[$parameters['info']] : $i;
                     }
@@ -252,7 +266,12 @@ class Local
             }
         }
 
-        //$list['folders'] = array_merge_recursive($list['folders'], $list['sub']['folders'], $list['files'], $list['sub']['files']);
+        //$list['folders'] = array_merge_recursive(
+        //  $list['folders'],
+        //  $list['sub']['folders'],
+        //  $list['files'],
+        //  $list['sub']['files']
+        //);
 
         if (!$basepath && $parameters['merge']) {
             $list = array_merge($list['folders'], $list['sub']['folders'], $list['files'], $list['sub']['files']);
@@ -711,7 +730,10 @@ class Local
         }
 
         //global $uri;
-        return constant('URL_' . strtoupper($folder)) . str_replace(['/', '\\', ':'], '/', $path) . (!empty($prefix) ? '?' . ($prefix === true ? filemtime($file) : $prefix) : null);
+        return
+            constant('URL_' . strtoupper($folder)) .
+            str_replace(['/', '\\', ':'], '/', $path) .
+            (!empty($prefix) ? '?' . ($prefix === true ? filemtime($file) : $prefix) : null);
     }
 
     public static function copy($from, $to, $rewrite = true)
@@ -737,7 +759,7 @@ class Local
                 if ($entry == '.' || $entry == '..') {
                     continue;
                 }
-                localCopy($from . DS . $entry, $to . DS . $entry, $rewrite);
+                self::copy($from . DS . $entry, $to . DS . $entry, $rewrite);
             }
 
             $d->close();

@@ -29,17 +29,17 @@ abstract class Master extends Data
 
     public function status()
     {
-        return $status;
+        return $this->status;
     }
 
     public function error()
     {
-        return $error;
+        return $this->error;
     }
 
     public function success()
     {
-        return !$error;
+        return !$this->error;
     }
 
     // базовые функции задания свойств

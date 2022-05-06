@@ -13,18 +13,30 @@ class Ip
             return $ip;
         }
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)) {
+        if (
+            isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
+            preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)
+        ) {
             foreach ($matches[0] as $xip) {
                 if (!preg_match('#^(10|172\.16|192\.168)\.#', $xip)) {
                     $ip = $xip;
                     break;
                 }
             }
-        } elseif (isset($_SERVER['HTTP_CLIENT_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])) {
+        } elseif (
+            isset($_SERVER['HTTP_CLIENT_IP']) &&
+            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])
+        ) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (isset($_SERVER['HTTP_CF_CONNECTING_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        } elseif (
+            isset($_SERVER['HTTP_CF_CONNECTING_IP']) &&
+            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CF_CONNECTING_IP'])
+        ) {
             $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-        } elseif (isset($_SERVER['HTTP_X_REAL_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_X_REAL_IP'])) {
+        } elseif (
+            isset($_SERVER['HTTP_X_REAL_IP']) &&
+            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_X_REAL_IP'])
+        ) {
             $ip = $_SERVER['HTTP_X_REAL_IP'];
         }
 
@@ -155,7 +167,7 @@ class Ip
             $v_NetworkMaskHex_part = base_convert($v_NetworkMaskHex_part, 2, 16);
             $v_NetworkMaskHex_part = str_pad($v_NetworkMaskHex_part, 2, '0', STR_PAD_LEFT);
         }
-        $v_NetworkMaskHex = implode(null, $v_NetworkMaskHex_parts);
+        $v_NetworkMaskHex = implode('', $v_NetworkMaskHex_parts);
         $v_NetworkMaskBin = inet_pton(implode(':', str_split($v_NetworkMaskHex, 4)));
 
         $v_LastAddressBin = $v_FirstAddressBin | ~$v_NetworkMaskBin;

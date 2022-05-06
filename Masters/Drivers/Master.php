@@ -62,6 +62,7 @@ abstract class Master extends Errors
     abstract public function connect();
     abstract public function close();
     abstract public function read();
+    //не объявлены, потому что еще не везде сделаны
     //abstract public function write($data);
     //abstract public function create($data);
     //abstract public function delete($data);
@@ -154,7 +155,10 @@ abstract class Master extends Errors
             $this->data = null;
         } else {
             $this->setError($this->data['name']);
-            // logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this->collection . ']');
+            //logging('error write
+            //item name [' . item['name'] . ']
+            //with parents [' . Strings::join($item['parents'], ':') . ']
+            //to collection [' . $this->collection . ']');
         }
     }
 
@@ -173,7 +177,10 @@ abstract class Master extends Errors
             $this->data = null;
         } else {
             $this->setError($this->data['name']);
-            // logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this->collection . ']');
+            //logging('error write
+            //item name [' . item['name'] . ']
+            //with parents [' . Strings::join($item['parents'], ':') . ']
+            //to collection [' . $this->collection . ']');
         }
     }
 
@@ -192,7 +199,10 @@ abstract class Master extends Errors
             $this->data = null;
         } else {
             $this->setError($this->data['name']);
-            // logging('error write item name [' . item['name'] . '] with parents [' . Strings::join($item['parents'], ':') . '] to collection [' . $this->collection . ']');
+            //logging('error write
+            //item name [' . item['name'] . ']
+            //with parents [' . Strings::join($item['parents'], ':') . ']
+            //to collection [' . $this->collection . ']');
         }
     }
 

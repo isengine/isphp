@@ -122,7 +122,9 @@ class Collection extends Data
         $new->setEntryKey('id', System::type($id, 'numeric') ? $id + 1 : 0);
         $new_id = $new->getEntryKey('id');
         $new_parents = $new->getEntryKey('parents');
-        $new_name = (System::typeIterable($new_parents) ? Strings::join($new_parents, ':') . ':' : null) . $new->getEntryKey('name');
+        $new_name =
+            (System::typeIterable($new_parents) ? Strings::join($new_parents, ':') . ':' : null) .
+            $new->getEntryKey('name');
 
         if (Objects::match($this->names, $new_name)) {
             if ($replace) {
@@ -219,13 +221,6 @@ class Collection extends Data
     public function removeByLen($skip, $len)
     {
         $this->names = Objects::get($this->names, $skip ? $skip : 0, $len ? $len : null);
-
-        if ($by === 'name') {
-            foreach ($data as $item) {
-                $this->remove(null, $item);
-            }
-            unset($item);
-        }
     }
 
     public function removeByCut($skip = 0, $len = null)
@@ -266,7 +261,9 @@ class Collection extends Data
         foreach ($this->data as $item) {
             if (System::typeClass($item, 'entry')) {
                 $parents = $item->getEntryKey('parents');
-                $name = (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) . $item->getEntryKey('name');
+                $name =
+                    (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) .
+                    $item->getEntryKey('name');
                 $val = $item->getEntryKey($value);
                 $this->names[$name] = System::typeOf($val, 'scalar') ? $val : '';
                 unset($parents, $name, $val);
@@ -283,7 +280,9 @@ class Collection extends Data
         foreach ($this->data as $item) {
             if (System::typeClass($item, 'entry')) {
                 $parents = $item->getEntryKey('parents');
-                $name = (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) . $item->getEntryKey('name');
+                $name =
+                    (System::typeIterable($parents) ? Strings::join($parents, ':') . ':' : null) .
+                    $item->getEntryKey('name');
                 $val = $item->getEntryData($value);
                 $this->names[$name] = System::typeOf($val, 'scalar') ? $val : '';
                 unset($parents, $name, $val);

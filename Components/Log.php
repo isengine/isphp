@@ -62,7 +62,12 @@ class Log extends Globals
         $this->data[] = 'agent : ' . System::server('agent');
         $this->data[] = '# Resources';
         $this->data[] = 'time : ' . (new \DateTime())->format('Y.m.d H:i:s.u');
-        $this->data[] = 'speed : ' . number_format(microtime(true) - System::server('REQUEST_TIME_FLOAT', true), 3, null, null) . ' sec';
+        $this->data[] = 'speed : ' . number_format(
+            microtime(true) - System::server('REQUEST_TIME_FLOAT', true),
+            3,
+            null,
+            null
+        ) . ' sec';
         $this->data[] = 'memory : ' . number_format(memory_get_usage() / 1024, 3, null, ' ') . ' Kb';
         $this->data[] = 'peak : ' . number_format(memory_get_peak_usage() / 1024, 3, null, ' ') . ' Kb';
         $this->data[] = '# Session';

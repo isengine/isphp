@@ -67,7 +67,10 @@ class Rights extends Cache
 
         $owner = null;
         if (isset($entry['owner'])) {
-            $owner = $entry['owner'] && System::typeOf($entry['owner'], 'iterable') ? Objects::match($entry['owner'], $this->owner) : $entry['owner'] === $this->owner;
+            $owner =
+                $entry['owner'] && System::typeOf($entry['owner'], 'iterable')
+                ? Objects::match($entry['owner'], $this->owner)
+                : $entry['owner'] === $this->owner;
         }
 
         // теперь нет allow и deny как раньше - правила строятся на основе фильтров

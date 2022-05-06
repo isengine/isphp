@@ -295,7 +295,7 @@ class System
             $name = $protocol . '://' . (
                 extension_loaded('intl') ? idn_to_utf8(
                     self::server('HTTP_HOST', true),
-                    null,
+                    IDNA_DEFAULT,
                     version_compare(PHP_VERSION, '7.2.0', '<') ? INTL_IDNA_VARIANT_2003 : INTL_IDNA_VARIANT_UTS46
                 ) : self::server('HTTP_HOST', true)
             );
@@ -308,7 +308,7 @@ class System
             // 127.0.0.1
             $name = self::server('REMOTE_ADDR', true);
         } elseif ($name === 'agent') {
-            // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/xxx.xx (KHTML, like Gecko) Chrome/xx.x.xxxx.xx Safari/xxx.xx
+            // Mozilla/5.0...
             $name = self::server('HTTP_USER_AGENT', true);
         } elseif ($name === 'referrer') {
             $name = self::server('HTTP_REFERER', true);

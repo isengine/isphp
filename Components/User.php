@@ -74,13 +74,13 @@ class User extends Globals
 
     public function setFieldsBySpecial($name, $data)
     {
-        $field = getFieldsNameBySpecial($name);
+        $field = $this->getFieldsNameBySpecial($name);
         $this->data->setData($field, $data);
     }
 
     public function addFieldsBySpecial($name, $data)
     {
-        $field = getFieldsNameBySpecial($name);
+        $field = $this->getFieldsNameBySpecial($name);
         $this->data->addData($field, $data);
     }
 

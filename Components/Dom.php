@@ -43,19 +43,50 @@ class Dom
 
         $this->settings = [
             'autoclose' => [
-                'aria', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+                'aria',
+                'base',
+                'br',
+                'col',
+                'embed',
+                'hr',
+                'img',
+                'input',
+                'link',
+                'meta',
+                'param',
+                'source',
+                'track',
+                'wbr'
             ],
             'hreflink' => [
-                'aria', 'a', 'base', 'link'
+                'aria',
+                'a',
+                'base',
+                'link'
             ],
             'allow' => [
-                'tag', 'classes', 'id', 'data', 'aria', 'styles', 'link', 'custom', 'content', 'attr'
+                'tag',
+                'classes',
+                'id',
+                'data',
+                'aria',
+                'styles',
+                'link',
+                'custom',
+                'content',
+                'attr'
             ],
             'string' => [
-                'tag', 'id', 'link', 'content'
+                'tag',
+                'id',
+                'link',
+                'content'
             ],
             'keys' => [
-                'data', 'aria', 'styles', 'custom'
+                'data',
+                'aria',
+                'styles',
+                'custom'
             ]
         ];
 
@@ -107,7 +138,12 @@ class Dom
         $print = '<' . $this->tag;
 
         if ($this->link) {
-            $print .= ' ' . (Objects::match($this->settings['hreflink'], $this->tag) ? 'href' : 'src') . '="' . $this->link . '"';
+            $print .=
+                ' ' .
+                (Objects::match($this->settings['hreflink'], $this->tag) ? 'href' : 'src') .
+                '="' .
+                $this->link .
+                '"';
         }
 
         if ($this->id) {

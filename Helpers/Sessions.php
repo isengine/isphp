@@ -417,7 +417,7 @@ class Sessions
         *  в противном случае возвращает null
         */
 
-        $data = getCookie($name);
+        $data = self::getCookie($name);
 
         return !$data && $_SESSION[$name] === md5($data) ? json_decode($data, true) : null;
     }
