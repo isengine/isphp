@@ -354,7 +354,7 @@ class System
             //    $item = (string) $item;
             //}
         } elseif ($type === 'numeric') {
-            $item = preg_replace('/\s/u', '', $item);
+            $item = preg_replace('/\s/u', '', (string) $item);
             if (mb_strpos($item, '.') === false) {
                 $item = (int) $item;
             } else {
@@ -472,6 +472,7 @@ class System
         $array = [
             'default'  => [ '<pre>', '<br>', '</pre>' ],
             '!q'       => [ '[', '', ']<br>' ],
+            '!code'    => [ '<pre>', '<br>', '</pre>' ],
             '!console' => [ '<script>console.log(\'', '\n', '\');</script>' ],
             '!hide'    => [ '<!--', "\r\n", '-->' ]
         ];
@@ -488,6 +489,8 @@ class System
                 $i = json_encode(print_r($i, true));
             } elseif ($action === '!dump') {
                 $i = var_export($i, true);
+            } elseif ($action === '!code') {
+                $i = print_r(htmlentities($i), true);
             } else {
                 $i = print_r($i, true);
             }
