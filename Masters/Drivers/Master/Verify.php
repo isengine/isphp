@@ -21,8 +21,16 @@ class Verify extends Rights
         if (!$all) {
             $time = time();
             if (
-                (isset($entry['ctime']) && $entry['ctime'] && $entry['ctime'] > $time) ||
-                (isset($entry['dtime']) && $entry['dtime'] && $entry['dtime'] < $time)
+                (
+                    isset($entry['ctime'])
+                    && $entry['ctime']
+                    && $entry['ctime'] > $time
+                )
+                || (
+                    isset($entry['dtime'])
+                    && $entry['dtime']
+                    && $entry['dtime'] < $time
+                )
             ) {
                 $result = null;
             }
@@ -44,8 +52,8 @@ class Verify extends Rights
 
         // еще раз проверка по имени - контрольная
         if (
-            isset($entry['name']) &&
-            !$this->verifyName($entry['name'])
+            isset($entry['name'])
+            && !$this->verifyName($entry['name'])
         ) {
             $entry = null;
         }

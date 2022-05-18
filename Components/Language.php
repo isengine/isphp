@@ -86,8 +86,8 @@ class Language extends Globals
     public function addList($key, $array = null)
     {
         if (
-            System::set($array) &&
-            System::typeOf($array, 'iterable')
+            System::set($array)
+            && System::typeOf($array, 'iterable')
         ) {
             $this->list = Objects::merge($this->list, Objects::join($array, $key));
         } else {

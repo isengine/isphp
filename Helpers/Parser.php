@@ -4,18 +4,22 @@ namespace is\Helpers;
 
 class Parser
 {
+    /**
+     * Функция парсинга текстовых переменных с многоуровневыми вложениями
+     * текстовая переменная должна иметь вид {type|data1:data2:data3...}
+     * Функция требует на вход строку для парсинга и функцию-обработчик
+     * Обработчик должен принимать первым аргуметом тип, вторым - массив данных
+     * таким образом, эта функция - лишь инструмент для реализации
+     * алгоритма разбора текстовых переменных
+     * это сделано потому, что реализация тесно связана с реализацией шаблонов
+     *
+     * @param [type] $string
+     * @param [type] $function
+     * @param [type] $start
+     * @return void
+     */
     public static function textVariables($string, $function, $start = '{', $end = '}')
     {
-        /*
-        *  Функция парсинга текстовых переменных с многоуровневыми вложениями
-        *  текстовая переменная должна иметь вид {type|data1:data2:data3...}
-        *  Функция требует на вход строку для парсинга и функцию-обработчик
-        *  Обработчик должен принимать первым аргуметом тип, вторым - массив данных
-        *  таким образом, эта функция - лишь инструмент для реализации
-        *  алгоритма разбора текстовых переменных
-        *  это сделано потому, что реализация тесно связана с реализацией шаблонов
-        */
-
         if (!$string) {
             return null;
         } elseif (!Strings::match($string, $start)) {
@@ -64,16 +68,15 @@ class Parser
         }, $string);
     }
 
+    /**
+     * Функция парсинга системных данных в системный объект
+     *
+     * @param [type] $item
+     * @param array $parameters
+     * @return void
+     */
     public static function fromString($item = null, $parameters = [])
     {
-        /*
-        *  Функция парсинга системных данных в системный объект
-        */
-
-        //$parameters = array_merge(
-        //  ['key' => null, 'clear' => null, 'simple' => true],
-        //  is_array($parameters) ? $parameters : [$parameters]
-        //);
         $parameters = Objects::merge(
             [
                 'key' => null,
@@ -81,6 +84,7 @@ class Parser
                 'simple' => true
             ],
             $parameters
+            //is_array($parameters) ? $parameters : [$parameters]
         );
 
         $key = System::set($parameters['key']);
@@ -89,8 +93,8 @@ class Parser
         if (!System::typeOf($item, 'scalar')) {
             return $item;
         } elseif (
-            mb_strpos($item, ':') === false &&
-            mb_strpos($item, '|') === false
+            mb_strpos($item, ':') === false
+            && mb_strpos($item, '|') === false
         ) {
             if (mb_strpos($item, '!') === 0) {
                 return null;
@@ -112,7 +116,7 @@ class Parser
                         $r[$i] = null;
                     } else {
                         //$spliti = Strings::split($i, '(?<!\\):', null);
-                        $spliti = Strings::split($i, ':', null);
+                        $spliti = (array) Strings::split($i, ':', null);
 
                         $splitk = reset($spliti);
                         unset($spliti[0]);
@@ -161,7 +165,7 @@ class Parser
                         //$spliti = Strings::split($i, '(?<!\\):', null);
                         $spliti = Strings::split($i, ':', null);
 
-                        $a = Objects::eachOf($spliti, [], function ($i, $k, &$a) use ($parameters) {
+                        $a = (array) Objects::eachOf($spliti, [], function ($i, $k, &$a) use ($parameters) {
                             $r = mb_strpos($i, '!') !== 0 ? (System::set($i) ? $i : null) : null;
                             // сразу приведение типов
                             if (System::type($r) === 'numeric') {
@@ -185,7 +189,7 @@ class Parser
                     }
                 });
 
-                if ($parameters['simple'] && count($split) === 1) {
+                if ($parameters['simple'] && count((array) $split) === 1) {
                     $split = Objects::first($split, 'value');
                 }
             }
@@ -202,20 +206,23 @@ class Parser
         }
     }
 
+    /**
+     * Функция обратного преобразования системного объекта в системные данные
+     * параметры:
+     *   key - задает ключи первыми значениями после разделителя
+     *   clear - пропускает пустые значения массива
+     *   simple - преобразует одно значение массива в одно число
+     *
+     * @param [type] $item
+     * @param array $parameters
+     * @return void
+     */
     public static function toString($item, $parameters = ['key' => null, 'clear' => null, 'simple' => null])
     {
-        /*
-        *  Функция обратного преобразования системного объекта в системные данные
-        *  параметры:
-        *    key - задает ключи первыми значениями после разделителя
-        *    clear - пропускает пустые значения массива
-        *    simple - преобразует одно значение массива в одно число
-        */
-
         $item = Objects::convert($item);
 
         $levels = 1;
-        foreach ($item as $i) {
+        foreach ((array) $item as $i) {
             if (System::typeOf($i, 'iterable')) {
                 $levels++;
                 break;
@@ -239,7 +246,7 @@ class Parser
             }
 
             if (System::typeData($item, 'object')) {
-                foreach ($item as $k => $i) {
+                foreach ((array) $item as $k => $i) {
                     $str .= $key ? '|' . $k : null;
                     $str .= $clear ? (System::set($i) ? ':' . $i : null) : ':' . $i;
                 }
@@ -252,7 +259,7 @@ class Parser
             $str .= self::toString($first['value'], $parameters);
 
             if (System::typeData($item, 'object')) {
-                foreach ($item as $k => $i) {
+                foreach ((array) $item as $k => $i) {
                     $str .= '|' . ($key ? $k . ($clear ? (System::set($i) ? ':' : null) : ':') : null);
                     $str .= self::toString($i, $parameters);
                 }
@@ -263,17 +270,20 @@ class Parser
         return $str;
     }
 
+    /**
+     * Функция обработки данных в формате json
+     * на входе нужно указать данные в виде строковой переменной
+     *
+     * функция примет данные и
+     *   переведет их в массив, если второй параметр $format задан true/structure/content
+     *   переведет их в объект, если второй параметр $format задан false или не задан
+     *
+     * @param [type] $data
+     * @param boolean $format
+     * @return void
+     */
     public static function fromJson($data, $format = true)
     {
-        /*
-        *  Функция обработки данных в формате json
-        *  на входе нужно указать данные в виде строковой переменной
-        *
-        *  функция примет данные и
-        *    переведет их в массив, если второй параметр $format задан true/structure/content
-        *    переведет их в объект, если второй параметр $format задан false или не задан
-        */
-
         if (empty($data)) {
             return null;
         }
@@ -318,32 +328,39 @@ class Parser
         return $data;
     }
 
+    /**
+     * Функция перевода данных из массива в формат json
+     * на входе нужно указать данные в виде массива
+     * функция примет его и переведет в формат json
+     *
+     * @param [type] $data
+     * @param [type] $format
+     * @return void
+     */
     public static function toJson($data, $format = null)
     {
-        /*
-        *  Функция перевода данных из массива в формат json
-        *  на входе нужно указать данные в виде массива
-        *
-        *  функция примет его и переведет в формат json
-        */
-
-        $data = json_encode($data, $format ? JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE : JSON_UNESCAPED_UNICODE);
-
-        return $data;
+        return json_encode(
+            $data,
+            $format
+            ? JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            : JSON_UNESCAPED_UNICODE
+        );
     }
 
+    /**
+     * Рекурсивная функция для обработки массива и приведения его к надлежащему виду
+     * Необходима для работы парсера и в других случаях
+     * Сюда включено:
+     * выключение ключей и значений массива
+     * замена текущего родительского значения дочерним значением с ключом,
+     * содержащим определенный параметр (языковую конструкцию)
+     *
+     * @param [type] $data
+     * @param [type] $up
+     * @return void
+     */
     public static function prepare($data, $up = null)
     {
-        /*
-        *  Рекурсивная функция для обработки массива и приведения его к надлежащему виду
-        *  Необходима для работы парсера и в других случаях
-        *
-        *  Сюда включено:
-        *  выключение ключей и значений массива
-        *  замена текущего родительского значения дочерним значением с ключом,
-        *  содержащим определенный параметр (языковую конструкцию)
-        */
-
         if (!is_array($data)) {
             return;
         }
@@ -352,8 +369,8 @@ class Parser
             if (!$item) {
                 continue;
             } elseif (
-                mb_strpos($key, '!') === 0 ||
-                !is_array($item) && strpos($item, '!') === 0
+                mb_strpos($key, '!') === 0
+                || (!is_array($item) && strpos($item, '!') === 0)
             ) {
                 unset($data[$key]);
             } elseif (!empty($up) && isset($item[$up])) {

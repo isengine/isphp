@@ -17,8 +17,8 @@ foreach ($file as $key => $item) {
     $t = $path . 'settings' . DS . $item . DS . $key . '.ini';
 
     if (
-        mb_strpos($key, '!') !== 0 &&
-        file_exists($t)
+        mb_strpos($key, '!') !== 0
+        && file_exists($t)
     ) {
         // загружаем файл тестов
         $item = json_decode(file_get_contents($t), true);

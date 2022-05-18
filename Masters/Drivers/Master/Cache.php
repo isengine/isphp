@@ -56,10 +56,9 @@ class Cache extends Common
     public function hash()
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
-        $this->hash =
-            md5($json) . '.' .
-            Strings::len($json) . '.' .
-            (int) $this->settings['all'] . '.' .
-            $this->settings['limit'];
+        $this->hash = md5($json) . '.'
+            . Strings::len($json) . '.'
+            . (int) $this->settings['all'] . '.'
+            . $this->settings['limit'];
     }
 }

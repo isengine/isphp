@@ -95,8 +95,8 @@ abstract class Master extends Data
         $this->elements = [];
 
         if (
-            !isset($this->settings['elements']) ||
-            !System::typeIterable($this->settings['elements'])
+            !isset($this->settings['elements'])
+            || !System::typeIterable($this->settings['elements'])
         ) {
             return;
         }
@@ -112,17 +112,17 @@ abstract class Master extends Data
     public function classes()
     {
         if (
-            !System::typeIterable($this->elements) ||
-            !System::typeIterable($this->settings['classes'])
+            !System::typeIterable($this->elements)
+            || !System::typeIterable($this->settings['classes'])
         ) {
             return;
         }
 
         foreach ($this->settings['classes'] as $key => $item) {
             if (
-                $item &&
-                isset($this->elements[$key]) &&
-                System::typeClass($this->elements[$key], 'dom')
+                $item
+                && isset($this->elements[$key])
+                && System::typeClass($this->elements[$key], 'dom')
             ) {
                 $this->elements[$key]->addClass($item);
             }

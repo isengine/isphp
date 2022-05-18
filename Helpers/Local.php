@@ -6,14 +6,18 @@ use ZipArchive;
 
 class Local
 {
+    /**
+     * Новая функция, которая строит карту файлов и папок, как в структуре
+     * на входе нужно указать путь к папке $path и массив параметров
+     * по своим параметрам и действиям копирует search, но дает другой результат
+     *
+     * @param [type] $path
+     * @param array $parameters
+     * @param [type] $basepath
+     * @return void
+     */
     public static function map($path, $parameters = [], $basepath = null)
     {
-        /*
-        *  Новая функция, которая строит карту файлов и папок, как в структуре
-        *  на входе нужно указать путь к папке $path и массив параметров
-        *  по своим параметрам и действиям копирует search, но дает другой результат
-        */
-
         if (!file_exists($path) || !is_dir($path)) {
             return false;
         }
@@ -40,7 +44,7 @@ class Local
 
         $map = [];
 
-        foreach ($scan as $item) {
+        foreach ((array) $scan as $item) {
             // здесь мы определяем, пропускать файл или нет
             // раньше еше была строка
             // $disable = $parameters['nodisable'] ? null : Strings::first($item) === '!';
@@ -48,9 +52,12 @@ class Local
             // но зачем эти сложности?
 
             if (
-                $item === '.' ||
-                $item === '..' ||
-                ( !$parameters['nodisable'] && Strings::first($item) === '!' )
+                $item === '.'
+                || $item === '..'
+                || (
+                    !$parameters['nodisable']
+                    && Strings::first($item) === '!'
+                )
             ) {
                 continue;
             }
@@ -62,8 +69,14 @@ class Local
 
             // еще одни параметры пропуска
             if (
-                ( $isdir && $parameters['return'] === 'files' ) ||
-                ( !$isdir && $parameters['return'] === 'folders' )
+                (
+                    $isdir
+                    && $parameters['return'] === 'files'
+                )
+                || (
+                    !$isdir
+                    && $parameters['return'] === 'folders'
+                )
             ) {
                 continue;
             }
@@ -80,9 +93,9 @@ class Local
             // и снова параметры пропуска
             // по расширению
             if (
-                System::typeIterable($parameters['extension']) &&
-                $i['extension'] &&
-                !Objects::match($parameters['extension'], $i['extension'])
+                System::typeIterable($parameters['extension'])
+                && $i['extension']
+                && !Objects::match($parameters['extension'], $i['extension'])
             ) {
                 continue;
             }
@@ -90,8 +103,8 @@ class Local
             $key = $isdir ? $item : $i['file'];
 
             if (
-                $parameters['subfolders'] &&
-                $isdir
+                $parameters['subfolders']
+                && $isdir
             ) {
                 $result = self::map($i['fullpath'], $parameters);
             } elseif (!$map[$key]) {
@@ -105,51 +118,51 @@ class Local
         return $map;
     }
 
-    public static function search($path, $parameters = [], $basepath = null)
+    /**
+     * Функция получения списка файлов или папок с определенным расширением
+     * на входе нужно указать путь к папке $name и массив параметров
+     * return
+     *   files - только файлы
+     *   folders - только папки
+     *   пропуск - и то и другое
+     * type/extension
+     *   для файлов, вернуть только файлы указанного типа
+     * info
+     *   любой ключ - часть по указанному ключу
+     *   пропуск - полную инфу
+     * subfolders
+     *   true/false включать в список подпапки
+     * nodisable
+     *   true/false включать в список заблокированные элементы - файлы и папки
+     * merge
+     *   true/false смешать список - папки, затем подпапки, затем файлы, затем подфайлы
+     * skip * пока не реализован
+     *   set - строка исключения
+     *   folders
+     *     true/false разрешить исключать папки
+     *   files
+     *     true/false разрешить исключать файлы
+     * mask * пока не реализован
+     *   set - строка совпадения
+     *   in - ключ info, где будет использована
+     * третий параметр используется только для служебных целей,
+     * т.к. функция рекурсивная при вызове параметра 'subfolders'
+     * функция возвращает готовый массив
+     *
+     * @param [type] $path
+     * @param array $parameters
+     * @param [type] $basepath
+     * @return void
+     */
+    public static function list($path, $parameters = [], $basepath = null)
     {
         // now dirconnect and fileconnect is localList
-
         //fileconnect($dir, $ext = false)
         //localList($path, ['return' => 'files'/*, 'type' => $ext*/])
         // $ext - либо массив значений, либо строка '_:_:_'
         //dirconnect($dir, $ext = false)
         //localList($path, ['return' => 'folders'/*, 'skip' => $ext*/])
         // $ext - либо массив значений, либо строка '_:_:_'
-
-        /*
-        *  Функция получения списка файлов или папок с определенным расширением
-        *  на входе нужно указать путь к папке $name и массив параметров
-        *
-        *  return
-        *    files - только файлы
-        *    folders - только папки
-        *    пропуск - и то и другое
-        *  type/extension
-        *    для файлов, вернуть только файлы указанного типа
-        *  info
-        *    любой ключ - часть по указанному ключу
-        *    пропуск - полную инфу
-        *  subfolders
-        *    true/false включать в список подпапки
-        *  nodisable
-        *    true/false включать в список заблокированные элементы - файлы и папки
-        *  merge
-        *    true/false смешать список - папки, затем подпапки, затем файлы, затем подфайлы
-        *  skip * пока не реализован
-        *    set - строка исключения
-        *    folders
-        *      true/false разрешить исключать папки
-        *    files
-        *      true/false разрешить исключать файлы
-        *  mask * пока не реализован
-        *    set - строка совпадения
-        *    in - ключ info, где будет использована
-        *
-        *  третий параметр используется только для служебных целей,
-        *  т.к. функция рекурсивная при вызове параметра 'subfolders'
-        *
-        *  функция возвращает готовый массив
-        */
 
         if (!file_exists($path) || !is_dir($path)) {
             return false;
@@ -189,7 +202,7 @@ class Local
             ]
         ];
 
-        foreach ($scan as $key => $item) {
+        foreach ((array) $scan as $key => $item) {
             if ($item !== '.' && $item !== '..') {
                 $pathto = $path . $item;
                 $isdir = is_dir($pathto);
@@ -209,22 +222,25 @@ class Local
                 ];
 
                 $disable = $parameters['nodisable'] ? null : Strings::first($item) === '!';
-                //echo $disable . '<br>';
 
                 if (
-                    !$disable && !$isdir &&
-                    $parameters['return'] !== 'folders'
+                    !$disable
+                    && !$isdir
+                    && $parameters['return'] !== 'folders'
                 ) {
-                    $info = pathinfo($pathto);
+                    $info = Objects::createByIndex(
+                        ['filename', 'extension'],
+                        pathinfo($pathto)
+                    );
                     $i['file'] = $info['filename'];
                     $i['extension'] = $info['extension'];
 
                     if (
-                        !$parameters['extension'] ||
-                        (
-                            $parameters['extension'] &&
-                            $i['extension'] &&
-                            Objects::match($parameters['extension'], $i['extension'])
+                        !$parameters['extension']
+                        || (
+                            $parameters['extension']
+                            && $i['extension']
+                            && Objects::match($parameters['extension'], $i['extension'])
                         )
                     ) {
                         $list['files'][] = $parameters['info'] ? $i[$parameters['info']] : $i;
@@ -237,7 +253,7 @@ class Local
                     }
 
                     if ($parameters['subfolders']) {
-                        $sub = self::search($pathto, $parameters, $basepath ? $basepath : $path);
+                        $sub = self::list($pathto, $parameters, $basepath ? $basepath : $path);
 
                         $list['sub'] = array_merge_recursive(
                             isset($list['sub']) ? $list['sub'] : [],
@@ -255,14 +271,10 @@ class Local
                             );
                             unset($list['sub']);
                         }
-
-                        //echo '<pre>+'.print_r($sub, 1).'</pre><br>';
-                        //echo '<hr>';
                     }
                 }
 
                 unset($i);
-                //echo '<pre>'.print_r($i, 1).'</pre><br>';
             }
         }
 
@@ -282,28 +294,40 @@ class Local
         return $list;
     }
 
+    /**
+     * Функция копирует файл
+     *
+     * @param [type] $from
+     * @param [type] $to
+     * @return void
+     */
     public static function copyFile($from, $to)
     {
-        /*
-        *  Функция копирует файл
-        */
-
         return copy($from, $to);
     }
 
+    /**
+     * Функция переименовывает или перемещает файл
+     *
+     * @param [type] $from
+     * @param [type] $to
+     * @return void
+     */
     public static function renameFile($from, $to)
     {
         return rename($from, $to);
     }
 
+    /**
+     * Функция создает файл
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function createFile($target)
     {
-        /*
-        *  Функция создает файл
-        */
-
-        $pos = Strings::find($target, DS, 'r') + 1;
-        $folder = Strings::get($target, 0, $pos);
+        $pos = (int) Strings::find($target, DS, 'r') + 1;
+        $folder = (string) Strings::get($target, 0, $pos);
         $file = Strings::get($target, $pos);
 
         if (!file_exists($folder)) {
@@ -313,48 +337,53 @@ class Local
         file_put_contents($target, null, LOCK_EX);
     }
 
+    /**
+     * Функция создает папку
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function createFolder($target)
     {
-        /*
-        *  Функция создает папку
-        */
-
         $target = Paths::clearSlashes($target);
         $split = Strings::split($target, '\\' . DS);
 
         $result = null;
 
-        foreach ($split as $item) {
+        foreach ((array) $split as $item) {
             $result .= $item . DS;
             if (!file_exists($result)) {
                 mkdir($result);
             }
-            //echo print_r($result, 1) . '(' . $ex . ')<br>';
         }
         unset($item);
     }
 
+    /**
+     * Функция удаляет папку вместе со всем содержимым
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function deleteFolder($target)
     {
-        /*
-        *  Функция удаляет папку вместе со всем содержимым
-        */
-
         self::eraseFolder($target);
         chmod($target, 0755);
         return rmdir($target);
     }
 
+    /**
+     * Функция очищает содержимое папки
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function eraseFolder($target)
     {
-        /*
-        *  Функция очищает содержимое папки
-        */
-
-        $list = self::search($target, ['subfolders' => true, 'merge' => true]);
+        $list = self::list($target, ['subfolders' => true, 'merge' => true]);
         $list = Objects::reverse($list);
 
-        foreach ($list as $item) {
+        foreach ((array) $list as $item) {
             if ($item['type'] === 'folder') {
                 chmod($item['fullpath'], 0755);
                 rmdir($item['fullpath']);
@@ -365,41 +394,47 @@ class Local
         unset($item);
     }
 
+    /**
+     * Функция проверяет существование файла $target
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function matchFolder($target)
     {
-        /*
-        *  Функция проверяет существование файла $target
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        */
-
         return is_dir($target);
-        //return file_exists($target) && is_file($target);
     }
 
+    /**
+     * Функция проверяет существование файла $target
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function matchFile($target)
     {
-        /*
-        *  Функция проверяет существование файла $target
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        */
-
         return is_file($target);
-        //return file_exists($target) && is_file($target);
     }
 
+    /**
+     * Новая функция, которая проверяет
+     * существование файла в файловой системе по url
+     * Сначала она преобразует url в абсолютный путь
+     * затем проверяет наличие файла
+     * второй аргумент устанавливает проверку по типу:
+     * файл, папка или что угодно (по-умолчанию)
+     * третий аргумент проверяет наличие файла по внешнему url
+     * через проверку ответа 200
+     *
+     * @param [type] $target
+     * @param [type] $type
+     * @param [type] $external
+     * @return void
+     */
     public static function matchUrl($target, $type = null, $external = null)
     {
-        /*
-        * Новая функция, которая проверяет
-        * существование файла в файловой системе по url
-        * Сначала она преобразует url в абсолютный путь
-        * затем проверяет наличие файла
-        * второй аргумент устанавливает проверку по типу:
-        * файл, папка или что угодно (по-умолчанию)
-        * третий аргумент проверяет наличие файла по внешнему url
-        * через проверку ответа 200
-        */
-
         if (!$target) {
             return;
         }
@@ -443,10 +478,21 @@ class Local
             $is_dir = self::matchFolder($path);
 
             return (
-                $type === 'file' && !$is_file ||
-                $type === 'folder' && !$is_dir ||
-                !$is_file && !$is_dir
-            ) ? null : filemtime($path);
+                (
+                    $type === 'file'
+                    && !$is_file
+                )
+                || (
+                    $type === 'folder'
+                    && !$is_dir
+                )
+                || (
+                    !$is_file
+                    && !$is_dir
+                )
+            )
+                ? null
+                : filemtime($path);
         }
 
         if ($external && Strings::get($path, 0, 4) === 'http') {
@@ -463,18 +509,18 @@ class Local
         }
     }
 
+    /**
+     * Функция открывает файл $target
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * вывод через функцию file_get_contents по сравнению с fopen+fgets+fclose
+     * оказывается быстрее при том же потреблении памяти, т.к. использует memory mapping
+     * функция вернет строку
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function readFile($target)
     {
-        /*
-        *  Функция открывает файл $target
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *
-        *  вывод через функцию file_get_contents по сравнению с fopen+fgets+fclose
-        *  оказывается быстрее при том же потреблении памяти, т.к. использует memory mapping
-        *
-        *  функция вернет строку
-        */
-
         if (!file_exists($target)) {
             return null;
         }
@@ -482,18 +528,19 @@ class Local
         return file_get_contents($target);
     }
 
+    /**
+     * Функция открывает файл $target и читает его построчно
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
+     * отличие от предыдущей функции в том, что эта работает построчно
+     * функция возвращает строку
+     *
+     * @param [type] $target
+     * @param [type] $separator
+     * @return void
+     */
     public static function readFileLine($target, $separator = null)
     {
-        /*
-        *  Функция открывает файл $target и читает его построчно
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *  вторым аргументом можно задать разделитель строк, по-умолчанию - без разделителя
-        *
-        *  отличие от предыдущей функции в том, что эта работает построчно
-        *
-        *  функция возвращает строку
-        */
-
         if (!file_exists($target)) {
             return null;
         }
@@ -509,15 +556,16 @@ class Local
         return $result;
     }
 
+    /**
+     * Функция открывает файл $target и читает его построчно
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * отличие от предыдущей функции в том, что эта возвращает массив строк
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function readFileArray($target)
     {
-        /*
-        *  Функция открывает файл $target и читает его построчно
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *
-        *  отличие от предыдущей функции в том, что эта возвращает массив строк
-        */
-
         if (!file_exists($target)) {
             return null;
         }
@@ -533,25 +581,23 @@ class Local
         return $lines;
     }
 
+    /**
+     * Функция открывает файл $target и читает его построчно
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * отличие от предыдущих функций в том, что эта действует через генератор
+     * это значит, что она позволяет распределять ресурсы при большой нагрузке
+     * и потребляет меньше оперативной памяти - размером ровно на одну строку
+     * результат этой функции нужно оборачивать в итератор, например:
+     * foreach (Local::readFileGenerator($path) as $index => $line) {
+     *   ...
+     * }
+     * функция возвращает текущую строку итерации
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function readFileGenerator($target)
     {
-        /*
-        *  Функция открывает файл $target и читает его построчно
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *
-        *  отличие от предыдущих функций в том, что эта действует через генератор
-        *  это значит, что она позволяет распределять ресурсы при большой нагрузке
-        *  и потребляет меньше оперативной памяти - размером ровно на одну строку
-        *
-        *  результат этой функции нужно оборачивать в итератор, например:
-        *
-        *  foreach (Local::readFileGenerator($path) as $index => $line) {
-        *    ...
-        *  }
-        *
-        *  функция возвращает текущую строку итерации
-        */
-
         $handle = fopen($target, "r");
         while (!feof($handle)) {
             yield fgets($handle);
@@ -559,23 +605,24 @@ class Local
         fclose($handle);
     }
 
+    /**
+     * Функция сохраняет данные $data в файл $target
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * второй параметр - данные для записи
+     * последний параметр задает режим
+     *   null/false/по-умолчанию - запись в новый файл
+     *   replace - замена файла
+     *   append - дозапись в конец файла
+     * здесь вывод через функцию file_put_contents по сравнению с fopen+fwrite+fclose
+     * функция вернет true в случае успешного выполнения
+     *
+     * @param [type] $target
+     * @param [type] $data
+     * @param [type] $mode
+     * @return void
+     */
     public static function writeFile($target, $data = null, $mode = null)
     {
-        /*
-        *  Функция сохраняет данные $data в файл $target
-        *
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *  второй параметр - данные для записи
-        *  последний параметр задает режим
-        *    null/false/по-умолчанию - запись в новый файл
-        *    replace - замена файла
-        *    append - дозапись в конец файла
-        *
-        *  здесь вывод через функцию file_put_contents по сравнению с fopen+fwrite+fclose
-        *
-        *  функция вернет true в случае успешного выполнения
-        */
-
         if (is_writable($target)) {
             if (!$mode) {
                 return false;
@@ -594,17 +641,22 @@ class Local
         }
     }
 
+    /**
+     * Функция открывает файл $target и записывает его построчно
+     *
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     * отличие от предыдущей функции в том, что эта
+     * может принимать на вход как массив, так и обычные данные
+     * и записывает их построчно
+     *
+     * @param [type] $target
+     * @param [type] $data
+     * @param [type] $mode
+     * @param [type] $separator
+     * @return void
+     */
     public static function writeFileLine($target, $data = null, $mode = null, $separator = PHP_EOL)
     {
-        /*
-        *  Функция открывает файл $target и записывает его построчно
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *
-        *  отличие от предыдущей функции в том, что эта
-        *  может принимать на вход как массив, так и обычные данные
-        *  и записывает их построчно
-        */
-
         $handle = fopen($target, $mode === 'append' ? "c" : "w");
         fseek($handle, 0, SEEK_END);
         if (System::typeOf($data, 'iterable')) {
@@ -619,26 +671,30 @@ class Local
         fclose($handle);
     }
 
+    /**
+     * Функция открывает файл $target и записывает его построчно
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     *
+     * отличие от предыдущих функций в том, что эта действует через генератор
+     * это значит, что она позволяет распределять ресурсы при большой нагрузке
+     * и потребляет меньше оперативной памяти - размером ровно на одну строку
+     *
+     * передавать данные нужно через втроенный системный метод send(), например:
+     * $file = Local::writeFileGenerator($path);
+     * foreach ($data as $index => $line) {
+     *   ...
+     *   $file->send($line);
+     * }
+     *
+     * Функция прекращает работу после передачи пустого значения
+     *
+     * @param [type] $target
+     * @param [type] $mode
+     * @param [type] $separator
+     * @return void
+     */
     public static function writeFileGenerator($target, $mode = null, $separator = PHP_EOL)
     {
-        /*
-        *  Функция открывает файл $target и записывает его построчно
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        *
-        *  отличие от предыдущих функций в том, что эта действует через генератор
-        *  это значит, что она позволяет распределять ресурсы при большой нагрузке
-        *  и потребляет меньше оперативной памяти - размером ровно на одну строку
-        *
-        *  передавать данные нужно через втроенный системный метод send(), например:
-        *  $file = Local::writeFileGenerator($path);
-        *  foreach ($data as $index => $line) {
-        *    ...
-        *    $file->send($line);
-        *  }
-        *
-        *  Функция прекращает работу после передачи пустого значения
-        */
-
         $handle = fopen($target, $mode === 'append' ? "c" : "w");
         fseek($handle, 0, SEEK_END);
 
@@ -659,13 +715,15 @@ class Local
         yield false;
     }
 
+    /**
+     * Функция удаляет файл $target
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function deleteFile($target)
     {
-        /*
-        *  Функция удаляет файл $target
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        */
-
         if (!file_exists($target)) {
             return null;
         }
@@ -674,36 +732,44 @@ class Local
         return unlink($target);
     }
 
+    /**
+     * Функция очищает содержимое файла $target, оставляя сам файл
+     * на входе нужно указать полный путь к файлу с названием и расширением
+     *
+     * @param [type] $target
+     * @return void
+     */
     public static function eraseFile($target)
     {
-        /*
-        *  Функция очищает содержимое файла $target, оставляя сам файл
-        *  на входе нужно указать полный путь к файлу с названием и расширением
-        */
-
         fclose(fopen($target, 'w'));
     }
 
+    /**
+     * Простая функция, которая проверяет указанный файл
+     * и возвращает путь к нему вместе с параметром версии
+     *
+     * Первым параметром задается путь
+     * Вторым параметром - системная папка
+     * Третий, необязательный параметр - префикс, который назначается принудительно
+     *  - если 'true', то устанавливается от времени изменения файла
+     *  - если пустой, то не устанавливается
+     * Четвертый, необязательный параметр - минимизированный вариант файла
+     * Пятый, необязательный параметр - тип возврата
+     *
+     * Путь читается в формате '/', '\' или ':'
+     * Например, 'path\to\file.ext' вернет 'path/to/file.ext?mtime'
+     *
+     * @param [type] $path
+     * @param [type] $folder
+     * @param boolean $prefix
+     * @param [type] $variant
+     * @param [type] $return
+     * @return void
+     */
     public static function link($path, $folder, $prefix = true, $variant = null, $return = null)
     {
-        /*
-        *  Простая функция, которая проверяет указанных файл
-        *  и возвращает путь к нему вместе с параметром версии
-        *
-        *  Первым параметром задается путь
-        *  Вторым параметром - системная папка
-        *  Третий, необязательный параметр - префикс, который назначается принудительно
-        *   - если 'true', то устанавливается от времени изменения файла
-        *   - если пустой, то не устанавливается
-        *  Четвертый, необязательный параметр - минимизированный вариант файла
-        *  Пятый, необязательный параметр - тип возврата
-        *
-        *  Путь читается в формате '/', '\' или ':'
-        *  Например, 'path\to\file.ext' вернет 'path/to/file.ext?mtime'
-        */
-
         $path = Prepare::clear($path);
-        $path = Prepare::urldecode($path);
+        $path = (string) Prepare::urldecode($path);
 
         if (!empty($variant)) {
             $point = strrpos($path, '.');
@@ -716,9 +782,9 @@ class Local
         }
 
         if (
-            !empty($pathv) &&
-            !empty($filev) &&
-            file_exists($filev)
+            !empty($pathv)
+            && !empty($filev)
+            && file_exists($filev)
         ) {
             $file = $filev;
             $path = $pathv;
@@ -729,24 +795,30 @@ class Local
             }
         }
 
-        //global $uri;
-        return
-            constant('URL_' . strtoupper($folder)) .
-            str_replace(['/', '\\', ':'], '/', $path) .
-            (!empty($prefix) ? '?' . ($prefix === true ? filemtime($file) : $prefix) : null);
+        return constant('URL_' . strtoupper($folder))
+            . str_replace(['/', '\\', ':'], '/', $path)
+            . (
+                !empty($prefix)
+                ? '?' . ($prefix === true ? filemtime($file) : $prefix)
+                : null
+            );
     }
 
+    /**
+     * Функция, позволяющая скопировать папку со всем содержимым
+     * в другую папку на сервере
+     *
+     * первый параметр - адрес исходной папки
+     * второй параметр - адрес, куда копировать (это может быть несуществующая папка)
+     * третий параметр - перезапись файлов, если они имеются
+     *
+     * @param [type] $from
+     * @param [type] $to
+     * @param boolean $rewrite
+     * @return void
+     */
     public static function copy($from, $to, $rewrite = true)
     {
-        /*
-        *  функция, позволяющая скопировать папку со всем содержимым
-        *  в другую папку на сервере
-        *
-        *  первый параметр - адрес исходной папки
-        *  второй параметр - адрес, куда копировать (это может быть несуществующая папка)
-        *  третий параметр - перезапись файлов, если они имеются
-        */
-
         if (!file_exists($from)) {
             return false;
         }
@@ -768,19 +840,23 @@ class Local
         }
     }
 
+    /**
+     * Функция, позволяющая сохранить файл на сервере,
+     * содержимое которого прочитано из url
+     *
+     * первым параметром передается адрес файла для сохранения на сервере
+     * второй параметр - адрес ссылки
+     * третий параметр определяет поведение при условии, если файл с таким именем уже существует:
+     *   false - по-умолчанию, ничего не делать, пропускать работу функции и возвращать false
+     *   true - сперва удалять файл, а затем записывать его заново
+     *
+     * @param [type] $filename
+     * @param [type] $url
+     * @param boolean $delete
+     * @return void
+     */
     public static function saveFromUrl($filename, $url, $delete = false)
     {
-        /*
-        *  функция, позволяющая сохранить файл на сервере,
-        *  содержимое которого прочитано из url
-        *
-        *  первым параметром передается адрес файла для сохранения на сервере
-        *  второй параметр - адрес ссылки
-        *  третий параметр определяет поведение при условии, если файл с таким именем уже существует:
-        *    false - по-умолчанию, ничего не делать, пропускать работу функции и возвращать false
-        *    true - сперва удалять файл, а затем записывать его заново
-        */
-
         if (file_exists($filename)) {
             if (!$delete) {
                 return false;
@@ -800,18 +876,22 @@ class Local
         }
     }
 
+    /**
+     * Функция, позволяющая загружать файл с сервера,
+     * содержимое которого прочитано из url
+     *
+     * первым параметром передается url файла
+     * второй параметр - метод
+     *
+     * третий параметр служебный, служит для предотвращения более 1 редиректа
+     *
+     * @param [type] $url
+     * @param boolean $method
+     * @param integer $redirect
+     * @return void
+     */
     public static function openUrl($url, $method = false, $redirect = 0)
     {
-        /*
-        *  функция, позволяющая загружать файл с сервера,
-        *  содержимое которого прочитано из url
-        *
-        *  первым параметром передается url файла
-        *  второй параметр - метод
-        *
-        *  третий параметр служебный, служит для предотвращения более 1 редиректа
-        */
-
         $target = null;
 
         if (!$method || $method === true) {
@@ -890,21 +970,26 @@ class Local
         return $target;
     }
 
+    /**
+     * Функция, позволяющая запросить какой-либо url
+     *
+     * первым параметром передается url
+     * второй параметр - данные
+     * третий параметр - метод (любой метод обращается к вызову через curl)
+     * на данный момент поддерживается только post и только через curl
+     * также нужно быть внимательным, чтобы отправлять запрос с абсолютной ссылкой, а не относительной
+     *
+     * четвертый параметр служебный, служит для предотвращения более 1 редиректа
+     * на данный момент редирект убран из кода
+     *
+     * @param [type] $url
+     * @param boolean $data
+     * @param boolean $method
+     * @param integer $redirect
+     * @return void
+     */
     public static function requestUrl($url, $data = false, $method = false, $redirect = 0)
     {
-        /*
-        *  функция, позволяющая запросить какой-либо url
-        *
-        *  первым параметром передается url
-        *  второй параметр - данные
-        *  третий параметр - метод (любой метод обращается к вызову через curl)
-        *    * на данный момент поддерживается только post и только через curl
-        *    * также нужно быть внимательным, чтобы отправлять запрос с абсолютной ссылкой, а не относительной
-        *
-        *  четвертый параметр служебный, служит для предотвращения более 1 редиректа
-        *    * на данный момент редирект убран из кода
-        */
-
         $target = null;
 
         if (!$method || $method === true) {
@@ -954,21 +1039,25 @@ class Local
         return $target;
     }
 
+    /**
+     * Функция, позволяющая распаковать файл, хранящийся на сервере
+     *
+     * первым параметром передается имя и адрес файла на сервере
+     * вторым - путь для распаковки
+     * третий параметр определяет поведение после успешной распаковки:
+     *   false - оставить исходный файл архива
+     *   true - удалить его (по-умолчанию)
+     *
+     * @param [type] $filename
+     * @param [type] $path
+     * @param boolean $delete
+     * @return void
+     */
     public static function unzip($filename, $path, $delete = true)
     {
-        /*
-        *  функция, позволяющая распаковать файл, хранящийся на сервере
-        *
-        *  первым параметром передается имя и адрес файла на сервере
-        *  вторым - путь для распаковки
-        *  третий параметр определяет поведение после успешной распаковки:
-        *    false - оставить исходный файл архива
-        *    true - удалить его (по-умолчанию)
-        */
-
         if (
-            !extension_loaded('zip') ||
-            !file_exists($filename)
+            !extension_loaded('zip')
+            || !file_exists($filename)
         ) {
             return false;
         }

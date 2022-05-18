@@ -64,8 +64,8 @@ class Common extends Data
             $this->addData($entry);
             $count++;
             if (
-                $this->settings['limit'] &&
-                $this->settings['limit'] <= $count
+                $this->settings['limit']
+                && $this->settings['limit'] <= $count
             ) {
                 $count = null;
             }
@@ -160,8 +160,8 @@ class Common extends Data
                 }
 
                 if (
-                    !System::set($col) &&
-                    $i['default']
+                    !System::set($col)
+                    && $i['default']
                 ) {
                     $col = $i['default'];
                 }

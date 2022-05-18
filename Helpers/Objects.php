@@ -4,11 +4,16 @@ namespace is\Helpers;
 
 class Objects
 {
+    /**
+     * Функция создает массив данных по заданной структуре
+     * с указанным заполнением
+     *
+     * @param [type] $structure
+     * @param [type] $fill
+     * @return void
+     */
     public static function create($structure, $fill = null)
     {
-        // функция создает массив данных по заданной структуре
-        // с указанным заполнением
-
         $result = self::convert($structure);
 
         if ($fill) {
@@ -22,12 +27,17 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция создает массив данных по заданной структуре
+     * но теперь это структура индексов
+     * с указанным заполнением
+     *
+     * @param [type] $structure
+     * @param [type] $fill
+     * @return void
+     */
     public static function createByIndex($structure, $fill = null)
     {
-        // функция создает массив данных по заданной структуре
-        // но теперь это структура индексов
-        // с указанным заполнением
-
         $result = self::join(
             self::convert($structure),
             null
@@ -43,10 +53,14 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция проверяет, является ли массив ассоциативным
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function associate($item)
     {
-        // функция проверяет, является ли массив ассоциативным
-
         $result = null;
 
         if (System::typeData($item, 'object')) {
@@ -62,10 +76,14 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция проверяет, является ли массив состоящим из цифр
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function numeric($item)
     {
-        // функция проверяет, является ли массив состоящим из цифр
-
         $result = true;
 
         if (System::typeData($item, 'object')) {
@@ -81,14 +99,17 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция преобразует любые входные данные в системный объект
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function convert($item)
     {
-        // функция преобразует любые входные данные в системный объект
-
         $type = System::typeData($item);
 
         if ($type === 'string') {
-            //$item = Parser::fromString($item);
             $item = Parser::fromString($item, ['key' => null, 'clear' => null, 'simple' => true]);
         } elseif ($type === 'json') {
             $item = Parser::fromJson($item);
@@ -99,57 +120,44 @@ class Objects
         return $item;
     }
 
+    /**
+     * Функция возврата ключей массива
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function keys($item)
     {
-        /*
-        *  Функция возврата ключей массива
-        */
-
         return array_keys($item);
     }
 
+    /**
+     * Функция возврата значений массива
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function values($item)
     {
-        /*
-        *  Функция возврата значений массива
-        */
-
         return array_values($item);
     }
 
-    /*
-    public static function match(
-        $needle,
-        $haystack,
-        $parameters = [
-            'method' => null, 'haystack' => null, 'needle' => null
-        ]
-    )
-    {
-    *  Функция проверки на совпадение элемента/ов needle в haystack
-    *  needle - условие, может быть числом, строкой, массивом или данными
-    *  haystack - исходные данные, в которых производится проверка
-    *  параметры управляют проверкой
-    *  method - метод поиска:
-    *    null/false/true - по-умолчанию, проверка на полное совпадение
-    *    search - по-умолчанию, проверка на вхождение строки
-    *    range - порверка на соответствие диапазону
-    *    regexp - проверка по регулярному выражению
-    */
-
+    /**
+     * Функция проверки наличия строки или символа в заданном массиве
+     * проверка по нестрогому соответствию, т.е. 3 === '3'
+     * $result = in_array($needle, $haystack);
+     * исходный вариант в ряде случаев осуществляет неправильную проверку,
+     * например значение 0 в haystack (чаще в ключах массивов)
+     * дает постоянное совпадение с любой не numeric строкой
+     * такое поведение недопустимо, поэтому делаем дополнительную проверку
+     * и вводим ряд условий
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @return void
+     */
     public static function match($haystack, $needle)
     {
-        // ИСПРАВЛЕННАЯ
-        // Функция проверки наличия строки или символа в заданном массиве
-        // проверка по нестрогому соответствию, т.е. 3 === '3'
-
-        //$result = in_array($needle, $haystack);
-        // исходный вариант в ряде случаев осуществляет неправильную проверку,
-        // например значение 0 в haystack (чаще в ключах массивов)
-        // дает постоянное совпадение с любой не numeric строкой
-        // такое поведение недопустимо, поэтому делаем дополнительную проверку
-        // и вводим ряд условий
-
         $type = System::type($needle);
 
         if ($type === 'numeric') {
@@ -163,16 +171,21 @@ class Objects
         return !System::set($result) || $result === false ? null : true;
     }
 
+    /**
+     * Функция проверки наличия строки или символа в ключах заданного массива
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @return void
+     */
     public static function matchByIndex($haystack, $needle)
     {
-        // Функция проверки наличия строки или символа в ключах заданного массива
-
-        $haystack = self::keys($haystack);
+        $haystack = (array) self::keys($haystack);
 
         $type = System::type($needle);
 
         if ($type === 'numeric') {
-            $result = in_array((float)$needle, $haystack, true) || in_array((string)$needle, $haystack, true);
+            $result = in_array((float) $needle, $haystack, true) || in_array((string) $needle, $haystack, true);
         } elseif ($type === 'string') {
             $result = in_array($needle, $haystack, true);
         } else {
@@ -182,25 +195,28 @@ class Objects
         return !System::set($result) || $result === false ? null : true;
     }
 
+    /**
+     * Функция поиска строки или символа в заданном массиве
+     * если задан position, то он ищет соответствие строки в заданном ключе
+     * положительное значение - поиск с начала, от 0
+     * отрицательное значение - поиск с конца, от -1
+     * если position не задан, то возвращает первый ключ/индекс значение с начала
+     * специальное значение 'r' задает возврат индекса/ключа последнего значения в массиве
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @param [type] $position
+     * @return void
+     */
     public static function find($haystack, $needle, $position = null)
     {
-        /*
-        *  Функция поиска строки или символа в заданном массиве
-        *  если задан position, то он ищет соответствие строки в заданном ключе
-        *  положительное значение - поиск с начала, от 0
-        *  отрицательное значение - поиск с конца, от -1
-        *  если position не задан, то возвращает первый ключ/индекс значение с начала
-        *  специальное значение 'r' задает возврат индекса/ключа последнего значения в массиве
-        */
-
         $find = array_keys($haystack, $needle);
         //$find = self::keys(self::filter($haystack, $needle));
-
         //echo 'FIND:' . print_r($find, 1) . '<hr>';
 
         if (System::set($position) && $position !== true) {
             if ($position < 0) {
-                $position = self::len($haystack) + $position;
+                $position = (int) self::len($haystack) + $position;
             }
             return in_array($position, $find) === false ? null : true;
         } elseif ($position === true) {
@@ -210,17 +226,22 @@ class Objects
         }
     }
 
+    /**
+     * Функция возвращает срез массива по указанному индексу (позиции) и заданной длине
+     * если длина задана, то она смещается
+     * положительное значение - вперед
+     * отрицательное значение - назад
+     * если длина не задана, то возвращается вся строка от индекса и до конца
+     * специальное значение position = true задает $length от конца массива
+     *
+     * @param [type] $haystack
+     * @param [type] $index
+     * @param [type] $length
+     * @param [type] $position
+     * @return void
+     */
     public static function get($haystack, $index, $length = null, $position = null)
     {
-        /*
-        *  Функция возвращает срез массива по указанному индексу (позиции) и заданной длине
-        *  если длина задана, то она смещается
-        *  положительное значение - вперед
-        *  отрицательное значение - назад
-        *  если длина не задана, то возвращается вся строка от индекса и до конца
-        *  специальное значение position = true задает $length от конца массива
-        */
-
         $len = System::set($length);
 
         if ($length && !$position) {
@@ -243,18 +264,23 @@ class Objects
         }
     }
 
+    /**
+     * Функция удаления части массива по указанному индексу (позиции) и заданной длине
+     * если длина задана, то она смещается
+     * положительное значение - вперед
+     * отрицательное значение - назад
+     * если длина не задана, то возвращается вся строка от индекса и до конца
+     * специальное значение position = true задает $length от конца массива
+     *
+     * @param [type] $haystack
+     * @param [type] $index
+     * @param [type] $length
+     * @param [type] $position
+     * @return void
+     */
     public static function cut($haystack, $index, $length = null, $position = null)
     {
-        /*
-        *  Функция удаления части массива по указанному индексу (позиции) и заданной длине
-        *  если длина задана, то она смещается
-        *  положительное значение - вперед
-        *  отрицательное значение - назад
-        *  если длина не задана, то возвращается вся строка от индекса и до конца
-        *  специальное значение position = true задает $length от конца массива
-        */
-
-        $len = self::len($haystack);
+        $len = (int) self::len($haystack);
 
         if (!$length) {
             $length = $position ? 0 : $len;
@@ -291,15 +317,19 @@ class Objects
         );
     }
 
+    /**
+     * Функция, которая возвращает срез массива до первого заданного значения
+     * включение include позволяет включить в массив найденное значение
+     * специальное значение reverse возвращает массив до последнего заданного значения
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @param [type] $include
+     * @param [type] $reverse
+     * @return void
+     */
     public static function before($haystack, $needle, $include = null, $reverse = null)
     {
-        /*
-        *  НОВАЯ
-        *  Функция, которая возвращает срез массива до первого заданного значения
-        *  включение include позволяет включить в массив найденное значение
-        *  специальное значение reverse возвращает массив до последнего заданного значения
-        */
-
         $key = self::find($haystack, $needle, $reverse ? 'r' : null);
 
         if (!System::set($key)) {
@@ -309,22 +339,26 @@ class Objects
         }
 
         $keys = self::keys($haystack);
-        $pos = self::find($keys, $key);
+        $pos = (int) self::find($keys, $key);
 
         $result = self::get($keys, 0, $pos + ($include ? 1 : 0));
 
         return array_intersect_key($haystack, self::join($result, null));
     }
 
+    /**
+     * Функция, которая возвращает срез массива после первого заданного значения
+     * включение include позволяет включить в массив найденное значение
+     * специальное значение reverse возвращает массив после последнего заданного значения
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @param [type] $include
+     * @param [type] $reverse
+     * @return void
+     */
     public static function after($haystack, $needle, $include = null, $reverse = null)
     {
-        /*
-        *  НОВАЯ
-        *  Функция, которая возвращает срез массива после первого заданного значения
-        *  включение include позволяет включить в массив найденное значение
-        *  специальное значение reverse возвращает массив после последнего заданного значения
-        */
-
         $key = self::find($haystack, $needle, $reverse ? 'r' : null);
 
         if (!System::set($key)) {
@@ -334,54 +368,65 @@ class Objects
         }
 
         $keys = self::keys($haystack);
-        $pos = self::find($keys, $key);
+        $pos = (int) self::find($keys, $key);
 
         $result = self::get($keys, $pos + 1 - ($include ? 1 : 0));
 
         return array_intersect_key($haystack, self::join($result, null));
     }
 
+    /**
+     * Функция добавления значений в начало или в конец массива
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @param [type] $recursive
+     * @return void
+     */
     public static function add($haystack, $needle, $recursive = null)
     {
-        /*
-        *  Функция добавления значений в начало или в конец массива
-        */
-
         $haystack = self::convert($haystack);
         $needle = self::convert($needle);
 
         return $recursive ? array_merge_recursive($haystack, $needle) : array_merge($haystack, $needle);
     }
 
+    /**
+     * Функция удаления заданных значений из массива
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @return void
+     */
     public static function remove($haystack, $needle)
     {
-        /*
-        *  Функция удаления заданных значений из массива
-        */
-
-        $haystack = self::convert($haystack);
+        $haystack = (array) self::convert($haystack);
         $needle = self::convert($needle);
 
         return array_diff($haystack, $needle);
     }
 
+    /**
+     * Функция удаления заданных ключей из массива
+     * теперь может работать рекурсивано
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @param [type] $recursive
+     * @return void
+     */
     public static function removeByIndex($haystack, $needle, $recursive = null)
     {
-        /*
-        *  Функция удаления заданных ключей из массива
-        *  теперь может работать рекурсивано
-        */
-
         $haystack = self::convert($haystack);
         $needle = self::convert($needle);
 
-        foreach ($needle as $item) {
+        foreach ((array) $needle as $item) {
             unset($haystack[$item]);
         }
         unset($item);
 
         if ($recursive) {
-            foreach ($haystack as &$item) {
+            foreach ((array) $haystack as &$item) {
                 if (is_array($item)) {
                     $item = self::removeByIndex($item, $needle, $recursive);
                 }
@@ -392,21 +437,26 @@ class Objects
         return $haystack;
     }
 
+    /**
+     * Функция разворачивает массив
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function reverse($item)
     {
-        /*
-        *  Функция разворачивает массив
-        */
-
         return array_reverse($item);
     }
 
+    /**
+     * Функция возврата первого значения массива
+     *
+     * @param [type] $item
+     * @param [type] $result
+     * @return void
+     */
     public static function first($item, $result = null)
     {
-        /*
-        *  Функция возврата первого значения массива
-        */
-
         if (!is_array($item)) {
             return;
         }
@@ -442,12 +492,15 @@ class Objects
         }
     }
 
+    /**
+     * Функция возврата последнего значения массива
+     *
+     * @param [type] $item
+     * @param [type] $result
+     * @return void
+     */
     public static function last($item, $result = null)
     {
-        /*
-        *  Функция возврата последнего значения массива
-        */
-
         if (!is_array($item)) {
             return;
         }
@@ -481,12 +534,15 @@ class Objects
         }
     }
 
+    /**
+     * Функция замены первого значения массива
+     *
+     * @param [type] $item
+     * @param [type] $data
+     * @return void
+     */
     public static function refirst(&$item, $data)
     {
-        /*
-        *  Функция замены первого значения массива
-        */
-
         if (!$item) {
             return;
         }
@@ -495,12 +551,15 @@ class Objects
         $item[$key] = $data;
     }
 
+    /**
+     * Функция замены последнего значения массива
+     *
+     * @param [type] $item
+     * @param [type] $data
+     * @return void
+     */
     public static function relast(&$item, $data)
     {
-        /*
-        *  Функция замены последнего значения массива
-        */
-
         if (!$item) {
             return;
         }
@@ -509,33 +568,40 @@ class Objects
         $item[$key] = $data;
     }
 
+    /**
+     * Функция удаления первого значения массива
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function unfirst(&$item)
     {
-        /*
-        *  Функция удаления первого значения массива
-        */
-
         return array_slice($item, 1, null, true);
     }
 
+    /**
+     * Функция удаления последнего значения массива
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function unlast(&$item)
     {
-        /*
-        *  Функция удаления последнего значения массива
-        */
-
         return array_slice($item, 0, -1, true);
     }
 
+    /**
+     * Функция возврата длины массива
+     * Добавлен второй аргумент, позволяющий считать длину многомерного массива
+     * Обычно считаются элементы, являющиеся вложенными массивами,
+     * но в режиме рекурсии они не подсчитываются
+     *
+     * @param [type] $item
+     * @param [type] $recursive
+     * @return void
+     */
     public static function len($item, $recursive = null)
     {
-        /*
-        *  Функция возврата длины массива
-        *  Добавлен второй аргумент, позволяющий считать длину многомерного массива
-        *  Обычно считаются элементы, являющиеся вложенными массивами,
-        *  но в режиме рекурсии они не подсчитываются
-        */
-
         if (!System::typeData($item, 'object')) {
             $item = self::convert($item);
         }
@@ -552,7 +618,7 @@ class Objects
 
         foreach ($item as $i) {
             if (is_array($i)) {
-                $c += self::len($i, true);
+                $c += (int) self::len($i, true);
             } else {
                 $c++;
             }
@@ -562,12 +628,14 @@ class Objects
         return $c;
     }
 
+    /**
+     * Функция которая разделяет массив по-очереди на ключи и значения
+     *
+     * @param [type] $array
+     * @return void
+     */
     public static function split($array)
     {
-        /*
-        *  НОВАЯ Функция которая разделяет массив по-очереди на ключи и значения
-        */
-
         $result = [];
 
         $i = 0;
@@ -588,21 +656,25 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция создания массива из двух массивов
+     * первый используется в качестве ключей
+     * второй - в качестве значений
+     *
+     * если длина массивов разная, то
+     * итоговый массив создается по длине массива ключей
+     * дополняясь элементами default
+     *
+     * если в качестве значения передан не массив,
+     * то массив ключей целиком заполняется переданным значением
+     *
+     * @param [type] $keys
+     * @param [type] $values
+     * @param [type] $default
+     * @return void
+     */
     public static function join($keys, $values, $default = null)
     {
-        /*
-        *  НОВАЯ Функция создания массива из двух массивов
-        *  первый используется в качестве ключей
-        *  второй - в качестве значений
-        *
-        *  если длина массивов разная, то
-        *  итоговый массив создается по длине массива ключей
-        *  дополняясь элементами default
-        *
-        *  если в качестве значения передан не массив,
-        *  то массив ключей целиком заполняется переданным значением
-        */
-
         if (System::type($values) !== 'array') {
             return self::join($keys, [], $values);
         }
@@ -611,9 +683,9 @@ class Objects
             return array_values($values);
         }
 
-        $keys = self::clear($keys);
-        $lkeys = self::len($keys);
-        $lvalues = self::len($values);
+        $keys = (array) self::clear($keys);
+        $lkeys = (int) self::len($keys);
+        $lvalues = (int) self::len($values);
 
         if ($lkeys > $lvalues) {
             // СТАРОЕ ПОВЕДЕНИЕ
@@ -627,12 +699,15 @@ class Objects
         return array_combine($keys, $values);
     }
 
+    /**
+     * Функция объединяет многомерный массив в одномерный
+     *
+     * @param [type] $item
+     * @param array $result
+     * @return void
+     */
     public static function combine($item, $result = [])
     {
-        /*
-        *  НОВАЯ Функция объединяет многомерный массив в одномерный
-        */
-
         if (!System::typeIterable($item)) {
             return $item;
         }
@@ -652,12 +727,15 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция объединяет многомерный массив в одномерный с сохранением ключей
+     *
+     * @param [type] $item
+     * @param array $result
+     * @return void
+     */
     public static function combineByIndex($item, $result = [])
     {
-        /*
-        *  НОВАЯ Функция объединяет многомерный массив в одномерный с сохранением ключей
-        */
-
         if (!System::typeIterable($item)) {
             return $item;
         }
@@ -675,12 +753,16 @@ class Objects
         return $result;
     }
 
+    /**
+     * Функция объединения двух массивов в один
+     *
+     * @param [type] $item
+     * @param [type] $merge
+     * @param [type] $recursive
+     * @return void
+     */
     public static function merge($item, $merge, $recursive = null)
     {
-        /*
-        *  Функция объединения двух массивов в один
-        */
-
         if (System::type($merge) !== 'array' || !count($merge)) {
             return $item;
         }
@@ -692,33 +774,36 @@ class Objects
         }
     }
 
+    /**
+     * это простая замена foreach
+     * позволяет перебирать элементы объекта или массива
+     * только в том случае, если он не пустой
+     *
+     * теперь он еще и позицию показывает - first, last или alone
+     *
+     * сделана в основном для того, чтобы облегчить код
+     * например:
+     * Objects::each($sets['form'], function($i, $k){
+     *   $this->eget('form')->addCustom($k, $i);
+     * });
+     * вместо:
+     * if (System::typeIterable($sets['form'])) {
+     *   foreach ($sets['form'] as $key => $item) {
+     *     $this->eget('form')->addCustom($key, $item);
+     *   }
+     *   unset($key, $item);
+     * }
+     *
+     * теперь добавлен последний аргумент, который позволяет
+     * обрабатывать пустые массивы
+     *
+     * @param [type] $item
+     * @param [type] $callback
+     * @param [type] $ignore
+     * @return void
+     */
     public static function each(&$item, $callback, $ignore = null)
     {
-        /*
-        *  это ПЕРЕДЕЛАННАЯ ФУНКЦИЯ, старая теперь называется eachOf
-        *  это простая замена foreach
-        *  позволяет перебирать элементы объекта или массива
-        *  только в том случае, если он не пустой
-        *
-        *  теперь он еще и позицию показывает - first, last или alone
-        *
-        *  сделана в основном для того, чтобы облегчить код
-        *  например:
-        *  Objects::each($sets['form'], function($i, $k){
-        *    $this->eget('form')->addCustom($k, $i);
-        *  });
-        *  вместо:
-        *  if (System::typeIterable($sets['form'])) {
-        *    foreach ($sets['form'] as $key => $item) {
-        *      $this->eget('form')->addCustom($key, $item);
-        *    }
-        *    unset($key, $item);
-        *  }
-        *
-        *  теперь добавлен последний аргумент, который позволяет
-        *  обрабатывать пустые массивы
-        */
-
         if (!is_array($item) || (!$ignore && !System::typeIterable($item))) {
             return;
         }
@@ -746,37 +831,41 @@ class Objects
         return $item;
     }
 
+    /**
+     * это универсальная замена foreach, которая управляет элементами в текущем массиве
+     * item - входящий массив или объект
+     * parameter - параметр, который влияет на поведение в случае,
+     * когда значение 'item' = 'false' (но не null и не любое другое)
+     *     filter - передает в качестве результата копию исходного массива и удаляет из него текущий элемент
+     *     break - прерывает цикл
+     *     continue - переходит к следующей итерации
+     * специальное значение параметра в виде массива или объекта,
+     * передает в функцию этот объект третьим параметром (не забудьте сделать его ссылкой) и вы можете изменять его
+     * callback - callback-функция, как правило анонимная,
+     * которая работает в итерации входящего массива, принимает параметры
+     *   текущее значение
+     *   текущий ключ
+     *   возвращаемый массив или объект (не забудьте сделать его ссылкой), если он передан в параметр
+     * любой из этих параметров можно не указывать, и тогда они не будут участвовать в процессе
+     * эта функция возвращает результат, который записывается вместо текущего значения
+     *
+     * если вы хотите использовать входящий массив или строку,
+     * используйте их, переданными в виде объекта/массива через параметр
+     * например: each($obj, [ 'str' => null ], function ($v, $k, $p){ $p['str'] .= '...'; });
+     *
+     * производительность этой функции медленнее в 1.5-2.5 раза по сравнению с foreach,
+     * но на сложных расчетах внутри итерации ее скорость становится такой же, как у встроенной функции
+     * и для мелких итераций ее скорость остается почти такой же
+     * и она расходует столько же памяти, как встроенная функция
+     * удобство ее использования в том, что она универсальна как для php, так и для js
+     *
+     * @param [type] $item
+     * @param [type] $parameters
+     * @param [type] $callback
+     * @return void
+     */
     public static function eachOf(&$item, $parameters, $callback)
     {
-        /*
-        *  это универсальная замена foreach, которая управляет элементами в текущем массиве
-        *  item - входящий массив или объект
-        *  parameter - параметр, который влияет на поведение в случае,
-        *  когда значение 'item' = 'false' (но не null и не любое другое)
-        *      filter - передает в качестве результата копию исходного массива и удаляет из него текущий элемент
-        *      break - прерывает цикл
-        *      continue - переходит к следующей итерации
-        *  специальное значение параметра в виде массива или объекта,
-        *  передает в функцию этот объект третьим параметром (не забудьте сделать его ссылкой) и вы можете изменять его
-        *  callback - callback-функция, как правило анонимная,
-        *  которая работает в итерации входящего массива, принимает параметры
-        *    текущее значение
-        *    текущий ключ
-        *    возвращаемый массив или объект (не забудьте сделать его ссылкой), если он передан в параметр
-        *  любой из этих параметров можно не указывать, и тогда они не будут участвовать в процессе
-        *  эта функция возвращает результат, который записывается вместо текущего значения
-        *
-        *  если вы хотите использовать входящий массив или строку,
-        *  используйте их, переданными в виде объекта/массива через параметр
-        *  например: each($obj, [ 'str' => null ], function ($v, $k, $p){ $p['str'] .= '...'; });
-        *
-        *  производительность этой функции медленнее в 1.5-2.5 раза по сравнению с foreach,
-        *  но на сложных расчетах внутри итерации ее скорость становится такой же, как у встроенной функции
-        *  и для мелких итераций ее скорость остается почти такой же
-        *  и она расходует столько же памяти, как встроенная функция
-        *  удобство ее использования в том, что она универсальна как для php, так и для js
-        */
-
         $type = System::typeOf($parameters);
 
         if ($type === 'iterable') {
@@ -811,12 +900,16 @@ class Objects
         return $item;
     }
 
+    /**
+     * Функция, аналогичная each, но с рекурсией
+     *
+     * @param [type] $item
+     * @param [type] $callback
+     * @param [type] $ignore
+     * @return void
+     */
     public static function recurse(&$item, $callback, $ignore = null)
     {
-        /*
-        *  это ФУНКЦИЯ, аналогичная each, но с рекурсией
-        */
-
         if (!is_array($item) || (!$ignore && !System::typeIterable($item))) {
             return;
         }
@@ -826,12 +919,15 @@ class Objects
         });
     }
 
+    /**
+     * Функция очищает массив от пустых элементов
+     *
+     * @param [type] $item
+     * @param [type] $unique
+     * @return void
+     */
     public static function clear(&$item, $unique = null)
     {
-        /*
-        *  Функция очищает массив от пустых элементов
-        */
-
         if (!System::typeOf($item, 'iterable')) {
             return $item;
         }
@@ -853,24 +949,30 @@ class Objects
         return $item;
     }
 
+    /**
+     * Функция убирает повторяющиеся элементы в массиве
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function unique($item)
     {
-        /*
-        *  Функция убирает повторяющиеся элементы в массиве
-        */
-
         return array_unique($item);
     }
 
+    /**
+     * Функция сортировки массива
+     * всегда используется NATCASESORT без учета регистра
+     * вторым аргументом можно задать сортировку по ключам
+     * третьим аргументом можно принудительно задать тип массива
+     *
+     * @param [type] $haystack
+     * @param boolean $keys
+     * @param string $associate
+     * @return void
+     */
     public static function sort($haystack, $keys = false, $associate = 'default')
     {
-        /*
-        *  Функция сортировки массива
-        *  всегда используется NATCASESORT без учета регистра
-        *  вторым аргументом можно задать сортировку по ключам
-        *  третьим аргументом можно принудительно задать тип массива
-        */
-
         $associate = $associate === 'default' ? self::associate($haystack) : $associate;
 
         $numeric = $keys ? !$associate : self::numeric($haystack);
@@ -894,18 +996,20 @@ class Objects
         }
     }
 
+    /**
+     * Функция сортировки массива в случайном порядке
+     * с сохранением ключей в ассоциативном массиве
+     *
+     * @param [type] $haystack
+     * @return void
+     */
     public static function random($haystack)
     {
-        /*
-        *  Функция сортировки массива в случайном порядке
-        *  с сохранением ключей в ассоциативном массиве
-        */
-
         $associate = self::associate($haystack);
 
         if ($associate) {
             $result = [];
-            $keys = self::keys($haystack);
+            $keys = (array) self::keys($haystack);
             shuffle($keys);
             foreach ($keys as $key) {
                 $result[$key] = $haystack[$key];
@@ -918,21 +1022,28 @@ class Objects
         }
     }
 
+    /**
+     * Функция возвращает массив, содержащий различия между двумя массивами
+     *
+     * @param [type] $haystack
+     * @param [type] $needle
+     * @return void
+     */
     public static function difference($haystack, $needle)
     {
-        /*
-        *  Функция возвращает массив, содержащий различия между двумя массивами
-        */
-
         return array_diff($haystack, $needle);
     }
 
+    /**
+     * Функция которая разделяет массив на два массива по значению
+     *
+     * @param [type] $array
+     * @param [type] $splitter
+     * @param [type] $offset
+     * @return void
+     */
     public static function pairs($array, $splitter, $offset = null)
     {
-        /*
-        *  НОВАЯ Функция которая разделяет массив на два массива по значению
-        */
-
         $key = self::find($array, $splitter);
 
         if (!System::set($key)) {
@@ -940,7 +1051,7 @@ class Objects
         }
 
         $keys = self::keys($array);
-        $pos = self::find($keys, $key);
+        $pos = (int) self::find($keys, $key);
 
         $before = $offset < 0 ? 1 : 0;
         $after = $offset > 0 ? 0 : 1;
@@ -954,14 +1065,18 @@ class Objects
         ];
     }
 
+    /**
+     * Функция которая разделяет массив на два массива по индексу
+     *
+     * @param [type] $array
+     * @param [type] $splitter
+     * @param [type] $offset
+     * @return void
+     */
     public static function pairsByIndex($array, $splitter, $offset = null)
     {
-        /*
-        *  НОВАЯ Функция которая разделяет массив на два массива по индексу
-        */
-
         $keys = self::keys($array);
-        $pos = self::find($keys, $splitter);
+        $pos = (int) self::find($keys, $splitter);
 
         if (!System::set($pos)) {
             return [ $array, [] ];
@@ -979,39 +1094,44 @@ class Objects
         ];
     }
 
+    /**
+     * Функция которая меняет значения и ключи массива местами
+     *
+     * @param [type] $array
+     * @return void
+     */
     public static function flip($array)
     {
-        /*
-        *  НОВАЯ Функция которая меняет значения и ключи массива местами
-        */
-
         return array_flip($array);
     }
 
+    /**
+     * Функция которая производит объединение данных в многомерных массивах или объектах
+     * на входе нужно указать:
+     *   целевой массив или объект, которЫЙ будем заполнять - $haystack
+     *   и массив или объект, который содержит ключи, которЫМИ будем заполнять haystack - $map
+     *   третий, необязательный, аргумент - это значение
+     * ТЕПЕРЬ ПОВЕДЕНИЕ ТАКОВО, ЧТО ПО-УМОЛЧАНИЮ ПУСТЫЕ ЗНАЧЕНИЯ НЕ ЗАПОЛНЯЮТСЯ!
+     *
+     * Например, если указать:
+     * inject(['data' => null], ['a', 'b', 'c'], 'value')
+     * то на выходе получим такой массив:
+     * [ 'data' => ['a' => ['b' => ['c' => 'value']]] ];
+     *
+     * при этом, особенность данной функции в том, что она дополняет массив и не стирает другие имеющиеся в нем поля
+     *
+     * @param [type] $haystack
+     * @param [type] $map
+     * @param [type] $value
+     * @return void
+     */
     public static function inject($haystack, $map, $value = null)
     {
-
-        /*
-        *  Функция которая производит объединение данных в многомерных массивах или объектах
-        *  на входе нужно указать:
-        *    целевой массив или объект, которЫЙ будем заполнять - $haystack
-        *    и массив или объект, который содержит ключи, которЫМИ будем заполнять haystack - $map
-        *    третий, необязательный, аргумент - это значение
-        *  ТЕПЕРЬ ПОВЕДЕНИЕ ТАКОВО, ЧТО ПО-УМОЛЧАНИЮ ПУСТЫЕ ЗНАЧЕНИЯ НЕ ЗАПОЛНЯЮТСЯ!
-        *
-        *  Например, если указать:
-        *  inject(['data' => null], ['a', 'b', 'c'], 'value')
-        *  то на выходе получим такой массив:
-        *  [ 'data' => ['a' => ['b' => ['c' => 'value']]] ];
-        *
-        *  при этом, особенность данной функции в том, что она дополняет массив и не стирает другие имеющиеся в нем поля
-        */
-
         if (!is_array($haystack) || !is_array($map)) {
             return null;
         }
 
-        $map = self::reset(self::clear($map));
+        $map = (array) self::reset(self::clear($map));
 
         $map = array_reverse($map);
         $c = count($map);
@@ -1034,27 +1154,30 @@ class Objects
         return array_replace_recursive($haystack, $item);
     }
 
+    /**
+     * Функция которая производит извлечение данных в многомерных массивах или объектах
+     * на входе нужно указать:
+     *   целевой массив или объект, ИЗ котороГО будем извлекать данные - $haystack
+     *   и массив или объект, согласно котороМУ будем извлекать эти данные - $map
+     *
+     * Третий аргумент может принимать значение true
+     * и тогда результирующий массив будет преобразован в объект и наоборот
+     *
+     * Если вы хотите извлечь значение из многомерного массива, использовать так:
+     * $arr = objectExtract($arr, ['field', 'field', 'field']);
+     * Например, если $haystack = ['a' => ['b' => ['c' => 1, 'd' => 2]]]
+     * и вам надо извлечь d, то используйте такой вызов:
+     * $arr = objectExtract($haystack, ['a', 'b', 'd']);
+     *
+     * на выходе отдает готовый массив $haystack
+     *
+     * @param [type] $haystack
+     * @param [type] $map
+     * @return void
+     */
     public static function extract($haystack, $map)
     {
-        /*
-        *  Функция которая производит извлечение данных в многомерных массивах или объектах
-        *  на входе нужно указать:
-        *    целевой массив или объект, ИЗ котороГО будем извлекать данные - $haystack
-        *    и массив или объект, согласно котороМУ будем извлекать эти данные - $map
-        *
-        *  Третий аргумент может принимать значение true
-        *  и тогда результирующий массив будет преобразован в объект и наоборот
-        *
-        *  Если вы хотите извлечь значение из многомерного массива, использовать так:
-        *  $arr = objectExtract($arr, ['field', 'field', 'field']);
-        *  Например, если $haystack = ['a' => ['b' => ['c' => 1, 'd' => 2]]]
-        *  и вам надо извлечь d, то используйте такой вызов:
-        *  $arr = objectExtract($haystack, ['a', 'b', 'd']);
-        *
-        *  на выходе отдает готовый массив $haystack
-        */
-
-        $map = self::reset(self::clear($map));
+        $map = (array) self::reset(self::clear($map));
 
         foreach ($map as $i) {
             if (
@@ -1076,27 +1199,28 @@ class Objects
         return $haystack;
     }
 
+    /**
+     * Функция которая удаляет ключ и значение по заданной карте в многомерных массивах или объектах
+     * на входе нужно указать:
+     *   целевой массив или объект, в котором будем удалять ключ - $haystack
+     *   и массив или объект, который содержит ключи, по которым будем искать путь - $map
+     *
+     * Например, если указать:
+     * delete(['a' => ['b' => ['c' => 'value']]], ['a', 'b', 'c']);
+     * то на выходе получим такой массив:
+     * ['a' => ['b' => []]];
+     *
+     * @param [type] $haystack
+     * @param [type] $map
+     * @return void
+     */
     public static function delete(&$haystack, $map)
     {
-
-        /*
-        *  Функция которая удаляет ключ и значение по заданной карте в многомерных массивах или объектах
-        *  на входе нужно указать:
-        *    целевой массив или объект, в котором будем удалять ключ - $haystack
-        *    и массив или объект, который содержит ключи, по которым будем искать путь - $map
-        *
-        *  Например, если указать:
-        *  delete(['a' => ['b' => ['c' => 'value']]], ['a', 'b', 'c']);
-        *  то на выходе получим такой массив:
-        *  ['a' => ['b' => []]];
-        *
-        */
-
         if (!is_array($haystack) || !is_array($map)) {
             return null;
         }
 
-        $map = self::reset(self::clear($map));
+        $map = (array) self::reset(self::clear($map));
 
         $c = count($map) - 1;
         $current = &$haystack;
@@ -1116,14 +1240,17 @@ class Objects
         return $haystack;
     }
 
+    /**
+     * Функция для вложенных массивов
+     * переназначает ключи главного массива
+     * по значению указанного поля внутреннего массива
+     *
+     * @param [type] $item
+     * @param [type] $name
+     * @return void
+     */
     public static function remap(&$item, $name)
     {
-        /*
-        *  НОВАЯ Функция для вложенных массивов
-        *  переназначает ключи главного массива
-        *  по значению указанного поля внутреннего массива
-        */
-
         foreach ($item as $k => $i) {
             if (!is_array($i)) {
                 continue;
@@ -1140,12 +1267,14 @@ class Objects
         return $item;
     }
 
+    /**
+     * Функция сбрасывает ключи массива
+     *
+     * @param [type] $item
+     * @return void
+     */
     public static function reset($item)
     {
-        /*
-        *  НОВАЯ Функция которая сбрасывает ключи массива
-        */
-
         return self::values($item);
     }
 }

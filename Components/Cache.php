@@ -83,7 +83,9 @@ class Cache extends Data
     {
         // включение/выключение кэширования
 
-        $this->caching = $caching ? (System::type($caching, 'numeric') ? $caching : true) : null;
+        $this->caching = $caching
+            ? (System::type($caching, 'numeric') ? $caching : true)
+            : null;
     }
 
     public function format($format = true)
@@ -175,9 +177,9 @@ class Cache extends Data
     public function read()
     {
         if (
-            !$this->caching ||
-            !$this->name ||
-            !file_exists($this->name)
+            !$this->caching
+            || !$this->name
+            || !file_exists($this->name)
         ) {
             return;
         }
@@ -191,8 +193,8 @@ class Cache extends Data
         // current_time <= cache_time + set_time = читаем кэш
 
         if (
-            System::type($this->caching, 'numeric') &&
-            time() > (filemtime($this->name) + $this->caching)
+            System::type($this->caching, 'numeric')
+            && time() > (filemtime($this->name) + $this->caching)
         ) {
             return;
         }
@@ -216,9 +218,9 @@ class Cache extends Data
     public function write($data)
     {
         if (
-            $this->cached ||
-            !$this->caching ||
-            !$this->name
+            $this->cached
+            || !$this->caching
+            || !$this->name
         ) {
             return;
         }

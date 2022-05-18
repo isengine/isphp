@@ -183,17 +183,23 @@ function send($arr, $message, $subject = null, $data = [], $clear = null) {
 	if (!file_exists(PATH_LOG . 'send')) { mkdir(PATH_LOG . 'send'); }
 	
 	if (
-		defined('LOG_MODE') &&
-		(LOG_MODE === 'panic' || LOG_MODE === 'warning')
+		defined('LOG_MODE')
+        && (
+            LOG_MODE === 'panic'
+            || LOG_MODE === 'warning'
+        )
 	) {
 		if (!file_exists(PATH_LOG . 'send' . DS . 'log_' . $arr -> type)) { mkdir(PATH_LOG . 'send' . DS . 'log_' . $arr -> type); }
 		file_put_contents(PATH_LOG . 'send' . DS . 'log_' . $arr -> type . DS . date('Ymd.His') . '.' . mt_rand(1000, 9999) . '.' . str_replace(':', '.', $_SERVER['REMOTE_ADDR']) . '.ini', json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 	}
 	if (
-		$result['status'] === 'error' &&
-		defined('LOG_MODE') && LOG_MODE !== 'warning'
+		$result['status'] === 'error'
+        && defined('LOG_MODE')
+        && LOG_MODE !== 'warning'
 	) {
-		if (!file_exists(PATH_LOG . 'send' . DS . 'log_' . $arr -> type)) { mkdir(PATH_LOG . 'send' . DS . 'log_' . $arr -> type); }
+		if (!file_exists(PATH_LOG . 'send' . DS . 'log_' . $arr -> type)) {
+            mkdir(PATH_LOG . 'send' . DS . 'log_' . $arr -> type);
+        }
 		file_put_contents(PATH_LOG . 'send' . DS . 'log_' . $arr -> type . DS . date('Ymd.His') . '.' . mt_rand(1000, 9999) . '.' . str_replace(':', '.', $_SERVER['REMOTE_ADDR']) . '.ini', json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 	}
 	

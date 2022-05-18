@@ -145,8 +145,8 @@ abstract class Master extends Errors
         $this->prepareItem();
 
         if (
-            !$this->data ||
-            !$this->match()
+            !$this->data
+            || !$this->match()
         ) {
             return;
         }
@@ -167,8 +167,8 @@ abstract class Master extends Errors
         $this->prepareItem();
 
         if (
-            !$this->data ||
-            $this->match()
+            !$this->data
+            || $this->match()
         ) {
             return;
         }
@@ -189,8 +189,8 @@ abstract class Master extends Errors
         $this->prepareItem();
 
         if (
-            !$this->data ||
-            !$this->match()
+            !$this->data
+            || !$this->match()
         ) {
             return;
         }

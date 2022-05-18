@@ -138,12 +138,11 @@ class Dom
         $print = '<' . $this->tag;
 
         if ($this->link) {
-            $print .=
-                ' ' .
-                (Objects::match($this->settings['hreflink'], $this->tag) ? 'href' : 'src') .
-                '="' .
-                $this->link .
-                '"';
+            $print .= ' '
+                . (Objects::match($this->settings['hreflink'], $this->tag) ? 'href' : 'src')
+                . '="'
+                . $this->link
+                . '"';
         }
 
         if ($this->id) {

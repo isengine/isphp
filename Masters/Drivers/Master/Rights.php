@@ -22,26 +22,26 @@ class Rights extends Cache
     {
         $rights = null;
         if (
-            isset($this->rights[$this->collection][$this->query]) &&
-            (
-                $this->rights[$this->collection][$this->query] ||
-                $this->rights[$this->collection][$this->query] === false
+            isset($this->rights[$this->collection][$this->query])
+            && (
+                $this->rights[$this->collection][$this->query]
+                || $this->rights[$this->collection][$this->query] === false
             )
         ) {
             $rights = $this->rights[$this->collection][$this->query];
         } elseif (
-            isset($this->rights[$this->collection]) &&
-            (
-                $this->rights[$this->collection] ||
-                $this->rights[$this->collection] === false
+            isset($this->rights[$this->collection])
+            && (
+                $this->rights[$this->collection]
+                || $this->rights[$this->collection] === false
             )
         ) {
             $rights = $this->rights[$this->collection];
         } elseif (
-            isset($this->rights[$this->query]) &&
-            (
-                $this->rights[$this->query] ||
-                $this->rights[$this->query] === false
+            isset($this->rights[$this->query])
+            && (
+                $this->rights[$this->query]
+                || $this->rights[$this->query] === false
             )
         ) {
             $rights = $this->rights[$this->query];

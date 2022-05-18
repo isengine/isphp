@@ -32,8 +32,8 @@ class Constants extends Singleton
     {
         $key = $this->convert($key);
         if (
-            !isset($this->constants[$key]) &&
-            System::typeOf($value, 'scalar')
+            !isset($this->constants[$key])
+            && System::typeOf($value, 'scalar')
         ) {
             $this->constants[$key] = $value;
         }

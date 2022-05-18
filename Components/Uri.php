@@ -46,10 +46,9 @@ class Uri extends Globals
     {
         // получение данных
 
-        $url =
-            System::server('domain') .
-            (System::server('port') ? ':' . System::server('port') : null) .
-            rawurldecode(System::server('request'));
+        $url = System::server('domain')
+            . (System::server('port') ? ':' . System::server('port') : null)
+            . rawurldecode(System::server('request'));
 
         // rawurldecode декодирует по стандарту RFC 3986
         // в том числе поддерживается гуглом
@@ -248,11 +247,10 @@ class Uri extends Globals
 
     public function setUrl()
     {
-        $this->url =
-            $this->domain .
-            ($this->language ? $this->language . '/' : null) .
-            $this->path['string'] .
-            $this->query['string'];
+        $this->url = $this->domain
+            . ($this->language ? $this->language . '/' : null)
+            . $this->path['string']
+            . $this->query['string'];
     }
 
     public function setRest($rest, $keys, $query = true)

@@ -225,12 +225,11 @@ class Module extends Singleton
 
         // read from custom path
 
-        $path =
-            $this->custom .
-            Prepare::upperFirst($vendor) . DS .
-            Prepare::upperFirst($name) . DS .
-            'data' . DS .
-            $instance . '.ini';
+        $path = $this->custom
+            . Prepare::upperFirst($vendor) . DS
+            . Prepare::upperFirst($name) . DS
+            . 'data' . DS
+            . $instance . '.ini';
         $path = Local::readFile($path);
         $data = $path ? Parser::fromJson($path) : null;
         unset($path);

@@ -38,7 +38,7 @@ class View extends Singleton
             $array = Strings::pairs($type, '|');
             return $this->data[$array[0]]->get($array[1], $parameters);
         }
-        return $this->data[$type];
+        return !empty($this->data[$type]) ? $this->data[$type] : null;
     }
 
     public function call($data, $params = null)

@@ -134,7 +134,7 @@ class Datetimes
 
         if (!$date) {
             $pos_last = Strings::find($format, '}', 'r');
-            $len = Strings::len($format) - 1;
+            $len = (int) Strings::len($format) - 1;
 
             if (!System::set($pos_last)) {
                 return;

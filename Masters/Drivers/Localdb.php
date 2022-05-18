@@ -26,12 +26,11 @@ class Localdb extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash =
-            (Local::matchFile($path) ? md5_file($path) : 0) . '.' .
-            md5($json) . '.' .
-            Strings::len($json) . '.' .
-            (int) $this->settings['all'] . '.' .
-            (int) $this->settings['limit'];
+        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.'
+            . md5($json) . '.'
+            . Strings::len($json) . '.'
+            . (int) $this->settings['all'] . '.'
+            . (int) $this->settings['limit'];
     }
 
     public function read()
@@ -40,7 +39,7 @@ class Localdb extends Master
 
         $files = [];
 
-        $files = Local::search(
+        $files = Local::list(
             $path,
             ['return' => 'files', 'extension' => 'ini', 'subfolders' => true, 'merge' => true]
         );
@@ -48,7 +47,8 @@ class Localdb extends Master
 
         $count = 0;
 
-        foreach ($files as $key => $item) {
+        Objects::each($files, function ($item, $key) use (&$count) {
+        //foreach ($files as $key => $item) {
             $entry = $this->createInfoFromFile($item, $key);
 
             // создание новых полей/колонок и обработка текущих
@@ -73,10 +73,11 @@ class Localdb extends Master
 
             $count = $this->result($entry, $count);
             if (!System::set($count)) {
-                break;
+                return;
+                //break;
             }
-        }
-        unset($key, $item);
+        });
+        //unset($key, $item);
 
         unset($files);
     }
@@ -156,7 +157,7 @@ class Localdb extends Master
 
         // ищем, есть ли хотя бы один подходящий файл в заданном пути
 
-        $files = Local::search(
+        $files = Local::list(
             $item['path'],
             ['return' => 'files', 'extension' => 'ini', 'subfolders' => null, 'merge' => true]
         );
@@ -222,8 +223,8 @@ class Localdb extends Master
         $second = Objects::first(Objects::get($parse, 1, 1), 'value');
 
         if (
-            !is_numeric($first) ||
-            is_numeric($first) && !$second
+            !is_numeric($first)
+            || (is_numeric($first) && !$second)
         ) {
             $parse = Objects::add([$key], $parse);
         }
@@ -248,9 +249,18 @@ class Localdb extends Master
         // сначала создаем правильное содержимое записи
         // переводим нужные поля в пути
 
-        $path =
-            $this->path . $this->collection . DS .
-            ($item['parents'] ? Strings::join($item['parents'], DS) . DS : null);
+        $item = Objects::createByIndex(
+            ['id', 'name', 'parents', 'type', 'owner', 'ctime', 'mtime', 'dtime', 'data'],
+            $item
+        );
+
+        $path = $this->path
+            . $this->collection . DS
+            . (
+                $item['parents']
+                ? Strings::join($item['parents'], DS) . DS
+                : null
+            );
 
         $item['name'] = Strings::replace($item['name'], '.', '--');
         $item['type'] = Strings::replace(Strings::join($item['type'], ' '), '.', '--');
@@ -270,8 +280,8 @@ class Localdb extends Master
         }
         if ($item['dtime'] && System::type($item['dtime'], 'numeric')) {
             if (
-                !System::set($item['type']) &&
-                !System::set($item['owner'])
+                !System::set($item['type'])
+                && !System::set($item['owner'])
             ) {
                 $file .= '..';
             } elseif (

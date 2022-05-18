@@ -29,7 +29,8 @@ class Prepare
     *    codespaces - удаление незначащих для кода пробелов, сокращение кода
     *    onestring - приведение данных к однострочному виду
     *    code - htmlspecialchars
-    *    entities - htmlentities
+    *    htmlencode - htmlentities
+    *    htmldecode - html_entity_decode
     *    notags - удаление всех тегов
     *    cleartags - очищение всех атрибутов внутри тегов
     *    tags - удаление всех тегов, кроме разрешенных
@@ -75,9 +76,14 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Выполняем предварительное очищение - от скриптов, программного кода
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function script($data)
     {
-        // выполняем предварительное очищение - от скриптов, программного кода
         if (!System::set($data)) {
             return $data;
         }
@@ -88,15 +94,20 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Продолжаем предварительное очищение - от всех тегов, кроме разрешенных
+     *
+     * @param [type] $data
+     * @param [type] $tags
+     * @return void
+     */
     public static function stripTags($data, $tags = null)
     {
-        // продолжаем предварительное очищение - от всех тегов, кроме разрешенных
         if (!System::set($data)) {
             return $data;
         }
 
         // задаем разрешенные теги
-
         if (empty($tags)) {
             $tags = [
                 // base elements
@@ -129,12 +140,18 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Убираем все пробелы и табуляцию в начале и в конце
+     * второй параметр задает замену при очищении
+     * по-умолчанию, пусто
+     * можно указать '$1' для замены на найденное значение
+     *
+     * @param [type] $data
+     * @param string $replace
+     * @return void
+     */
     public static function trim($data, $replace = '')
     {
-        // убираем все пробелы и табуляцию вначале и в конце
-        // второй параметр задает замену при очищении
-        // по-умолчанию, пусто
-        // можно указать '$1' для замены на найденное значение
         if (!System::set($data)) {
             return $data;
         }
@@ -145,12 +162,18 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Убираем двойные пробелы и табуляцию
+     * второй параметр задает замену при очищении
+     * по-умолчанию, '$1' - замена на найденное значение
+     * можно указать null для очищения (nospaces) или ' ' для замены на пробел (tospaces)
+     *
+     * @param [type] $data
+     * @param string $replace
+     * @return void
+     */
     public static function spaces($data, $replace = '$1')
     {
-        // убираем двойные пробелы и табуляцию
-        // второй параметр задает замену при очищении
-        // по-умолчанию, '$1' - замена на найденное значение
-        // можно указать null для очищения (nospaces) или ' ' для замены на пробел (tospaces)
         if (!System::set($data)) {
             return $data;
         }
@@ -160,9 +183,14 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Убираем комментарии
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function comments($data)
     {
-        // убираем комментарии
         if (!System::set($data)) {
             return $data;
         }
@@ -177,6 +205,13 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Оставляем в строке только цифры, латинские буквы, пробелы
+     * и разрешенные знаки для передачи данных в формате системы
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function format($data)
     {
         if (!System::set($data)) {
@@ -186,6 +221,13 @@ class Prepare
         $data = preg_replace('/[^a-zA-Z0-9_\- .,:;]/u', '', $data);
         return $data;
     }
+
+    /**
+     * Оставляем в строке только буквы
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function letters($data)
     {
         if (!System::set($data)) {
@@ -195,6 +237,13 @@ class Prepare
         $data = preg_replace('/[^\w]|\d/u', '', $data);
         return $data;
     }
+
+    /**
+     * Оставляем в строке только буквы и пробелы
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function words($data)
     {
         if (!System::set($data)) {
@@ -204,6 +253,15 @@ class Prepare
         $data = preg_replace('/[^\w ]|\d/u', '', $data);
         return $data;
     }
+
+    /**
+     * Оставляем в строке только цифры, буквы и некоторые знаки препинания
+     *
+     * @param [type] $data
+     * @param string $replace
+     * @param boolean $compact
+     * @return void
+     */
     public static function alphanumeric($data, $replace = '', $compact = true)
     {
         if (!System::set($data)) {
@@ -217,6 +275,13 @@ class Prepare
         }
         return $data;
     }
+
+    /**
+     * Оставляем в строке только цифры
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function numeric($data)
     {
         if (!System::set($data)) {
@@ -230,6 +295,13 @@ class Prepare
         //$data = (float) $data;
         return $data;
     }
+
+    /**
+     * Оставляем в строке только символы в формате даты
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function datetime($data)
     {
         if (!System::set($data)) {
@@ -239,6 +311,14 @@ class Prepare
         $data = preg_replace('/[^0-9_\-.,:()\\\\\/ ]/u', '', $data);
         return $data;
     }
+
+    /**
+     * Оставляем в строке только символы в формате номера телефона
+     *
+     * @param [type] $data
+     * @param [type] $locale
+     * @return void
+     */
     public static function phone($data, $locale = null)
     {
         if (!System::set($data)) {
@@ -260,10 +340,13 @@ class Prepare
 
         return '+' . $data;
     }
-    public static function login($data)
-    {
-        return self::email($data);
-    }
+
+    /**
+     * Оставляем в строке только символы для логина/email
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function email($data)
     {
         if (!System::set($data)) {
@@ -273,6 +356,24 @@ class Prepare
         $data = preg_replace('/[^a-zA-Z0-9\-_.@]/u', '', $data);
         return $data;
     }
+
+    /**
+     * Синоним предыдущей функции
+     *
+     * @param [type] $data
+     * @return void
+     */
+    public static function login($data)
+    {
+        return self::email($data);
+    }
+
+    /**
+     * Оставляем в строке только символы в формате url
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function url($data)
     {
         if (!System::set($data)) {
@@ -283,6 +384,13 @@ class Prepare
         $data = rawurlencode($data);
         return $data;
     }
+
+    /**
+     * Оставляем в строке только символы в формате url без спецсимволов
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function simpleurl($data)
     {
         if (!System::set($data)) {
@@ -294,6 +402,15 @@ class Prepare
         $data = htmlspecialchars($data);
         return $data;
     }
+
+    /**
+     * Кодируем строку в формат raw
+     * Спецсимволы заменяются % и hex-кодом
+     *
+     * @param [type] $data
+     * @param [type] $except
+     * @return void
+     */
     public static function urlencode($data, $except = null)
     {
         if (!System::set($data)) {
@@ -312,6 +429,13 @@ class Prepare
             return $result;
         }
     }
+
+    /**
+     * Декодируем строку из формата raw
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function urldecode($data)
     {
         if (!System::set($data)) {
@@ -322,6 +446,13 @@ class Prepare
         //$data = preg_replace('/[^a-zA-Z0-9\-_.,:\/?&=#+\w ]/u', '', $data);
         return $data;
     }
+
+    /**
+     * Приводим весь текст в одну строку
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function onestring($data)
     {
         if (!System::set($data)) {
@@ -333,6 +464,14 @@ class Prepare
         $data = preg_replace('/([^\s]|^)[\s]*(\r?\n){1,}[\s]*([^\s]|$)/u', '$1 $3', $data);
         return $data;
     }
+
+    /**
+     * Приводим весь текст в вид, когда можно печатать код
+     * все спецсимволы кодируются в html-сущности
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function code($data)
     {
         if (!System::set($data)) {
@@ -342,7 +481,14 @@ class Prepare
         $data = htmlspecialchars($data, ENT_QUOTES | ENT_HTML5);
         return $data;
     }
-    public static function entities($data)
+
+    /**
+     * Кодируем строку в формат html-сущностей
+     *
+     * @param [type] $data
+     * @return void
+     */
+    public static function htmlencode($data)
     {
         if (!System::set($data)) {
             return $data;
@@ -351,6 +497,30 @@ class Prepare
         $data = htmlentities($data);
         return $data;
     }
+
+    /**
+     * Декодируем строку из формата html-сущностей
+     *
+     * @param [type] $data
+     * @return void
+     */
+    public static function htmldecode($data)
+    {
+        if (!System::set($data)) {
+            return $data;
+        }
+
+        $data = html_entity_decode($data);
+        return $data;
+    }
+
+    /**
+     * Удаление всех тегов, кроме разрешенных
+     *
+     * @param [type] $data
+     * @param [type] $striptags
+     * @return void
+     */
     public static function tags($data, $striptags = null)
     {
         if (!System::set($data)) {
@@ -361,11 +531,19 @@ class Prepare
         $data = strip_tags($data, $striptags);
         return $data;
     }
+
+    /**
+     * Удаление всех тегов
+     * второй параметр задает замену при очищении
+     * по-умолчанию, null - замена на пустое значение
+     * можно указать ' ' для замены на пробел (notagsspaced)
+     *
+     * @param [type] $data
+     * @param string $replace
+     * @return void
+     */
     public static function notags($data, $replace = '')
     {
-        // второй параметр задает замену при очищении
-        // по-умолчанию, null - замена на пустое значение
-        // можно указать ' ' для замены на пробел (notagsspaced)
         if (!System::set($data)) {
             return $data;
         }
@@ -375,6 +553,13 @@ class Prepare
 
         return $data;
     }
+
+    /**
+     * Очищение всех атрибутов внутри тегов
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function cleartags($data)
     {
         if (!System::set($data)) {
@@ -386,10 +571,18 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Ограничиваем длину строки
+     *
+     * @param [type] $data
+     * @param [type] $min
+     * @param [type] $max
+     * @return void
+     */
     public static function len($data, $min = null, $max = null)
     {
         // раньше было specail minlen/maxlen
-        // сравнение original/minmun/maxnum теперь через класс match
+        // сравнение original/minnum/maxnum теперь через класс match
         if (!System::set($data)) {
             return $data;
         }
@@ -397,10 +590,10 @@ class Prepare
         // правило, задающее минимальную длину строки
 
         if (
-            !empty($min) &&
-            is_numeric($min) &&
-            $min > 0 &&
-            mb_strlen($data) < $min
+            !empty($min)
+            && is_numeric($min)
+            && $min > 0
+            && mb_strlen($data) < $min
         ) {
             $data = null;
         }
@@ -408,10 +601,10 @@ class Prepare
         // правило, задающее максимальную длину строки
 
         if (
-            !empty($max) &&
-            is_numeric($max) &&
-            $max > 0 &&
-            mb_strlen($data) > $max
+            !empty($max)
+            && is_numeric($max)
+            && $max > 0
+            && mb_strlen($data) > $max
         ) {
             $data = mb_substr($data, 0, $max);
         }
@@ -419,9 +612,14 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Переводим строку в верхний регистр
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function upper($data)
     {
-        // правило, переводящую строку в верхний регистр
         if (!System::set($data)) {
             return $data;
         }
@@ -429,9 +627,14 @@ class Prepare
         return mb_convert_case($data, MB_CASE_UPPER);
     }
 
+    /**
+     * Переводим строку в нижний регистр
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function lower($data)
     {
-        // правило, переводящую строку в верхний регистр
         if (!System::set($data)) {
             return $data;
         }
@@ -439,21 +642,30 @@ class Prepare
         return mb_convert_case($data, MB_CASE_LOWER);
     }
 
+    /**
+     * Переводим первый символ строки в верхний регистр
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function upperFirst($data)
     {
-        // правило, переводящую строку в верхний регистр
         if (!System::set($data)) {
             return $data;
         }
 
-        return
-            mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER) .
-            mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
+        return mb_convert_case(mb_substr($data, 0, 1), MB_CASE_UPPER)
+            . mb_convert_case(mb_substr($data, 1), MB_CASE_LOWER);
     }
 
+    /**
+     * Переводим каждый первый символ каждого слова в верхний регистр
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function upperEach($data)
     {
-        // правило, переводящую строку в верхний регистр
         if (!System::set($data)) {
             return $data;
         }
@@ -461,17 +673,18 @@ class Prepare
         return mb_convert_case($data, MB_CASE_TITLE);
     }
 
+    /**
+     * Функция которая кодирует данные
+     * на входе нужно указать исходную строку
+     * на выходе отдает готовую строку
+     * кодирование происходит в формат base64
+     * Теперь функция кодирует и данные в формате json
+     *
+     * @param [type] $str
+     * @return void
+     */
     public static function encode($str)
     {
-        /*
-        *  Функция которая кодирует данные
-        *  на входе нужно указать исходную строку
-        *  на выходе отдает готовую строку
-        *  кодирование происходит в формат base64
-        *
-        *  Теперь функция кодирует и данные в формате json
-        */
-
         $type = System::typeOf($str);
 
         if ($type === 'iterable') {
@@ -484,7 +697,7 @@ class Prepare
         //    return null;
         //}
 
-        $len = Strings::len($str) % 3;
+        $len = (int) Strings::len($str) % 3;
         if ($len) {
             $str = Strings::add($str, 3 - $len);
         }
@@ -492,17 +705,18 @@ class Prepare
         return base64_encode($str);
     }
 
+    /**
+     * Функция которая декодирует данные
+     * на входе нужно указать исходную строку
+     * на выходе отдает готовую строку
+     * декодирование происходит из формата base64
+     * Теперь функция декодирует и данные в формате json
+     *
+     * @param [type] $str
+     * @return void
+     */
     public static function decode($str)
     {
-        /*
-        *  Функция которая декодирует данные
-        *  на входе нужно указать исходную строку
-        *  на выходе отдает готовую строку
-        *  декодирование происходит из формата base64
-        *
-        *  Теперь функция декодирует и данные в формате json
-        */
-
         if (!System::typeOf($str, 'scalar')) {
             return null;
         }
@@ -516,14 +730,16 @@ class Prepare
         return $result;
     }
 
+    /**
+     * Функция которая делает хэш данных
+     * на входе нужно указать исходную строку
+     * на выходе отдает готовую строку
+     *
+     * @param [type] $str
+     * @return void
+     */
     public static function hash($str)
     {
-        /*
-        *  Функция которая делает хэш данных
-        *  на входе нужно указать исходную строку
-        *  на выходе отдает готовую строку
-        */
-
         if (!System::typeOf($str, 'scalar')) {
             return null;
         }
@@ -531,15 +747,18 @@ class Prepare
         return md5($str);
     }
 
+    /**
+     * Функция которая проверяет,
+     * соответствует ли переданная строка своему хэшу
+     * на входе нужно указать исходную строку и ее хэш
+     * на выходе отдает результат проверки
+     *
+     * @param [type] $str
+     * @param [type] $hash
+     * @return void
+     */
     public static function matchHash($str, $hash)
     {
-        /*
-        *  Функция которая проверяет,
-        *  соответствует ли переданная строка своему хэшу
-        *  на входе нужно указать исходную строку и ее хэш
-        *  на выходе отдает результат проверки
-        */
-
         if (!System::typeOf($str, 'scalar')) {
             return null;
         }
@@ -547,14 +766,16 @@ class Prepare
         return md5($str) === $hash;
     }
 
+    /**
+     * Функция которая делает необратимое шифрование данных
+     * на входе нужно указать исходную строку
+     * на выходе отдает готовую строку
+     *
+     * @param [type] $str
+     * @return void
+     */
     public static function crypt($str)
     {
-        /*
-        *  Функция которая делает необратимое шифрование данных
-        *  на входе нужно указать исходную строку
-        *  на выходе отдает готовую строку
-        */
-
         if (!System::typeOf($str, 'scalar')) {
             return null;
         }
@@ -562,15 +783,18 @@ class Prepare
         return password_hash($str, PASSWORD_DEFAULT);
     }
 
+    /**
+     * Функция которая проверяет,
+     * соответствует ли переданная строка своему хэшу в необратимом шифровании
+     * на входе нужно указать исходную строку и ее хэш
+     * на выходе отдает результат проверки
+     *
+     * @param [type] $str
+     * @param [type] $hash
+     * @return void
+     */
     public static function matchCrypt($str, $hash)
     {
-        /*
-        *  Функция которая проверяет,
-        *  соответствует ли переданная строка своему хэшу в необратимом шифровании
-        *  на входе нужно указать исходную строку и ее хэш
-        *  на выходе отдает результат проверки
-        */
-
         if (!System::typeOf($str, 'scalar')) {
             return null;
         }
@@ -578,17 +802,20 @@ class Prepare
         return password_verify($str, $hash);
     }
 
+    /**
+     *  Функция которая преобразует строку в объект
+     *  Является синонимом Objects::convert
+     *  Теперь в нее добавлен второй аргумент,
+     *  позволяющий ограничить число элементов в массиве
+     *  положительное значение - от начала,
+     *  отрицательное значение - от конца
+     *
+     * @param [type] $data
+     * @param [type] $num
+     * @return void
+     */
     public static function toObject($data, $num = null)
     {
-        /*
-        *  Функция которая преобразует строку в объект
-        *  Является синонимом Objects::convert
-        *  Теперь в нее добавлен второй аргумент,
-        *  позволяющий ограничить число элементов в массиве
-        *  положительное значение - от начала,
-        *  отрицательное значение - от конца
-        */
-
         $data = Objects::convert($data);
 
         if ($num > 0) {
@@ -600,33 +827,42 @@ class Prepare
         return $data;
     }
 
+    /**
+     * Функция которая преобразует объект в строку
+     * Является синонимом Strings::join
+     *
+     * @param [type] $data
+     * @param string $replace
+     * @return void
+     */
     public static function toString($data, $replace = ':')
     {
-        /*
-        *  Функция которая преобразует объект в строку
-        *  Является синонимом Strings::join
-        */
-
         return Strings::join($data, $replace);
     }
 
+    /**
+     * Функция которая преобразует объект в json
+     * Является синонимом Parser::toJson
+     *
+     * @param [type] $data
+     * @return void
+     */
     public static function toJson($data)
     {
-        /*
-        *  Функция которая преобразует объект в json
-        *  Является синонимом Parser::toJson
-        */
-
         return Parser::toJson($data);
     }
 
+    /**
+     * Функция которая делает замену в строке
+     * Является синонимом Strings::replace
+     *
+     * @param [type] $data
+     * @param [type] $search
+     * @param string $replace
+     * @return void
+     */
     public static function replace($data, $search, $replace = '')
     {
-        /*
-        *  Функция которая делает замену в строке
-        *  Является синонимом Strings::replace
-        */
-
         if (!System::typeOf($data, 'scalar')) {
             return null;
         }

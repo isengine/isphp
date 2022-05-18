@@ -4,9 +4,14 @@ namespace is\Helpers;
 
 class Ip
 {
+    /**
+     * Функция получения реального ip-адреса посетителя
+     *
+     * @param [type] $proxy
+     * @return void
+     */
     public static function real($proxy = null)
     {
-        // функция получения реального ip-адреса посетителя
         $ip = System::server('ip');
 
         if (!$proxy) {
@@ -14,8 +19,8 @@ class Ip
         }
 
         if (
-            isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
-            preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)
+            isset($_SERVER['HTTP_X_FORWARDED_FOR'])
+            && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)
         ) {
             foreach ($matches[0] as $xip) {
                 if (!preg_match('#^(10|172\.16|192\.168)\.#', $xip)) {
@@ -24,18 +29,18 @@ class Ip
                 }
             }
         } elseif (
-            isset($_SERVER['HTTP_CLIENT_IP']) &&
-            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])
+            isset($_SERVER['HTTP_CLIENT_IP'])
+            && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])
         ) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (
-            isset($_SERVER['HTTP_CF_CONNECTING_IP']) &&
-            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CF_CONNECTING_IP'])
+            isset($_SERVER['HTTP_CF_CONNECTING_IP'])
+            && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CF_CONNECTING_IP'])
         ) {
             $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
         } elseif (
-            isset($_SERVER['HTTP_X_REAL_IP']) &&
-            preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_X_REAL_IP'])
+            isset($_SERVER['HTTP_X_REAL_IP'])
+            && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_X_REAL_IP'])
         ) {
             $ip = $_SERVER['HTTP_X_REAL_IP'];
         }
@@ -43,10 +48,15 @@ class Ip
         return $ip;
     }
 
+    /**
+     * Функция проверки ip на присутствие в заданном диапазоне
+     *
+     * @param [type] $ip
+     * @param [type] $ip_base
+     * @return void
+     */
     public static function range($ip, $ip_base)
     {
-        // функция проверки ip на присутствие в заданном диапазоне
-
         $ip = self::convert($ip);
         if (empty($ip) || empty($ip_base) || !is_array($ip_base)) {
             return false;
@@ -82,8 +92,10 @@ class Ip
             }
 
             if (
-                $ip_min && $ip_max &&
-                $ip_min <= $ip && $ip <= $ip_max
+                $ip_min
+                && $ip_max
+                && $ip_min <= $ip
+                && $ip <= $ip_max
             ) {
                 return true;
             }
@@ -93,10 +105,15 @@ class Ip
         return false;
     }
 
+    /**
+     * Служебная функция преобразования ip адреса
+     *
+     * @param [type] $ip
+     * @param [type] $ip_type
+     * @return void
+     */
     public static function convert($ip, $ip_type = null)
     {
-        // служебная функция преобразования ip адреса
-
         $ip = trim($ip);
 
         if (preg_match('/00|\s/', $ip)) {
@@ -123,10 +140,14 @@ class Ip
         }
     }
 
+    /**
+     * Служебная функция преобразования ip адреса из формата cidr для ipv4
+     *
+     * @param [type] $ipv4
+     * @return void
+     */
     public static function convertCIDR4($ipv4)
     {
-        // служебная функция преобразования ip адреса из формата cidr для ipv4
-
         if ($ip = strpos($ipv4, '/')) {
             $n_ip = (1 << (32 - substr($ipv4, 1 + $ip))) - 1;
             $ip_dec = ip2long(substr($ipv4, 0, $ip));
@@ -141,10 +162,14 @@ class Ip
         ];
     }
 
+    /**
+     * Служебная функция преобразования ip адреса из формата cidr для ipv6
+     *
+     * @param [type] $ip
+     * @return void
+     */
     public static function convertCIDR6($ip)
     {
-        // служебная функция преобразования ip адреса из формата cidr для ipv6
-
         if (!preg_match('~^([0-9a-f:]+)[[:punct:]]([0-9]+)$~i', trim($ip), $v_Slices)) {
             return false;
         }

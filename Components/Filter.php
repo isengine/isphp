@@ -75,19 +75,14 @@ class Filter extends Data
                     $num = null;
                     if (Strings::match($i, '_')) {
                         $nums = Strings::split($i, '_');
-                        $num = (
-                            System::type($nums[0], 'numeric') ||
-                            !$nums[0]
-                        ) &&
-                        (
-                            System::type($nums[1], 'numeric') ||
-                            !$nums[1]
-                        );
+                        $num =
+                            (System::type($nums[0], 'numeric') || !$nums[0])
+                            && (System::type($nums[1], 'numeric') || !$nums[1]);
                     }
 
                     if (
-                        $first === '+' ||
-                        $first === '-'
+                        $first === '+'
+                        || $first === '-'
                     ) {
                         $value['except'] = $first === '-' ? true : null;
                         $value['require'] = true;
@@ -161,9 +156,9 @@ class Filter extends Data
         $tpass = $and;
 
         foreach ($this->data as $key => $item) {
-            if ($item['data']) {
+            if (!empty($item['data'])) {
                 $data = System::type($entry, 'object') ? $entry->data : $entry['data'];
-                $data = $data[$item['name']];
+                $data = empty($data[$item['name']]) ? '' : $data[$item['name']];
             } else {
                 $i = $item['name'];
                 $data = System::type($entry, 'object') ? $entry->$i : $entry[$i];

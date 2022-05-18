@@ -36,7 +36,7 @@ class User extends Globals
         $this->special = [];
         if ($this->settings) {
             foreach ($this->settings as $key => $item) {
-                if ($item['special']) {
+                if (!empty($item['special'])) {
                     $this->special[ $item['special'] ][] = $key;
                 }
             }

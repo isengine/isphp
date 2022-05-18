@@ -29,12 +29,11 @@ class Table extends Master
     {
         $json = json_encode($this->filter) . json_encode($this->fields) . json_encode($this->rights);
         $path = $this->path . $this->collection;
-        $this->hash =
-            (Local::matchFile($path) ? md5_file($path) : 0) . '.' .
-            md5($json) . '.' .
-            Strings::len($json) . '.' .
-            (int) $this->settings['all'] . '.' .
-            (int) $this->settings['limit'];
+        $this->hash = (Local::matchFile($path) ? md5_file($path) : 0) . '.'
+            . md5($json) . '.'
+            . Strings::len($json) . '.'
+            . (int) $this->settings['all'] . '.'
+            . (int) $this->settings['limit'];
     }
 
     public function read()
@@ -129,8 +128,8 @@ class Table extends Master
                         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                         if (
-                            Strings::match($i, ':') ||
-                            Strings::match($i, '|')
+                            Strings::match($i, ':')
+                            || Strings::match($i, '|')
                         ) {
                             $i = Parser::fromString($i);
                         }
@@ -146,8 +145,8 @@ class Table extends Master
                         } elseif (Objects::match(['type', 'parents', 'owner'], $k) && System::typeOf($i, 'scalar')) {
                             // Это условие тоже нужно оставить для базовых полей
                             if (
-                                Strings::match($i, ':') ||
-                                Strings::match($i, '|')
+                                Strings::match($i, ':')
+                                || Strings::match($i, '|')
                             ) {
                                 $entry[$k] = Parser::fromString($i);
                             }
