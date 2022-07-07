@@ -313,7 +313,7 @@ class Objects
 
         return array_replace(
             array_slice($haystack, 0, $first, true),
-            array_slice($haystack, $last, 0, true)
+            array_slice($haystack, $last, null, true)
         );
     }
 
