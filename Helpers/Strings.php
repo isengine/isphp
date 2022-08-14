@@ -313,7 +313,7 @@ class Strings
         if (!$item) {
             return;
         }
-
+        $item = (string) $item;
         return $item[0];
     }
 
