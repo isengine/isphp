@@ -35,7 +35,7 @@ class Strings
     public static function find($haystack, $needle, $position = null)
     {
         $pos = System::set($position);
-
+        $haystack = (string) $haystack;
         if ($pos && $position !== 'r') {
             $result = mb_substr($haystack, $position, mb_strlen($needle));
             return $result === $needle ? true : false;
@@ -78,6 +78,7 @@ class Strings
      */
     public static function get($haystack, $index, $length = null, $position = null)
     {
+        $haystack = (string) $haystack;
         if (System::set($length) && !$position) {
             if ($length < 0) {
                 $idx = $index;
